@@ -6,7 +6,7 @@ import MethodologyPage from './methodology'
 describe('scientific content pages', () => {
   it('keeps the methodology scientifically qualified', () => {
     render(<MethodologyPage />)
-    expect(screen.getByRole('heading', { name: '۵. تفسیر و انتشار' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'تفسیر و انتشار.' })).toBeInTheDocument()
     expect(document.querySelector('svg[aria-label="برداشت نخست، t₀"]')).toBeInTheDocument()
     expect(document.querySelectorAll('.paper-figure img')).toHaveLength(0)
     expect(document.querySelectorAll('.paper-figure svg')).toHaveLength(3)
@@ -19,7 +19,7 @@ describe('scientific content pages', () => {
   it('provides the complete English methodology', () => {
     render(<MethodologyPage />)
     fireEvent.click(screen.getByRole('button', { name: 'English' }))
-    expect(screen.getByRole('heading', { name: '2. Interferometric observation' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Interferometric observation.' })).toBeInTheDocument()
     expect(screen.getByText(/more than 6,000 Sentinel-1 scenes/)).toBeInTheDocument()
     expect(screen.getByText(/displays no analytical map or rate/)).toBeInTheDocument()
     expect(document.querySelector('.paper')?.textContent).not.toMatch(/synthetic|fixture/i)
