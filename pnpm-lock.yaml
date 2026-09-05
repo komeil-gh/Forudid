@@ -10,7 +10,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@fontsource-variable/noto-naskh-arabic':
+      '@fontsource-variable/estedad':
         specifier: 5.3.0
         version: 5.3.0
       '@fontsource-variable/vazirmatn':
@@ -31,6 +31,9 @@ importers:
       echarts:
         specifier: ^6.0.0
         version: 6.1.0
+      katex:
+        specifier: ^0.18.5
+        version: 0.18.5
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.8)
@@ -474,8 +477,8 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@fontsource-variable/noto-naskh-arabic@5.3.0':
-    resolution: {integrity: sha512-Ot0G5iln5MeLPKp1WNt6AGi4KHbPIVm0GEow2ED6rZ+8Rao+OuswhX4D+RPerc3aQ6teneLdqXSL8VPGorJvGg==}
+  '@fontsource-variable/estedad@5.3.0':
+    resolution: {integrity: sha512-9x3G4AhfOKL+Ixyv2SUnoC7Q7Z/+1ks3zk8kp6/Iu28gGo1ygQNwOta4cePnwuwcmgOnkZX4DRgM5YkCjV3pFg==}
 
   '@fontsource-variable/vazirmatn@5.3.0':
     resolution: {integrity: sha512-ZA68W8JHbMdNzzwjYHUWKB2PH22QpxNEnk0ukcXM+XiqYMV6ZWJZAKuNXcrMR2JjuIAwsfAU3KknCXPI6wXUvw==}
@@ -2332,6 +2335,10 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
+  katex@0.18.5:
+    resolution: {integrity: sha512-1FU5H3RjGJVj6GT9fMjf2uMIXmPQp232aXS3UEeQzf0dxefHg/CKMvNB3DuOC46LFG/E5PNxrE8dOwB782FDGg==}
+    hasBin: true
+
   kdbush@4.1.0:
     resolution: {integrity: sha512-e9vurzrXJQrFX6ckpHP3bvj5l+9CnYzkxDNnNQ1h2QTqdWsUAJgXiKdGNcOa1EY85dU8KbQ+z/FdQdB7P+9yfQ==}
 
@@ -3520,7 +3527,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@fontsource-variable/noto-naskh-arabic@5.3.0': {}
+  '@fontsource-variable/estedad@5.3.0': {}
 
   '@fontsource-variable/vazirmatn@5.3.0': {}
 
@@ -5492,6 +5499,10 @@ snapshots:
       graceful-fs: 4.2.11
 
   jsonpointer@5.0.1: {}
+
+  katex@0.18.5:
+    dependencies:
+      commander: 15.0.0
 
   kdbush@4.1.0: {}
 
