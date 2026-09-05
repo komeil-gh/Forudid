@@ -38,7 +38,7 @@ describe('scientific content pages', () => {
     expect(screen.getByRole('contentinfo')).toHaveTextContent('فرودید | پایش ماهواره‌ای فرونشست ایران زمین')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('فرودید تلاشی شخصی و مستقل است')
     expect(document.querySelectorAll('.about-source-strip img')).toHaveLength(4)
-    expect(document.querySelectorAll('.about-source-strip a')).toHaveLength(5)
+    expect(document.querySelectorAll('.about-site-footer a')).toHaveLength(5)
     expect(screen.getAllByRole('button', { name: /معرفی/ })).toHaveLength(8)
     expect(document.querySelector('.about-letter-watermark')).toHaveAttribute('src', '/brand/selected/forudid-mark-black.png')
     expect(document.querySelector('.about-page')?.textContent).not.toContain(String.fromCodePoint(8212))

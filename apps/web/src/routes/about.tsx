@@ -1,4 +1,4 @@
-import { HoverCard } from 'radix-ui'
+import { HoverCard, Tooltip } from 'radix-ui'
 import { useLanguage, type Language } from '../i18n'
 import './about.css'
 
@@ -150,17 +150,26 @@ export default function AboutPage() {
     <footer className="about-site-footer">
       <div className="about-footer-brand">
         <span className="about-footer-mark" aria-hidden="true"><img src="/brand/selected/forudid-mark-black.png" alt="" /></span>
-        <div><span>{language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}</span>
-          <small>{language === 'fa' ? 'فرودید تلاشی شخصی و مستقل است و به هیچ نهاد یا سازمانی وابسته نیست.' : 'Forudid is an independent personal project and is not affiliated with any institution or organization.'}</small></div>
+        <span>{language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}</span>
       </div>
       <div className="about-source-strip">
-        <small>{language === 'fa' ? 'داده و منابع' : 'Data & references'}</small>
+        <Tooltip.Provider delayDuration={180}>
         <nav aria-label={language === 'fa' ? 'منابع داده و مقاله' : 'Data and publication sources'}>
-          {sourceMarks.map(source => <a key={source.name} className={`source-mark source-mark-${source.className}`}
+          {sourceMarks.map(source => <Tooltip.Root key={source.name}>
+            <Tooltip.Trigger asChild><a className={`source-mark source-mark-${source.className}`}
             href={source.href} target="_blank" rel="noreferrer" aria-label={source.name}>
-            <span><img src={source.logo} alt="" /></span><small>{language === 'fa' ? source.fa : source.en}</small>
-          </a>)}
+            <span><img src={source.logo} alt="" /></span>
+          </a></Tooltip.Trigger>
+            <Tooltip.Portal><Tooltip.Content className="source-tooltip" side="top" sideOffset={10} collisionPadding={16} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+              {language === 'fa' ? source.fa : source.en}
+              <Tooltip.Arrow className="source-tooltip-arrow" />
+            </Tooltip.Content></Tooltip.Portal>
+          </Tooltip.Root>)}
         </nav>
+        </Tooltip.Provider>
+      </div>
+      <div className="about-footer-notes">
+        <p>{language === 'fa' ? 'فرودید تلاشی شخصی و مستقل است و به هیچ نهاد یا سازمانی وابسته نیست.' : 'Forudid is an independent personal project and is not affiliated with any institution or organization.'}</p>
         <p>{language === 'fa' ? 'استخراج شبکهٔ زیرساخت از OpenStreetMap به‌وسیلهٔ ' : 'OpenStreetMap infrastructure extract provided by '}
           <a href="https://download.geofabrik.de/asia/iran.html" target="_blank" rel="noreferrer">Geofabrik</a></p>
       </div>
