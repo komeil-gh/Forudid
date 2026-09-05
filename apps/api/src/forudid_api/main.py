@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from forudid_api import catalog, infrastructure, points, sources, styles
+from forudid_api import catalog, exposure, infrastructure, points, sources, styles
 from forudid_api.config import settings
 from forudid_api.db import AOI, Asset, Product, Run, session
 from forudid_api.schemas import (
@@ -43,6 +43,7 @@ app.add_middleware(
 app.include_router(PublishedTiler().router, prefix="/tiles", tags=["tiles"])
 app.include_router(sources.router)
 app.include_router(infrastructure.router)
+app.include_router(exposure.router)
 DB = Annotated[Session, Depends(session)]
 Lon = Annotated[float, Query(ge=-180, le=180, allow_inf_nan=False)]
 Lat = Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)]

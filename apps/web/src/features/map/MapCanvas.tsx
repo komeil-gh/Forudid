@@ -22,9 +22,10 @@ const localStyle: maplibre.StyleSpecification = {
   version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
     paint: { 'background-color': '#eaf0f3' } }],
 }
-export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry }:
+export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint }:
   { state: MapSearch; product?: ProductInfo; style?: string;
     selectedGeometry?: LineGeometry;
+    profilePoint?: { lon: number; lat: number };
     update: (values: Partial<MapSearch>) => void; selectPoint: (lon: number, lat: number) => void }) {
   const { language, messages: m } = useLanguage()
   const ref = useRef<MapRef>(null)
@@ -115,6 +116,8 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
         longitude={state.pointLon} latitude={state.pointLat}><span className="point-marker"><Crosshair size={26} /></span></Marker>}
       {product?.reference && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>
         <span className="reference-marker" title={m.reference}>REF</span></Marker>}
+      {profilePoint && <Marker longitude={profilePoint.lon} latitude={profilePoint.lat}>
+        <span className="point-marker" data-testid="profile-map-marker"><Crosshair size={26} /></span></Marker>}
     </Map>
     {error && <p className="map-warning" role="alert">{error}</p>}
     {vectorError && state.infrastructure !== 'none' && <p className="map-warning" role="alert">{language === 'fa' ? 'لایهٔ زیرساخت در دسترس نیست؛ دادهٔ تغییرشکل مستقل نمایش داده می‌شود.' : 'The infrastructure layer is unavailable; deformation data remain independently visible.'}</p>}

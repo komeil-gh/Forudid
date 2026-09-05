@@ -116,6 +116,70 @@ class InfrastructureAsset(Record):
     data_quality: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
+class AnalysisMethod(Record):
+    __tablename__ = "analysis_methods"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('experimental','review','validated','deprecated')", name="method_status"
+        ),
+    )
+    version: Mapped[str] = mapped_column(unique=True)
+    status: Mapped[str]
+    definition: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class AnalysisRun(Record):
+    __tablename__ = "analysis_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('processing','published','failed')", name="analysis_status"),
+        CheckConstraint("signature ~ '^[0-9a-f]{64}$'", name="analysis_signature"),
+    )
+    method_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_methods.id"))
+    product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"), index=True)
+    source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"), index=True)
+    signature: Mapped[str] = mapped_column(String(64), unique=True)
+    inputs: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    status: Mapped[str]
+    expected_assets: Mapped[int]
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error: Mapped[str | None]
+
+
+class AssetExposureSummary(Record):
+    __tablename__ = "asset_exposure_summaries"
+    __table_args__ = (
+        UniqueConstraint("analysis_run_id", "asset_id", name="exposure_summary_identity"),
+        CheckConstraint("coverage_fraction BETWEEN 0 AND 1", name="exposure_coverage"),
+    )
+    analysis_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), index=True)
+    asset_id: Mapped[UUID] = mapped_column(ForeignKey("assets.id"), index=True)
+    total_length_m: Mapped[float]
+    valid_length_m: Mapped[float]
+    coverage_fraction: Mapped[float]
+    segment_count: Mapped[int]
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    profile_key: Mapped[str] = mapped_column(unique=True)
+    checksum_sha256: Mapped[str] = mapped_column(String(64))
+
+
+class ExposureSegment(Record):
+    __tablename__ = "exposure_segments"
+    __table_args__ = (
+        UniqueConstraint("summary_id", "ordinal", name="exposure_segment_identity"),
+        CheckConstraint(
+            "end_chainage_m > start_chainage_m AND start_chainage_m >= 0", name="segment_chainage"
+        ),
+        CheckConstraint("ST_IsValid(geom) AND NOT ST_IsEmpty(geom)", name="segment_geometry"),
+    )
+    summary_id: Mapped[UUID] = mapped_column(ForeignKey("asset_exposure_summaries.id"), index=True)
+    ordinal: Mapped[int]
+    start_chainage_m: Mapped[float]
+    end_chainage_m: Mapped[float]
+    band_index: Mapped[int | None]
+    geom = mapped_column(Geometry("LINESTRING", srid=4326), nullable=False)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
 class Run(Record):
     __tablename__ = "processing_runs"
     __table_args__ = (

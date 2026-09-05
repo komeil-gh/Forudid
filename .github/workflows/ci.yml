@@ -9,6 +9,7 @@ jobs:
       FORUDID_REAL_SOURCE_TESTS: '1'
       FORUDID_OSM_TESTS: '1'
       FORUDID_MARTIN_TESTS: '1'
+      FORUDID_EXPOSURE_TESTS: '1'
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4

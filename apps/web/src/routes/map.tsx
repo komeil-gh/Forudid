@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import { Layers, X } from 'lucide-react'
 import { mapRoute } from '../app/router'
-import { useListProducts, useGetLegend, useGetInfrastructureAsset } from '../generated/api/forudid'
+import { useListProducts, useGetLegend, useGetInfrastructureAsset, type ProfileSample } from '../generated/api/forudid'
 import { defaultSearch, roundCoordinate, type MapSearch } from '../lib/search'
 import { MapCanvas } from '../features/map/MapCanvas'
 import { LayerPanel } from '../features/layers/LayerPanel'
@@ -20,6 +20,9 @@ export default function MapPage() {
   const state = mapRoute.useSearch(), navigate = mapRoute.useNavigate()
   const [metadataOpen, setMetadataOpen] = useState(false)
   const [layersOpen, setLayersOpen] = useState(false)
+  const [profilePoint, setProfilePoint] = useState<{ asset: string; sample: ProfileSample }>()
+  const inspectProfile = useCallback((sample?: ProfileSample) => setProfilePoint(
+    sample && state.asset ? { asset: state.asset, sample } : undefined), [state.asset])
   const products = useListProducts({ aoi: state.aoi, orbit: state.orbit, run: state.run })
   const choices = publishedRealProducts(products.data || [])
   const product = state.product ? choices.find(p => p.id === state.product && p.kind === state.layer) :
@@ -43,6 +46,7 @@ export default function MapPage() {
     <aside className="desktop-sidebar"><LayerPanel {...panelProps} /></aside>
     <div className="map-workspace"><div className="map-region">
       <MapCanvas state={state} product={product} style={legend.data?.style} update={update} selectPoint={selectPoint}
+        profilePoint={profilePoint && profilePoint.asset === state.asset && showAsset ? profilePoint.sample : undefined}
         selectedGeometry={showAsset ? asset.data?.geometry : undefined} />
       {products.isPending ? <div className="map-message"><Status /></div> : products.isError ?
         <div className="map-message"><Status error retry={() => void products.refetch()} /></div> : !product ?
@@ -60,6 +64,7 @@ export default function MapPage() {
     </div>
       {showPoint && <PointPanel state={state} product={product} close={() => update({ panel: 'none' })} />}
       {showAsset && <AssetPanel data={asset.data} pending={asset.isPending} error={asset.isError}
+        productId={product?.id} onInspect={inspectProfile}
         retry={() => void asset.refetch()} close={() => update({ panel: 'none', asset: undefined })} />}
     </div>{product && <MetadataDialog product={product} open={metadataOpen} onOpenChange={setMetadataOpen} />}
   </main>

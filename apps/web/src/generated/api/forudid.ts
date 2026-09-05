@@ -59,6 +59,26 @@ export interface ErrorResponse {
   error: ErrorDetail;
 }
 
+export type ExposureSummaryInputs = { [key: string]: unknown };
+
+export type ExposureSummaryMetrics = { [key: string]: unknown };
+
+export interface ExposureSummary {
+  analysis_run_id: string;
+  asset_id: string;
+  checksum_sha256: string;
+  coverage_fraction: number;
+  disclaimer?: string;
+  inputs: ExposureSummaryInputs;
+  method_status: string;
+  method_version: string;
+  metrics: ExposureSummaryMetrics;
+  segment_count: number;
+  total_length_m: number;
+  unit?: 'mm/year';
+  valid_length_m: number;
+}
+
 export interface LineGeometry {
   /**
      * @items.minItems 2
@@ -229,6 +249,37 @@ export interface ProductInfo {
   unit: string;
 }
 
+export type ProfileSampleQuality = typeof ProfileSampleQuality[keyof typeof ProfileSampleQuality];
+
+
+export const ProfileSampleQuality = {
+  source_value: 'source_value',
+  nodata: 'nodata',
+} as const;
+
+export interface ProfileSample {
+  angular_distortion: number | null;
+  band_index: number | null;
+  chainage_m: number;
+  end_chainage_m: number;
+  gradient_proxy: number | null;
+  hazard_class: string | null;
+  lat: number;
+  lon: number;
+  quality: ProfileSampleQuality;
+  start_chainage_m: number;
+  uncertainty: number | null;
+  velocity: number | null;
+}
+
+export interface ProfilePage {
+  analysis_run_id: string;
+  asset_id: string;
+  items: ProfileSample[];
+  next_page: number | null;
+  total: number;
+}
+
 export type QualityMetrics = { [key: string]: unknown };
 
 export type QualityQuality = typeof QualityQuality[keyof typeof QualityQuality];
@@ -263,6 +314,16 @@ export interface RunInfo {
   processing_profile: string;
   started_at: string | null;
   status: string;
+}
+
+export type SegmentPageFeaturesItem = { [key: string]: unknown };
+
+export interface SegmentPage {
+  analysis_run_id: string;
+  asset_id: string;
+  features: SegmentPageFeaturesItem[];
+  next_offset: number | null;
+  type?: 'FeatureCollection';
 }
 
 export interface SourceFileInfo {
@@ -326,6 +387,27 @@ export interface VersionPage {
   next_cursor: string | null;
 }
 
+export type GetAssetProfileParams = {
+/**
+ * @minimum 0
+ * @maximum 199
+ */
+page?: number;
+};
+
+export type GetExposureSegmentsParams = {
+/**
+ * @minimum 0
+ * @maximum 200000
+ */
+offset?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
 export type ListInfrastructureAssetsParams = {
 source_version_id?: string | null;
 asset_type?: ListInfrastructureAssetsAssetType;
@@ -346,6 +428,11 @@ export const ListInfrastructureAssetsAssetType = {
   road: 'road',
   railway: 'railway',
 } as const;
+
+export type GetAssetExposureParams = {
+run_id?: string | null;
+product_id?: string | null;
+};
 
 export type GetPointSummaryParams = {
 /**
@@ -450,6 +537,254 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetAssetProfileUrl = (runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/analyses/${runId}/assets/${assetId}/profile?${stringifiedParams}` : `/api/v1/analyses/${runId}/assets/${assetId}/profile`
+}
+
+/**
+ * @summary Profile
+ */
+export const getAssetProfile = async (runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams, options?: Parameters<typeof apiFetch>[1]): Promise<ProfilePage> => {
+
+  return apiFetch<ProfilePage>(getGetAssetProfileUrl(runId,assetId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAssetProfileQueryKey = (runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams,) => {
+    return [
+    `/api/v1/analyses/${runId}/assets/${assetId}/profile`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAssetProfileQueryOptions = <TData = Awaited<ReturnType<typeof getAssetProfile>>, TError = ErrorResponse>(runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAssetProfileQueryKey(runId,assetId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAssetProfile>>> = ({ signal }) => getAssetProfile(runId,assetId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAssetProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getAssetProfile>>>
+export type GetAssetProfileQueryError = ErrorResponse
+
+
+export function useGetAssetProfile<TData = Awaited<ReturnType<typeof getAssetProfile>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params: undefined |  GetAssetProfileParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAssetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof getAssetProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAssetProfile<TData = Awaited<ReturnType<typeof getAssetProfile>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAssetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof getAssetProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAssetProfile<TData = Awaited<ReturnType<typeof getAssetProfile>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Profile
+ */
+
+export function useGetAssetProfile<TData = Awaited<ReturnType<typeof getAssetProfile>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetAssetProfileParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetProfile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAssetProfileQueryOptions(runId,assetId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetExposureSegmentsUrl = (runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/analyses/${runId}/assets/${assetId}/segments?${stringifiedParams}` : `/api/v1/analyses/${runId}/assets/${assetId}/segments`
+}
+
+/**
+ * @summary Segments
+ */
+export const getExposureSegments = async (runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams, options?: Parameters<typeof apiFetch>[1]): Promise<SegmentPage> => {
+
+  return apiFetch<SegmentPage>(getGetExposureSegmentsUrl(runId,assetId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetExposureSegmentsQueryKey = (runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams,) => {
+    return [
+    `/api/v1/analyses/${runId}/assets/${assetId}/segments`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetExposureSegmentsQueryOptions = <TData = Awaited<ReturnType<typeof getExposureSegments>>, TError = ErrorResponse>(runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetExposureSegmentsQueryKey(runId,assetId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getExposureSegments>>> = ({ signal }) => getExposureSegments(runId,assetId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetExposureSegmentsQueryResult = NonNullable<Awaited<ReturnType<typeof getExposureSegments>>>
+export type GetExposureSegmentsQueryError = ErrorResponse
+
+
+export function useGetExposureSegments<TData = Awaited<ReturnType<typeof getExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params: undefined |  GetExposureSegmentsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getExposureSegments>>,
+          TError,
+          Awaited<ReturnType<typeof getExposureSegments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetExposureSegments<TData = Awaited<ReturnType<typeof getExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getExposureSegments>>,
+          TError,
+          Awaited<ReturnType<typeof getExposureSegments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetExposureSegments<TData = Awaited<ReturnType<typeof getExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Segments
+ */
+
+export function useGetExposureSegments<TData = Awaited<ReturnType<typeof getExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string,
+    params?: GetExposureSegmentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetExposureSegmentsQueryOptions(runId,assetId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListAreasUrl = () => {
 
@@ -850,6 +1185,122 @@ export function useGetInfrastructureAsset<TData = Awaited<ReturnType<typeof getI
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetInfrastructureAssetQueryOptions(assetId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAssetExposureUrl = (assetId: string,
+    params?: GetAssetExposureParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/assets/${assetId}/exposure?${stringifiedParams}` : `/api/v1/assets/${assetId}/exposure`
+}
+
+/**
+ * @summary Summary
+ */
+export const getAssetExposure = async (assetId: string,
+    params?: GetAssetExposureParams, options?: Parameters<typeof apiFetch>[1]): Promise<ExposureSummary> => {
+
+  return apiFetch<ExposureSummary>(getGetAssetExposureUrl(assetId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAssetExposureQueryKey = (assetId: string,
+    params?: GetAssetExposureParams,) => {
+    return [
+    `/api/v1/assets/${assetId}/exposure`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAssetExposureQueryOptions = <TData = Awaited<ReturnType<typeof getAssetExposure>>, TError = ErrorResponse>(assetId: string,
+    params?: GetAssetExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAssetExposureQueryKey(assetId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAssetExposure>>> = ({ signal }) => getAssetExposure(assetId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAssetExposureQueryResult = NonNullable<Awaited<ReturnType<typeof getAssetExposure>>>
+export type GetAssetExposureQueryError = ErrorResponse
+
+
+export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetExposure>>, TError = ErrorResponse>(
+ assetId: string,
+    params: undefined |  GetAssetExposureParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAssetExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getAssetExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetExposure>>, TError = ErrorResponse>(
+ assetId: string,
+    params?: GetAssetExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAssetExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getAssetExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetExposure>>, TError = ErrorResponse>(
+ assetId: string,
+    params?: GetAssetExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Summary
+ */
+
+export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetExposure>>, TError = ErrorResponse>(
+ assetId: string,
+    params?: GetAssetExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAssetExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAssetExposureQueryOptions(assetId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
