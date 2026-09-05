@@ -1,42 +1,166 @@
-.scientific-page.about-page { position: relative; isolation: isolate; max-width: 704px;
-  padding: 1px 32px 80px; color: #252525; font-family: 'Estedad Variable', sans-serif; }
-.about-page > :not(.about-binary-watermark) { position: relative; z-index: 1; }
-.about-binary-watermark { position: absolute; z-index: 0; bottom: 96px; left: 20px;
-  width: min(34%, 220px); aspect-ratio: 1; overflow: hidden; color: #111;
-  opacity: .27; pointer-events: none; mask: url('/brand/selected/forudid-mark-black.png') center/contain no-repeat;
-  -webkit-mask: url('/brand/selected/forudid-mark-black.png') center/contain no-repeat; }
-.about-page[dir='ltr'] .about-binary-watermark { right: 20px; left: auto; }
-.about-binary-watermark span { display: block; width: max-content;
-  font: 900 16px/1.05 'SFMono-Regular', Consolas, monospace; letter-spacing: 2px; }
-.about-page .about-heading { margin: 64px 0 32px; }
-.about-page .about-heading h1 { margin: 0; font-size: clamp(20px, 2.8vw, 25px); line-height: 1.8; font-weight: 550; }
-.about-page .biruni-quote { margin: 0 0 36px; padding: 0; border: 0; }
-.about-page .biruni-quote blockquote { margin: 0 0 16px; font-size: 16px; line-height: 2.05; font-weight: 400; }
-.about-page .biruni-quote figcaption { max-width: none; font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
-.about-page .about-letter p { margin: 0 0 22px; font-size: 15px; line-height: 2.1; text-align: start; }
-.about-page .about-letter .about-opening { margin-bottom: 22px; font-size: 15px; }
-.about-page .about-letter .dedication { margin: 28px 0 0; font-size: 15px; }
-.about-page .signature { min-height: 190px; gap: 6px; margin: 32px 0 0; padding: 0; padding-inline-end: 240px; border: 0; }
-.about-page .signature p { margin: 0; font-size: 14px; }
-.about-page .signature strong { font: 500 15px/1.8 'Estedad Variable', sans-serif; }
-.about-page .signature span, .about-page .signature time { font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
-.about-page[dir='ltr'] { font-family: Georgia, 'Times New Roman', serif; }
-.about-page[dir='ltr'] .person-note { direction: ltr; text-align: left; font-family: Georgia, 'Times New Roman', serif; }
+@font-face {
+  font-family: 'XB Zar';
+  src: url('/fonts/xb-zar/XB Zar.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'XB Zar';
+  src: url('/fonts/xb-zar/XB ZarBd.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+.scientific-page.about-page {
+  position: relative;
+  isolation: isolate;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1px 42px 58px;
+  overflow: hidden;
+  color: #20201f;
+  background: #fff;
+  font-family: 'XB Zar', 'Noto Naskh Arabic Variable', serif;
+}
+
+.about-page > :not(.about-letter-watermark) { position: relative; z-index: 1; }
+.about-letter-watermark {
+  position: absolute;
+  z-index: 0;
+  top: 380px;
+  left: 50%;
+  width: min(78%, 560px);
+  height: auto;
+  transform: translateX(-50%);
+  opacity: .045;
+  filter: grayscale(1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.about-page .biruni-quote {
+  margin: 76px 0 52px;
+  padding: 0;
+  border: 0;
+}
+.about-page .biruni-quote blockquote {
+  margin: 0 0 20px;
+  quotes: '«' '»';
+  font-size: 22px;
+  line-height: 1.95;
+  font-weight: 400;
+}
+.about-page .biruni-quote blockquote::before {
+  content: open-quote;
+  margin-inline-end: .16em;
+  color: #888883;
+}
+.about-page .biruni-quote blockquote::after { content: close-quote; margin-inline-start: .16em; color: #888883; }
+.about-page .biruni-quote figcaption {
+  max-width: 620px;
+  color: #747470;
+  font: 400 11px/2 'Vazirmatn Variable', sans-serif;
+}
+
+.about-page .about-letter p {
+  margin: 0 0 24px;
+  font-size: 20px;
+  line-height: 2;
+  text-align: start;
+}
+.about-page .about-letter .about-opening { margin-bottom: 29px; font-weight: 530; }
+.about-page .about-letter .dedication { margin: 34px 0 0; }
+.about-page .signature {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 42px;
+}
+.about-page .signature p { margin: 0; font-size: 15px; }
+.about-page .signature strong { font: 600 15px/1.9 'Estedad Variable', sans-serif; }
+.about-page .signature span,
+.about-page .signature time { color: #73736f; font: 400 11px/1.9 'Vazirmatn Variable', sans-serif; }
 .about-page .signature time { margin-top: 8px; }
-.about-page .about-site-footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #d2d2d2;
-  color: #555; font: 500 10px/1.9 'Estedad Variable', sans-serif; }
-.about-page .person-trigger { padding: 0; border-bottom: 0; color: inherit; text-decoration: underline;
-  text-decoration-color: #b7b7b7; text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.about-page .person-trigger:hover { color: #111; text-decoration-color: #333; }
+
+.about-page[dir='ltr'] { font-family: 'Source Serif 4 Variable', serif; }
+.about-page[dir='ltr'] .biruni-quote { padding: 0; }
+.about-page[dir='ltr'] .biruni-quote blockquote { font-size: 18px; line-height: 1.72; font-style: italic; font-weight: 450; }
+.about-page[dir='ltr'] .biruni-quote blockquote { quotes: '“' '”'; }
+.about-page[dir='ltr'] .about-letter p { font-size: 17px; line-height: 1.76; }
+.about-page[dir='ltr'] .signature strong { font-family: 'Source Serif 4 Variable', serif; font-weight: 620; }
+.about-page[dir='ltr'] .person-note { direction: ltr; text-align: left; font-family: 'Source Serif 4 Variable', serif; }
+
+.about-page .person-trigger {
+  padding: 0;
+  border-bottom: 0;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #aaa9a4;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.about-page .person-trigger:hover { color: #000; text-decoration-color: #222; }
 .about-page .person-trigger:focus-visible { outline: 2px solid #555; outline-offset: 3px; }
+
+.about-page .about-site-footer {
+  display: grid;
+  gap: 18px;
+  margin-top: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #d1d1cd;
+  color: #454542;
+  font: 500 10.5px/1.8 'Vazirmatn Variable', sans-serif;
+}
+.about-footer-brand { display: flex; align-items: center; gap: 12px; }
+.about-footer-mark {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+}
+.about-footer-mark img { display: block; width: 24px; height: 24px; opacity: .78; }
+.about-footer-mark::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border: 1px solid #50504d;
+  border-radius: 50%;
+  animation: footer-signal 3.6s cubic-bezier(.22, 1, .36, 1) infinite;
+}
+.about-source-strip { display: grid; gap: 9px; padding-top: 14px; border-top: 1px solid #ecece9; }
+.about-source-strip small { color: #969690; font-size: 8.5px; font-weight: 500; }
+.about-source-strip > div { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+.source-mark { color: #343431; opacity: .46; filter: grayscale(1); transition: opacity 160ms ease-out; }
+.source-mark:hover, .source-mark:focus-visible { opacity: .78; }
+.source-mark-sentinel { font: 700 10px/1 'Vazirmatn Variable', sans-serif; letter-spacing: .05em; }
+.source-mark-zenodo { font: 650 13px/1 'Source Serif 4 Variable', serif; }
+.source-mark-science { font: italic 600 11px/1 'Source Serif 4 Variable', serif; }
+.source-mark-osm { font: 650 9px/1 'Vazirmatn Variable', sans-serif; letter-spacing: -.02em; }
+.source-mark-geofabrik { font: 750 8.5px/1 'Vazirmatn Variable', sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+@keyframes footer-signal {
+  0%, 55% { transform: scale(.72); opacity: 0; }
+  68% { opacity: .48; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
 @media (max-width: 760px) {
-  .scientific-page.about-page { padding: 1px 24px 56px; }
-  .about-page .about-heading { margin: 36px 0 24px; }
-  .about-page .biruni-quote { margin-bottom: 28px; }
-  .about-page .about-letter p { font-size: 14px; line-height: 2.05; }
-  .about-page .biruni-quote blockquote { font-size: 15px; }
-  .about-binary-watermark { bottom: 84px; left: 12px; width: min(38%, 160px); opacity: .22; }
-  .about-page[dir='ltr'] .about-binary-watermark { right: 12px; left: auto; }
-  .about-page .signature { min-height: 155px; padding-inline-end: 170px; }
-  .about-page .about-site-footer { margin-top: 38px; }
+  .scientific-page.about-page { padding: 1px 24px 42px; }
+  .about-letter-watermark { top: 450px; width: 92%; opacity: .04; }
+  .about-page .biruni-quote { margin: 44px 0 38px; }
+  .about-page .biruni-quote blockquote { font-size: 20px; line-height: 1.9; }
+  .about-page .biruni-quote figcaption { font-size: 10.5px; }
+  .about-page .about-letter p { font-size: 19px; line-height: 1.95; }
+  .about-page[dir='ltr'] .biruni-quote blockquote { font-size: 17px; line-height: 1.7; }
+  .about-page[dir='ltr'] .about-letter p { font-size: 16.5px; line-height: 1.72; }
+  .about-page .signature { min-height: 150px; margin-top: 34px; }
+  .about-page .about-site-footer { margin-top: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-footer-mark::after { animation: none; opacity: .2; }
 }

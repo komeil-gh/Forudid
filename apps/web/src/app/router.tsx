@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
 import { defaultSearch, searchSchema } from '../lib/search'
-import { useLanguage } from '../i18n'
+import { useLanguage, type Language } from '../i18n'
 import { Button } from '../components/ui/button'
 import { Status } from '../components/Status'
 import { Boundary } from '../components/Boundary'
@@ -13,10 +13,18 @@ const MapPage = lazy(() => import('../routes/map'))
 const SourcesPage = lazy(() => import('../routes/sources'))
 function Shell() {
   const { language, setLanguage, messages: m } = useLanguage()
+  const selectLanguage = (nextLanguage: Language) => {
+    if (nextLanguage === language) return
+    const viewTransition = (document as Document & { startViewTransition?: (update: () => void) => void }).startViewTransition
+    if (viewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      viewTransition.call(document, () => setLanguage(nextLanguage))
+    } else setLanguage(nextLanguage)
+  }
   return <><header className="header">
     <Link to="/" className="brand" aria-label={m.home}>
       <img className="brand-mark" src="/brand/selected/forudid-mark-black.png" alt="" width="42" height="42" />
-      <span className="brand-wordmark"><strong>{language === 'fa' ? 'فرودید' : 'Forudid'}</strong><span className="brand-en" dir="ltr">FORUDID</span></span></Link>
+      <span className="brand-wordmark"><strong>{language === 'fa' ? 'فرودید' : 'Forudid'}</strong>
+        <span className="brand-en">{language === 'fa' ? 'پایش زمین ایران' : 'IRAN EARTH OBSERVATION'}</span></span></Link>
     <nav aria-label={language === 'fa' ? 'ناوبری اصلی' : 'Main navigation'}><Link to="/map" search={defaultSearch}>{m.map}</Link>
       <Link to="/sources">{m.sources}</Link><Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link></nav>
     <details className="mobile-navigation"><summary>{m.menu}</summary>
@@ -25,8 +33,8 @@ function Shell() {
         <Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link>
       </nav></details>
     <div className="language-switch" role="group" aria-label={m.language}>
-      <button type="button" aria-pressed={language === 'fa'} onClick={() => setLanguage('fa')}>فا</button>
-      <button type="button" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>EN</button>
+      <button type="button" aria-pressed={language === 'fa'} onClick={() => selectLanguage('fa')}>فا</button>
+      <button type="button" aria-pressed={language === 'en'} onClick={() => selectLanguage('en')}>EN</button>
     </div>
   </header><Boundary fallback={m.unexpected}><Outlet /></Boundary></>
 }

@@ -69,12 +69,16 @@ const people = [
   },
 ] as const
 
-function BinaryLogoWatermark() {
-  return <div className="about-binary-watermark" aria-hidden="true">
-    {Array.from({ length: 24 }, (_, row) => <span key={row}>
-      {row % 2 ? '10100110100101101001011010010110' : '01011001011010010110100101101001'}
-    </span>)}
-  </div>
+const sourceMarks = [
+  { name: 'Sentinel-1', className: 'sentinel', href: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1' },
+  { name: 'Zenodo', className: 'zenodo', href: 'https://zenodo.org/records/10815578' },
+  { name: 'Science Advances', className: 'science', href: 'https://doi.org/10.1126/sciadv.adk3039' },
+  { name: 'OpenStreetMap', className: 'osm', href: 'https://www.openstreetmap.org/copyright' },
+  { name: 'Geofabrik', className: 'geofabrik', href: 'https://download.geofabrik.de/asia/iran.html' },
+] as const
+
+function LetterWatermark() {
+  return <img className="about-letter-watermark" src="/brand/selected/forudid-mark-black.png" alt="" aria-hidden="true" />
 }
 
 function PersonNote({ person, language }: { person: (typeof people)[number], language: Language }) {
@@ -106,12 +110,8 @@ function PeopleList({ language }: { language: Language }) {
 export default function AboutPage() {
   const { language } = useLanguage()
   return <main className="scientific-page about-page" lang={language} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-    <BinaryLogoWatermark />
+    <LetterWatermark />
     {language === 'fa' ? <>
-    <header className="about-heading">
-      <h1>به یاد آنان که پیش از ما اندازه گرفتند</h1>
-    </header>
-
     <figure className="biruni-quote">
       <blockquote>وظیفهٔ هر کس در دانش خویش آن است که کوششِ پیشینیان را با سپاس بپذیرد، کاستی را اگر یافت اصلاح کند، و آنچه بر او روشن شد برای آیندگان به یادگار بگذارد.</blockquote>
       <figcaption>ابوریحان محمد بن احمد بیرونی، <cite>قانون مسعودی</cite>، جلد نخست، مقدمهٔ مؤلف، حیدرآباد دکن: مطبعهٔ مجلس دایرةالمعارف العثمانیه، چاپ نخست، ۱۳۷۳ هجری قمری / ۱۹۵۴ میلادی، ص. ۳. نسخهٔ چاپی این اثر بر اساس نسخه‌های خطی کهن تصحیح شده است.</figcaption>
@@ -131,7 +131,6 @@ export default function AboutPage() {
       </div>
     </article>
     </> : <>
-      <header className="about-heading"><h1>In memory of those who measured before us</h1></header>
       <figure className="biruni-quote">
         <blockquote>The duty of each person in their field of knowledge is to receive the efforts of predecessors with gratitude, correct any shortcomings they find, and leave what has become clear to them as a legacy for those who follow.</blockquote>
         <figcaption>Abu Rayhan Muhammad ibn Ahmad al-Biruni, <cite>Al-Qanun al-Masudi</cite>, volume I, author’s preface, Hyderabad Deccan: Osmania Oriental Publications Bureau, first edition, 1373 AH / 1954 CE, p. 3. This printed edition was prepared from early manuscripts.</figcaption>
@@ -143,12 +142,20 @@ export default function AboutPage() {
         <p>I therefore dedicate Forudid, in gratitude, to the pioneers and those who continued this work, including <PeopleList language="en" />, and to everyone who has added to our understanding of land subsidence in Iran through research and measurement, preserving data, teaching, or making their work available.</p>
         <p className="dedication">This small work is an acknowledgement of a debt to geodesy in Iran and to those who measured before us, so that we may understand this land better today.</p>
         <div className="signature"><p>With respect,</p><strong>Komeil</strong>
-          <span>A small member of Iran’s community of Earth observation and measurement</span>
-          <time dateTime="2026">Tehran, 1405 Solar Hijri</time></div>
+          <span>A small part of Iran’s Earth-observation community</span>
+          <time dateTime="2026">Tehran, 2026</time></div>
       </article>
     </>}
     <footer className="about-site-footer">
-      {language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}
+      <div className="about-footer-brand">
+        <span className="about-footer-mark" aria-hidden="true"><img src="/brand/selected/forudid-mark-black.png" alt="" /></span>
+        <span>{language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}</span>
+      </div>
+      <div className="about-source-strip">
+        <small>{language === 'fa' ? 'داده و منابع' : 'Data & references'}</small>
+        <div>{sourceMarks.map(source => <a key={source.name} className={`source-mark source-mark-${source.className}`}
+          href={source.href} target="_blank" rel="noreferrer" title={source.name}>{source.name}</a>)}</div>
+      </div>
     </footer>
   </main>
 }
