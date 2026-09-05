@@ -1,9 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
-import { Copy } from 'lucide-react'
-import { useState } from 'react'
 import { defaultSearch, searchSchema } from '../lib/search'
-import { fa } from '../messages/fa'
+import { useLanguage } from '../i18n'
 import { Button } from '../components/ui/button'
 import { Status } from '../components/Status'
 import { Boundary } from '../components/Boundary'
@@ -14,37 +12,39 @@ import './navigation.css'
 const MapPage = lazy(() => import('../routes/map'))
 const SourcesPage = lazy(() => import('../routes/sources'))
 function Shell() {
-  const [copyStatus, setCopyStatus] = useState('')
-  async function copy() {
-    try { await navigator.clipboard.writeText(location.href); setCopyStatus(fa.copied) }
-    catch { setCopyStatus(fa.copyError) }
-  }
+  const { language, setLanguage, messages: m } = useLanguage()
   return <><header className="header">
-    <Link to="/" className="brand" aria-label="فرودید، صفحهٔ نخست">
+    <Link to="/" className="brand" aria-label={m.home}>
       <img className="brand-mark" src="/brand/selected/forudid-mark-black.png" alt="" width="42" height="42" />
-      <span className="brand-wordmark"><strong>{fa.brand}</strong><span className="brand-en" dir="ltr">FORUDID</span></span></Link>
-    <nav aria-label="ناوبری اصلی"><Link to="/map" search={defaultSearch}>{fa.map}</Link>
-      <Link to="/sources">منابع داده</Link><Link to="/methodology">{fa.methodology}</Link><Link to="/about">{fa.about}</Link></nav>
-    <details className="mobile-navigation"><summary>فهرست</summary>
-      <nav aria-label="ناوبری موبایل" onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>
-        <Link to="/map" search={defaultSearch}>{fa.map}</Link><Link to="/sources">منابع داده</Link>
-        <Link to="/methodology">{fa.methodology}</Link><Link to="/about">{fa.about}</Link>
+      <span className="brand-wordmark"><strong>{language === 'fa' ? 'فرودید' : 'Forudid'}</strong><span className="brand-en" dir="ltr">FORUDID</span></span></Link>
+    <nav aria-label={language === 'fa' ? 'ناوبری اصلی' : 'Main navigation'}><Link to="/map" search={defaultSearch}>{m.map}</Link>
+      <Link to="/sources">{m.sources}</Link><Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link></nav>
+    <details className="mobile-navigation"><summary>{m.menu}</summary>
+      <nav aria-label={language === 'fa' ? 'ناوبری موبایل' : 'Mobile navigation'} onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>
+        <Link to="/map" search={defaultSearch}>{m.map}</Link><Link to="/sources">{m.sources}</Link>
+        <Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link>
       </nav></details>
-    <Button onClick={copy} className="copy" aria-label={fa.copy}><Copy size={16} /><span>{fa.copy}</span></Button>
-  </header><div className="copy-status" role="status">{copyStatus}</div>
-    <Boundary><Outlet /></Boundary></>
+    <div className="language-switch" role="group" aria-label={m.language}>
+      <button type="button" aria-pressed={language === 'fa'} onClick={() => setLanguage('fa')}>فا</button>
+      <button type="button" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>EN</button>
+    </div>
+  </header><Boundary fallback={m.unexpected}><Outlet /></Boundary></>
 }
-const rootRoute = createRootRoute({ component: Shell, notFoundComponent: () =>
-  <main className="article"><h1>صفحه پیدا نشد</h1><Link to="/map" search={defaultSearch}>{fa.map}</Link></main> })
+function NotFound() { const { language, messages: m } = useLanguage(); return <main className="article">
+  <h1>{language === 'fa' ? 'صفحه پیدا نشد' : 'Page not found'}</h1><Link to="/map" search={defaultSearch}>{m.map}</Link></main> }
+const rootRoute = createRootRoute({ component: Shell, notFoundComponent: NotFound })
 export const mapRoute = createRoute({ getParentRoute: () => rootRoute, path: '/map',
   validateSearch: (raw) => searchSchema.parse(raw),
   component: () => <Suspense fallback={<Status />}><MapPage /></Suspense>,
 })
-const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () =>
-  <main className="article"><h1>فرودید | FORUDID</h1>
-    <p>مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، همراه با منبع، نسخه و محدودیت‌های اندازه‌گیری.</p>
+function Home() { const { language } = useLanguage(); return <main className="article"><h1>فرودید | FORUDID</h1>
+  {language === 'fa' ? <><p>مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، همراه با منبع، نسخه و محدودیت‌های اندازه‌گیری.</p>
     <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای سال‌های ۲۰۱۴ تا ۲۰۲۰ است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
-    <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button></main> })
+    <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button></> : <>
+    <p>Explore historical land-deformation data for Iran with its source, version, and measurement limitations.</p>
+    <p>The initial map is the published Haghshenas Haghighi and Motagh dataset for 2014 to 2020; it does not describe current ground conditions.</p>
+    <Button asChild><Link to="/map" search={defaultSearch}>Open the map of Iran</Link></Button></>}</main> }
+const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home })
 const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: MethodologyPage })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',

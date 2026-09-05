@@ -1,9 +1,9 @@
 .scientific-page.about-page { position: relative; isolation: isolate; max-width: 704px;
   padding: 1px 32px 80px; color: #252525; font-family: 'Estedad Variable', sans-serif; }
-.about-page::before { content: ''; position: absolute; z-index: -1; top: 330px; left: 50%;
-  width: min(72%, 440px); aspect-ratio: 1; transform: translateX(-50%);
-  background: url('/brand/selected/forudid-mark-black.png') center / contain no-repeat;
-  opacity: .045; pointer-events: none; }
+.about-binary-watermark { position: absolute; z-index: -1; top: 330px; left: 50%;
+  width: min(72%, 440px); height: auto; transform: translateX(-50%); color: #6f7779;
+  opacity: .18; pointer-events: none; }
+.about-binary-watermark text { fill: currentColor; font: 700 9.5px/1 'SFMono-Regular', Consolas, monospace; letter-spacing: 1.2px; }
 .about-page .about-heading { margin: 64px 0 32px; }
 .about-page .about-heading h1 { margin: 0; font-size: clamp(20px, 2.8vw, 25px); line-height: 1.8; font-weight: 550; }
 .about-page .biruni-quote { margin: 0 0 36px; padding: 0; border: 0; }
@@ -14,8 +14,10 @@
 .about-page .about-letter .dedication { margin: 28px 0 0; font-size: 15px; }
 .about-page .signature { gap: 6px; margin: 32px 0 0; padding: 0; border: 0; }
 .about-page .signature p { margin: 0; font-size: 14px; }
-.about-page .signature strong { font: 550 20px/1.8 'Estedad Variable', sans-serif; }
+.about-page .signature strong { font: 500 15px/1.8 'Estedad Variable', sans-serif; }
 .about-page .signature span, .about-page .signature time { font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
+.about-page[dir='ltr'] { font-family: Georgia, 'Times New Roman', serif; }
+.about-page[dir='ltr'] .person-note { direction: ltr; text-align: left; font-family: Georgia, 'Times New Roman', serif; }
 .about-page .signature time { margin-top: 8px; }
 .about-page .person-trigger { padding: 0; border-bottom: 0; color: inherit; text-decoration: underline;
   text-decoration-color: #b7b7b7; text-decoration-thickness: 1px; text-underline-offset: 4px; }
@@ -27,5 +29,5 @@
   .about-page .biruni-quote { margin-bottom: 28px; }
   .about-page .about-letter p { font-size: 14px; line-height: 2.05; }
   .about-page .biruni-quote blockquote { font-size: 15px; }
-  .about-page::before { top: 440px; width: 80%; }
+  .about-binary-watermark { top: 440px; width: 80%; opacity: .16; }
 }

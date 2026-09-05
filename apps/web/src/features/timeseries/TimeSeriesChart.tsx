@@ -6,7 +6,7 @@ import { GridComponent, TooltipComponent, DataZoomComponent, MarkLineComponent, 
 import { CanvasRenderer } from 'echarts/renderers'
 import type { TimeSeries } from '../../generated/api/forudid'
 import { presentation, format } from '../../lib/units'
-import { fa } from '../../messages/fa'
+import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
 registerCharts([LineChart, CustomChart, GridComponent, TooltipComponent, DataZoomComponent,
   MarkLineComponent, AriaComponent, CanvasRenderer])
@@ -16,6 +16,7 @@ const bandRenderer: CustomSeriesRenderItem = (_params, api) => {
   return { type: 'polygon', shape: { points }, style: { fill: '#176e79', opacity: 0.14 } }
 }
 export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
+  const { language, messages: m } = useLanguage(), en = language === 'en'
   const container = useRef<HTMLDivElement>(null)
   const chart = useRef<ReturnType<typeof init> | null>(null)
   useEffect(() => {
@@ -31,9 +32,9 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
         bands.push([a.date, a.value - a.uncertainty, a.value + a.uncertainty,
           b.date, b.value - b.uncertainty, b.value + b.uncertainty])
     }
-    instance.setOption({ animation: false, aria: { enabled: true, label: { description: fa.chartSummary } },
+    instance.setOption({ animation: false, aria: { enabled: true, label: { description: m.chartSummary } },
       grid: { left: 54, right: 16, top: 24, bottom: 60 },
-      tooltip: { trigger: 'axis', valueFormatter: (value: number) => `${format(value)} mm` },
+      tooltip: { trigger: 'axis', valueFormatter: (value: number) => `${format(value, 1, en ? 'en-US' : 'fa-IR')} mm` },
       xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: '{yyyy}-{MM}', color: '#6b7c87' },
         axisLine: { lineStyle: { color: '#c4d0d8' } } },
       yAxis: { type: 'value', name: 'mm', axisLabel: { color: '#6b7c87' },
@@ -49,15 +50,15 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
     const observer = new ResizeObserver(() => instance.resize())
     observer.observe(container.current)
     return () => { observer.disconnect(); instance.dispose(); chart.current = null }
-  }, [data])
+  }, [data, en, m.chartSummary])
   return <div className="chart-section">
-    <div className="chart-heading"><h3>{fa.timeSeries}</h3><Button variant="ghost" onClick={() =>
-      chart.current?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })}>{fa.resetZoom}</Button></div>
-    <div className="chart" ref={container} role="img" aria-label={fa.chartSummary} dir="ltr" />
-    <p className="chart-caption">{fa.chartSummary}</p>
-    <details className="series-table"><summary>{fa.values}</summary><table><thead><tr>
-      <th>{fa.date}</th><th>{fa.displacement}</th></tr></thead><tbody>{data.series.map(epoch =>
+    <div className="chart-heading"><h3>{m.timeSeries}</h3><Button variant="ghost" onClick={() =>
+      chart.current?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })}>{m.resetZoom}</Button></div>
+    <div className="chart" ref={container} role="img" aria-label={m.chartSummary} dir="ltr" />
+    <p className="chart-caption">{m.chartSummary}</p>
+    <details className="series-table"><summary>{m.values}</summary><table><thead><tr>
+      <th>{m.date}</th><th>{m.displacement}</th></tr></thead><tbody>{data.series.map(epoch =>
       <tr key={epoch.date}><td className="technical">{epoch.date}</td>
-        <td className="technical">{format(presentation(epoch.displacement, data.unit))}</td></tr>)}</tbody></table></details>
+        <td className="technical">{format(presentation(epoch.displacement, data.unit), 1, en ? 'en-US' : 'fa-IR')}</td></tr>)}</tbody></table></details>
   </div>
 }

@@ -8,8 +8,12 @@ header.header { padding-inline: clamp(20px, 4vw, 60px); border-bottom-color: #e7
 header.header nav a { font-size: 12px; border-bottom-width: 1px; transition: color 150ms; color: #737373; }
 .header nav a:hover { color: #111; }
 header.header nav a[data-status='active'] { color: #111; border-bottom-color: #111; font-weight: 600; }
-.header .copy { border-color: transparent; color: #777; font-size: 11px; padding-inline: 10px; }
-.header .copy:hover { color: #111; background: #f6f6f4; }
+.language-switch { display: inline-flex; direction: ltr; padding: 2px;
+  border: 1px solid #dededb; border-radius: 999px; background: #f8f8f6; }
+.language-switch button { min-width: 34px; min-height: 30px; padding: 0 8px; border: 0; border-radius: 999px;
+  background: transparent; color: #777; font: 600 10px/1 'Vazirmatn Variable', sans-serif; cursor: pointer; }
+.language-switch button[aria-pressed='true'] { background: #222; color: #fff; }
+.language-switch button:focus-visible { outline: 2px solid #176e79; outline-offset: 2px; }
 @media (max-width: 760px) {
   header.header { padding-inline: 18px; gap: 12px; }
   .header .brand-mark { width: 34px; height: 34px; }
@@ -22,4 +26,5 @@ header.header nav a[data-status='active'] { color: #111; border-bottom-color: #1
     inset-inline-end: 0; top: 100%; z-index: 50; width: 190px; padding: 12px;
     background: white; border: 1px solid #d2dddd; border-radius: 8px; height: auto; gap: 4px; }
   .header .mobile-navigation a { padding: 8px; min-height: 44px; }
+  .language-switch button { min-width: 31px; min-height: 28px; padding-inline: 6px; }
 }

@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode } from 'react'
 import katex from 'katex'
 import { RepeatPassGeometry } from './methodology-figures'
+import { useLanguage } from '../i18n'
 
 const references = [
   ['[1]', 'Ferretti, A., Monti-Guarnieri, A., Prati, C., Rocca, F., and Massonnet, D. (2007). InSAR Principles: Guidelines for SAR Interferometry Processing and Interpretation. ESA TM-19.', 'https://www.esa.int/esapub/tm/tm19/TM-19_ptA.pdf'],
@@ -22,7 +23,7 @@ function Equation({ number, children }: { number: number, children: string }) {
 
 function Figure({ children, label, caption }: { children: ReactNode, label: string, caption: string }) {
   return <figure className="paper-figure"><div className="paper-figure-content">{children}</div>
-    <figcaption><strong>{label} ۱.</strong> {caption}</figcaption></figure>
+    <figcaption><strong>{label} {label === 'Figure' ? '1' : '۱'}.</strong> {caption}</figcaption></figure>
 }
 
 function References({ title }: { title: string }) {
@@ -155,12 +156,8 @@ function EnglishPaper() {
 }
 
 export default function MethodologyPage() {
-  const [language, setLanguage] = useState<'fa' | 'en'>('fa')
+  const { language } = useLanguage()
   return <main className="methodology-paper-page">
-    <div className="paper-language" role="group" aria-label="زبان مقاله">
-      <button type="button" aria-pressed={language === 'fa'} onClick={() => setLanguage('fa')}>فارسی</button>
-      <button type="button" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>English</button>
-    </div>
     {language === 'fa' ? <PersianPaper /> : <EnglishPaper />}
   </main>
 }

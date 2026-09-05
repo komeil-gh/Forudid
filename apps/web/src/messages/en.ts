@@ -1,0 +1,31 @@
+export const en = {
+  brand: 'Forudid', map: 'Map', methodology: 'Methodology', about: 'About', sources: 'Data sources',
+  menu: 'Menu', language: 'Language', home: 'Forudid home',
+  fixture: 'Test data; not suitable for scientific citation', layers: 'Map layers',
+  product: 'Product', opacity: 'Layer opacity', orbit: 'Orbit', track: 'Track',
+  period: 'Observation period', version: 'Processing version', metadata: 'View metadata',
+  reference: 'Displacement reference', referenceDate: 'Reference date', lastAcquisition: 'Last acquisition',
+  loading: 'Loading data…', error: 'Data could not be loaded.', retry: 'Try again',
+  empty: 'No real, published scientific product is available for this area.', reset: 'Return to Iran view',
+  point: 'Selected point', selectPoint: 'Select a point on the map to inspect deformation.',
+  inspectCenter: 'Inspect map centre', velocity: 'LOS deformation rate',
+  uncertainty: 'Velocity uncertainty', coherence: 'Temporal coherence', observations: 'Valid observations',
+  timeSeries: 'LOS displacement over time', close: 'Close', resetZoom: 'Reset zoom',
+  quality: { valid: '✓ Valid quality', caution: '△ Use with caution',
+    invalid: '✕ Invalid quality', nodata: '○ No data' },
+  noData: 'No valid data are available at this point.', chartSummary: 'Displacement values are in millimetres relative to the recorded reference. A line gap indicates a missing date.',
+  values: 'View time-series values', date: 'Acquisition date', displacement: 'LOS displacement (mm)',
+  scientificNote: 'LOS is deformation along the satellite line of sight and is not equivalent to vertical subsidence.',
+  noBasemap: 'Local background · no basemap configured',
+  basemapError: 'The basemap is unavailable; the scientific layer remains independent.',
+  tileError: 'The layer could not be displayed. Check the data service connection.',
+  webgl: 'Your browser does not support WebGL2. Use an up-to-date browser with graphics acceleration.',
+  unexpected: 'This section could not be displayed.', provenance: 'Processing provenance',
+  run: 'Run identifier', downloadMetadata: 'Open STAC', coordinates: 'Coordinates',
+} as const
+
+export const layerLabelsEn = {
+  velocity_vertical: 'Estimated vertical subsidence rate', seasonal_amplitude: 'Peak-to-peak seasonal amplitude',
+  velocity_los: 'LOS velocity', temporal_coherence: 'Temporal coherence',
+  velocity_uncertainty: 'Velocity uncertainty',
+} as const

@@ -1,5 +1,6 @@
 export const fa = {
-  brand: 'فرودید', map: 'نقشه', methodology: 'روش‌شناسی', about: 'درباره',
+  brand: 'فرودید', map: 'نقشه', methodology: 'روش‌شناسی', about: 'درباره', sources: 'منابع داده',
+  menu: 'فهرست', language: 'زبان', home: 'فرودید، صفحهٔ نخست',
   search: 'انتخاب محدوده', varamin: 'دشت ورامین', copy: 'کپی نمای فعلی', copied: 'نشانی کپی شد',
   copyError: 'کپی نشد؛ نشانی را از نوار مرورگر بردارید.',
   fixture: 'دادهٔ آزمایشی؛ برای استناد علمی نیست', layers: 'لایه‌های نقشه',
