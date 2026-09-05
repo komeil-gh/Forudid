@@ -12,13 +12,14 @@ import { MetadataDialog } from '../features/products/MetadataDialog'
 import { fa } from '../messages/fa'
 import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
+import { publishedRealProducts } from '../lib/products'
 
 export default function MapPage() {
   const state = mapRoute.useSearch(), navigate = mapRoute.useNavigate()
   const [metadataOpen, setMetadataOpen] = useState(false)
   const [layersOpen, setLayersOpen] = useState(false)
   const products = useListProducts({ aoi: state.aoi, orbit: state.orbit, run: state.run })
-  const choices = products.data || []
+  const choices = publishedRealProducts(products.data || [])
   const product = state.product ? choices.find(p => p.id === state.product && p.kind === state.layer) :
     choices.find(p => p.kind === state.layer)
   const legend = useGetLegend(product?.id || '', { query: { enabled: !!product } })

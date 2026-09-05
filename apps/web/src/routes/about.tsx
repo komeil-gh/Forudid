@@ -87,7 +87,6 @@ function PeopleList() {
 export default function AboutPage() {
   return <main className="scientific-page about-page">
     <header className="about-heading">
-      <p className="scientific-kicker">دربارهٔ فرودید</p>
       <h1>به یاد آنان که پیش از ما اندازه گرفتند</h1>
     </header>
 

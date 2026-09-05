@@ -48,7 +48,7 @@ export default function SourcesPage() {
   const [cursor, setCursor] = useState<string>()
   const sources = useListSources({ limit: 10, cursor })
   return <main className="sources-page">
-    <header><p>فرودید · شناسنامهٔ داده‌ها</p><h1>منابع داده</h1>
+    <header><h1>منابع داده</h1>
       <p>منبع، مجوز و نسخهٔ فایل‌هایی که وارد فرودید شده‌اند. ثبت منبع و بررسی checksum به‌تنهایی به معنای تأیید علمی یا انتشار محصول تحلیلی نیست.</p></header>
     {sources.isPending ? <Status /> : sources.isError ? <Status error retry={() => void sources.refetch()} /> :
       <>{sources.data.items.length === 0 ? <p role="status">هنوز منبعی ثبت نشده است.</p> : sources.data.items.map(source => <SourceCard key={source.id} source={source} />)}

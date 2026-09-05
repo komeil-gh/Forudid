@@ -20,7 +20,7 @@ function Shell() {
     catch { setCopyStatus(fa.copyError) }
   }
   return <><header className="header">
-    <Link to="/map" search={defaultSearch} className="brand"><LocateFixed aria-hidden="true" />
+    <Link to="/" className="brand"><LocateFixed aria-hidden="true" />
       <strong>{fa.brand}</strong><span className="brand-en" dir="ltr">| FORUDID</span></Link>
     <nav aria-label="ناوبری اصلی"><Link to="/map" search={defaultSearch}>{fa.map}</Link>
       <Link to="/sources">منابع داده</Link><Link to="/methodology">{fa.methodology}</Link><Link to="/about">{fa.about}</Link></nav>
@@ -44,7 +44,7 @@ export const mapRoute = createRoute({ getParentRoute: () => rootRoute, path: '/m
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () =>
   <main className="article"><h1>فرودید | FORUDID</h1><p>{fa.scientificNote}</p>
     <p>پایش تغییرشکل زمین، با مرجع روشن و کیفیت قابل بررسی. محدودهٔ نخست: دشت ورامین.</p>
-    <p className="notice">{fa.fixture}</p><Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ورامین</Link></Button></main> })
+    <Button asChild><Link to="/sources">مشاهدهٔ منابع واقعی</Link></Button></main> })
 const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: MethodologyPage })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',

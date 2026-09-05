@@ -1,21 +1,24 @@
-.sources-page { max-width: 960px; margin: 0 auto; padding: 48px 24px; line-height: 1.9; }
-.sources-page > header { margin-bottom: 40px; }
-.sources-page h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 8px 0; }
-.sources-page h2 { font-size: 1.2rem; }
-.source-card { border-top: 2px solid #087c83; padding-top: 24px; margin-bottom: 40px; }
-.source-card header > p, .source-attribution { font-size: .85rem; }
-.source-card dl { display: flex; gap: 32px; flex-wrap: wrap; }
+.sources-page { max-width: 720px; margin: 0 auto; padding: 56px 24px 80px; line-height: 1.85; }
+.sources-page > header { margin-bottom: 44px; }
+.sources-page > header p { max-width: 620px; color: #59666e; font-size: .9rem; }
+.sources-page h1 { margin: 0 0 12px; font-size: 1.65rem; font-weight: 650; }
+.sources-page h2 { margin: 2px 0 10px; font-size: 1.08rem; }
+.source-card { border-top: 1px solid #273b47; padding-top: 20px; margin-bottom: 42px; }
+.source-card header > p, .source-attribution { margin: 0; color: #68757d; font-size: .78rem; }
+.source-card header > span { font-size: .75rem; }
+.source-card dl { display: flex; gap: 28px; margin-block: 18px; flex-wrap: wrap; font-size: .82rem; }
 .source-card dd { margin: 0; }
 .source-card a { color: #08686e; text-underline-offset: 4px; }
-.source-citation, .source-attribution { text-align: start; overflow-wrap: anywhere; }
-.source-version { border: 1px solid #d2dddd; padding: 20px; margin: 16px 0; border-radius: 8px; }
-.source-version h4 { margin-top: 0; }
+.source-citation, .source-attribution { margin-block: 8px; text-align: start; overflow-wrap: anywhere; font-size: .78rem; }
+.source-card h3 { margin: 26px 0 0; font-size: .88rem; }
+.source-version { border-top: 1px solid #d6dddf; padding: 16px 0 4px; margin: 12px 0; font-size: .84rem; }
+.source-version h4 { margin: 0 0 8px; }
+.source-version p { margin-block: 6px; }
 .source-version summary { cursor: pointer; min-height: 44px; padding: 8px 0; }
 .source-version code, .source-version li > bdi { display: block; overflow-wrap: anywhere; font-size: .8rem; }
-.source-version li { margin-bottom: 20px; }
+.source-version li { margin-bottom: 14px; }
 .source-version ul { padding-inline-start: 20px; }
 .source-pagination { display: flex; gap: 12px; flex-wrap: wrap; }
 @media (max-width: 600px) {
-  .sources-page { padding: 24px 16px; }
-  .source-version { padding: 16px; }
+  .sources-page { padding: 34px 18px 60px; }
 }

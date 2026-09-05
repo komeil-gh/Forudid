@@ -1,13 +1,13 @@
 import { type ReactNode, useState } from 'react'
 import katex from 'katex'
-import { InterferometrySequence, QualityControlPanels, RepeatPassGeometry } from './methodology-figures'
+import { RepeatPassGeometry } from './methodology-figures'
 
 const references = [
-  ['ESA, 2007', 'InSAR Principles: Guidelines for SAR Interferometry Processing and Interpretation, TM-19.', 'https://www.esa.int/About_Us/ESA_Publications/InSAR_Principles_Guidelines_for_SAR_Interferometry_Processing_and_Interpretation_br_ESA_TM-19'],
-  ['ASF DAAC', 'Sentinel-1 InSAR Product Guide, HyP3.', 'https://hyp3-docs.asf.alaska.edu/guides/insar_product_guide/'],
-  ['Yunjun et al., 2019', 'Small baseline InSAR time series analysis: Unwrapping error correction and noise reduction.', 'https://doi.org/10.1016/j.cageo.2019.104331'],
-  ['Copernicus', 'Sentinel-1 mission and technical guides.', 'https://sentinels.copernicus.eu/copernicus/sentinel-1'],
-]
+  ['[1]', 'Ferretti, A., Monti-Guarnieri, A., Prati, C., Rocca, F., and Massonnet, D. (2007). InSAR Principles: Guidelines for SAR Interferometry Processing and Interpretation. ESA TM-19.', 'https://www.esa.int/esapub/tm/tm19/TM-19_ptA.pdf'],
+  ['[2]', 'Alaska Satellite Facility. Sentinel-1 InSAR Product Guide. HyP3 documentation.', 'https://hyp3-docs.asf.alaska.edu/guides/insar_product_guide/'],
+  ['[3]', 'Haghshenas Haghighi, M., and Motagh, M. (2024). Uncovering the impacts of depleting aquifers: A remote sensing analysis of land subsidence in Iran. Science Advances, 10, eadk3039.', 'https://doi.org/10.1126/sciadv.adk3039'],
+  ['[4]', 'Haghshenas Haghighi, M., and Motagh, M. (2024). Land Subsidence in Iran Estimated from a Nationwide InSAR Analysis of Sentinel-1 Observations 2014-2020. Zenodo, version 1.0.0.', 'https://doi.org/10.5281/zenodo.10815578'],
+] as const
 
 function Equation({ number, children }: { number: number, children: string }) {
   const html = katex.renderToString(children, { displayMode: true, throwOnError: true })
@@ -17,85 +17,113 @@ function Equation({ number, children }: { number: number, children: string }) {
   </div>
 }
 
-function Figure({ children, label, number, caption }: { children: ReactNode, label: string, number: number, caption: string }) {
+function Figure({ children, label, caption }: { children: ReactNode, label: string, caption: string }) {
   return <figure className="paper-figure"><div className="paper-figure-content">{children}</div>
-    <figcaption><strong>{label} {number}.</strong> {caption}</figcaption></figure>
+    <figcaption><strong>{label} ۱.</strong> {caption}</figcaption></figure>
+}
+
+function References({ title }: { title: string }) {
+  return <footer className="paper-references"><h2>{title}</h2><ol>{references.map(([number, citation, href]) =>
+    <li key={href}><a href={href} target="_blank" rel="noreferrer"><span>{number}</span> {citation}</a></li>)}</ol></footer>
 }
 
 function PersianPaper() {
   return <article className="paper" lang="fa" dir="rtl">
     <header className="paper-header">
-      <p className="paper-series">یادداشت روش فرودید، شمارهٔ ۱، نسخهٔ ۰.۱</p>
-      <h1>چارچوب بازتولیدپذیر برای برآورد جابه‌جایی نسبی زمین از سری زمانی تداخل‌سنجی راداری Sentinel-1</h1>
+      <p className="paper-series">یادداشت روش فرودید، بازبینی ۱۴۰۵</p>
+      <h1>روش و حدود تفسیر دادهٔ سراسری فرونشست ایران، ۲۰۱۴ تا ۲۰۲۰</h1>
       <p className="paper-author">کمیل، پروژهٔ فرودید</p>
-      <p className="paper-affiliation">طهران، ایران، ۱۴۰۵ هجری خورشیدی</p>
       <section className="paper-abstract" aria-labelledby="abstract-fa"><h2 id="abstract-fa">چکیده</h2>
-        <p>این مقاله، قرارداد اندازه‌گیری و مسیر پردازش هدف در فرودید را تعریف می‌کند. ورودی هدف، دادهٔ مختلط تک‌نگر Sentinel-1 در مد IW است. زوج‌های تداخل‌سنجی پس از به‌روزرسانی مدار، هم‌ثبت‌سازی، حذف فاز زمین تخت و توپوگرافی، فیلتر و گشودن فاز به یک شبکهٔ زمانی متصل وارد می‌شوند. جابه‌جایی در راستای دید ماهواره، نسبت به یک تاریخ و نقطه یا ناحیهٔ مرجع گزارش می‌شود. تبدیل این کمیت به حرکت قائم فقط با فرض صریح نبود حرکت افقی مجاز است. نسخهٔ کنونی فرودید دادهٔ ساختگی دارد و این متن نتیجهٔ ژئوفیزیکی برای دشت ورامین گزارش نمی‌کند.</p></section>
-      <p className="paper-keywords"><strong>واژگان کلیدی:</strong> تداخل‌سنجی راداری، Sentinel-1، سری زمانی، جابه‌جایی LOS، MintPy، فرونشست زمین</p>
+        <p>این یادداشت، منشأ و روش دادهٔ واقعی ثبت‌شده در فرودید را از روش عمومی InSAR جدا می‌کند. منبع حاضر، مجموعه‌دادهٔ نسخهٔ ۱٫۰٫۰ حق‌شناس حقیقی و معتق است که از بیش از ۶۰۰۰ صحنهٔ Sentinel-1 در ده مسیر نزولی طی سال‌های ۲۰۱۴ تا ۲۰۲۰ ساخته شده است [۳، ۴]. فرودید فایل‌های اصلی و شناسه‌های یکپارچگی آن‌ها را ثبت کرده است، اما تا پایان نرمال‌سازی، کنترل کیفیت و انتشار منبع‌محور، نقشه یا نرخ تحلیلی از این داده نمایش نمی‌دهد.</p></section>
+      <p className="paper-keywords"><strong>واژگان کلیدی:</strong> Sentinel-1، InSAR، ایران، فرونشست، سری زمانی، دادهٔ منتشرشده</p>
     </header>
 
     <div className="paper-body">
-      <section><h2>۱. مقدمه</h2><p>تداخل‌سنجی راداری اختلاف فاز دو مشاهدهٔ مختلط از یک سطح را برای سنجش تغییر فاصلهٔ نسبی میان زمین و سنجنده به‌کار می‌گیرد [۱، ۲]. این کمیت یک جابه‌جایی یک‌بعدی در راستای دید است. بنابراین نقشهٔ LOS نه به‌تنهایی نقشهٔ فرونشست قائم است و نه حرکت در راستای آزیموت ماهواره را مشاهده می‌کند [۲].</p><p>هدف این متن ثبت یک قرارداد قابل ممیزی برای فرودید است. هر محصول باید ورودی‌ها، زوج‌ها، مرجع، قرارداد علامت، اصلاحات، ماسک‌ها، شاخص‌های کیفیت و نسخهٔ نرم‌افزار را همراه داشته باشد. یک تداخل‌نما برای نتیجه‌گیری کافی نیست. راهنمای HyP3 نیز استفاده از سری زمانی را به‌جای اتکا به یک زوج توصیه می‌کند [۲].</p></section>
+      <section><h2>۱. دامنهٔ داده</h2>
+        <p>نسخهٔ ثبت‌شده شامل رستر نرخ سالانه، دامنهٔ فصلی و ماسک فرونشست است. ناشر، نرخ و دامنهٔ فصلی را حاصل تصویرکردن اندازه‌گیری راستای دید نزولی به راستای قائم معرفی می‌کند [۴]. بنابراین این دو رستر نباید محصول LOS نامیده شوند. این تبدیل بر فرض ناچیزبودن مؤلفهٔ افقی نسبت به مؤلفهٔ قائم استوار است [۳].</p>
+        <p>بازهٔ زمانی، روش و واحد از فرادادهٔ منبع خوانده می‌شوند. پیکسل NoData به معنی نبود مقدار معتبر است، نه زمین پایدار و نه نرخ صفر. ثبت checksum فقط اصالت فایل دریافت‌شده را نشان می‌دهد و جای ارزیابی علمی محصول را نمی‌گیرد.</p>
+      </section>
 
-      <section><h2>۲. مدل مشاهده</h2><p>برای نمونه‌های مختلط هم‌ثبت‌شدهٔ <i>s₁</i> و <i>s₂</i>، فاز تداخل‌سنجی از آرگومان حاصل‌ضرب یکی در مزدوج مختلط دیگری به‌دست می‌آید. فاز مشاهده‌شده جمع مؤلفه‌های هندسی، توپوگرافی، تغییرشکل، جو، مدار و نویز است [۱].</p>
-        <Equation number={1}>{String.raw`\begin{aligned}\phi_{\mathrm{int}}&=\operatorname{arg}(s_2s_1^{*})\\&=\phi_{\mathrm{flat}}+\phi_{\mathrm{topo}}+\phi_{\mathrm{def}}\\&\quad+\phi_{\mathrm{atm}}+\phi_{\mathrm{orb}}+\phi_{\mathrm{noise}}\end{aligned}`}</Equation>
-        <p>پس از حذف فاز زمین تخت و توپوگرافی و انتخاب مرجع، قرارداد HyP3 جابه‌جایی LOS را از فاز گشوده‌شده مطابق رابطهٔ ۲ محاسبه می‌کند. علامت مثبت در محصول LOS به معنی حرکت به سوی سنجنده و علامت منفی به معنی دورشدن از سنجنده است [۲].</p>
-        <Equation number={2}>{String.raw`d_{\mathrm{LOS}}^{*}=-\frac{\lambda}{4\pi}\left(\phi_{\mathrm{unw}}-\phi_{\mathrm{ref}}\right)`}</Equation>
-        <p>برای Sentinel-1 مقدار طول موج مورد استفاده در راهنمای HyP3 برابر ۰٫۰۵۵۴۶۵۷۶۳ متر است [۲]. هر چرخهٔ کامل فاز، یعنی ۲π، معادل نصف طول موج و نزدیک به ۲٫۸ سانتی‌متر جابه‌جایی LOS است.</p></section>
+      <section><h2>۲. مشاهدهٔ تداخل‌سنجی</h2>
+        <p>هر تصویر SLC دامنه و فاز بازتاب راداری را نگه می‌دارد. برای دو تصویر هم‌ثبت‌شده، تداخل‌نما از ضرب مختلط یک تصویر در مزدوج تصویر دیگر ساخته می‌شود و فاز آن اختلاف فاز دو مشاهده است [۱]. ترتیب تصاویر، علامت فاز را تعیین می‌کند.</p>
+        <Equation number={1}>{String.raw`\begin{aligned}I_{12}&=s_1s_2^{*}\\\Delta\phi&=\arg(I_{12})\end{aligned}`}</Equation>
+        <p>در قرارداد HyP3، پس از کم‌کردن فاز نقطهٔ مرجع، جابه‌جایی LOS مثبت به سوی سنجنده و منفی دور از آن است [۲]. این قرارداد را نمی‌توان بدون بررسی فراداده به محصول هر پردازشگر تعمیم داد.</p>
+        <Equation number={2}>{String.raw`d_{\mathrm{LOS}}=-\frac{\lambda}{4\pi}\left(\Delta\phi-\Delta\phi_{\mathrm{ref}}\right)`}</Equation>
+      </section>
 
-      <Figure label="شکل" number={1} caption="هندسهٔ برداشت تکراری. تداخل‌سنجی فقط تصویر بردار جابه‌جایی روی راستای دید سنجنده را اندازه می‌گیرد.">
-        <RepeatPassGeometry />
+      <Figure label="شکل" caption="دو برداشت تکراری فاصله‌های R₁ و R₂ را ثبت می‌کنند. تغییر فاصله به اختلاف فاز تبدیل می‌شود؛ علامت نهایی تابع قرارداد پردازش است.">
+        <RepeatPassGeometry labels={['برداشت نخست، t₀', 'برداشت دوم، t₀ + Δt', 'اختلاف فاز و طول موج']} />
       </Figure>
 
-      <section><h2>۳. داده و تشکیل تداخل‌نما</h2><p>ورودی هدف، زوج‌های هم‌قطبش Sentinel-1 IW SLC با burstهای هم‌پوشان است. مدار بازسازی‌شده یا دقیق جایگزین مدار پیش‌بینی‌شده می‌شود. مدل ارتفاعی Copernicus GLO-30 برای محاسبه و حذف سهم توپوگرافی به‌کار می‌رود [۲، ۴]. زوج‌ها باید از یک مسیر نسبی، هندسهٔ سازگار و قطبش یکسان باشند.</p><p>هم‌ثبت‌سازی باید دقت زیرپیکسلی داشته باشد. پس از تشکیل تداخل‌نما، فاز زمین تخت و فاز توپوگرافی حذف می‌شوند. فیلتر فاز و ماسک نواحی آب یا همدوسی پایین پیش از گشودن فاز ثبت می‌شوند. آستانه‌ها ثابت و جهانی نیستند. مقدار هر آستانه باید با شناسهٔ پروفایل پردازش ذخیره شود.</p><p>همدوسی نرمال‌شده شاخصی میان صفر و یک برای پایداری رابطهٔ فازی دو مشاهده است. برآورد نمونه‌ای آن به صورت رابطهٔ ۳ نوشته می‌شود.</p><Equation number={3}>{String.raw`\gamma=\frac{\left|\langle s_1s_2^{*}\rangle\right|}{\sqrt{\langle |s_1|^2\rangle\,\langle |s_2|^2\rangle}}`}</Equation></section>
+      <section><h2>۳. پردازش گزارش‌شده در منبع</h2>
+        <p>در مطالعهٔ اصلی، قاب‌های هم‌تاریخ هر مسیر به نوارهای بلند SLC متصل و یک تاریخ در هر مسیر مرجع هم‌ثبت‌سازی شد. شبکه با فاصلهٔ زمانی مطلوب ۶۰ روز ساخته شد و هر تصویر به دو تصویر نزدیک به این فاصله متصل شد. تداخل‌نماها در راستای برد و آزیموت با ضرایب ۱۰ در ۲ چندنگری شدند [۳].</p>
+        <p>مدار دقیق و مدل ارتفاعی SRTM برای حذف مؤلفه‌های هندسی و توپوگرافی به کار رفت. سپس فیلتر تطبیقی، گشودن فاز با روش minimum-cost flow و کاهش نمونهٔ ۲ در ۲ انجام شد که اندازهٔ زمینی را به حدود ۱۰۰ در ۱۰۰ متر رساند. پردازش تداخل‌سنجی با GAMMA و برآورد سری زمانی با وارون‌سازی شبکه انجام شد [۳].</p>
+      </section>
 
-      <section><h2>۴. وارون‌سازی سری زمانی</h2><p>تداخل‌نماهای گشوده‌شده یک شبکه می‌سازند که رأس‌های آن تاریخ‌های برداشت و یال‌های آن زوج‌های پردازش‌شده‌اند. شبکه باید به تاریخ مرجع متصل باشد. MintPy این شبکه را با کمترین مربعات وزن‌دار وارون می‌کند و سپس خطای گشودن فاز و مؤلفه‌های نویزی را در حوزهٔ زمان بررسی می‌کند [۳].</p><Equation number={4}>{String.raw`\mathbf d=\mathbf G\mathbf m+\boldsymbol\varepsilon`}</Equation><Equation number={5}>{String.raw`\begin{aligned}\widehat{\mathbf m}={}&\left(\mathbf G^{\mathsf T}\mathbf W\mathbf G\right)^{-1}\\&\mathbf G^{\mathsf T}\mathbf W\mathbf d\end{aligned}`}</Equation><p>در روابط ۴ و ۵، بردار <i>d</i> شامل فاز یا جابه‌جایی زوجی، ماتریس <i>G</i> اتصال زوج‌ها به تاریخ‌ها، <i>W</i> ماتریس وزن و <i>m̂</i> سری زمانی برآوردشده است. اگر شبکه رتبهٔ کامل نداشته باشد، یا به چند زیرشبکه تقسیم شود، محصول نباید منتشر شود.</p></section>
+      <section><h2>۴. مرجع، جو و مدل زمانی</h2>
+        <p>به دلیل وسعت نوارها و پراکندگی پهنه‌های تغییرشکل، مطالعه از یک نقطهٔ مرجع یگانه استفاده نکرد. برای هر تاریخ، سطح اصلاحی در قطعه‌های ۲۵ در ۲۵ کیلومتر برآورد شد؛ جملهٔ نخست مرجع و تأخیر جوی پهن‌مقیاس و جملهٔ دوم تأخیر جوی وابسته به ارتفاع را مدل می‌کند [۳].</p>
+        <Equation number={3}>{String.raw`c_i^{(k)}=p_1^{(k)}+p_2^{(k)}\left(h_i-h_0^{(k)}\right)`}</Equation>
+        <p>برآورد به صورت تکراری انجام شد: نواحی با قدرمطلق تغییرشکل بیش از ۱ سانتی‌متر در سال از برازش کنار گذاشته و ماسک با هستهٔ ۹ در ۹ گسترش یافت. سپس سری زمانی با روند، شتاب و جملهٔ سالانه مدل شد [۳].</p>
+        <Equation number={4}>{String.raw`X(t)=\beta_1+\beta_2t+\beta_3t^2+\beta_4\sin\!\left(\frac{2\pi t}{365}\right)+\beta_5\cos\!\left(\frac{2\pi t}{365}\right)+\varepsilon`}</Equation>
+      </section>
 
-      <Figure label="شکل" number={2} caption="سه نمایش مستقل از اختلاف فاز، فاز تداخل‌سنجی و سری زمانی جابه‌جایی. کمیت‌ها و قراردادها در متن تعریف شده‌اند.">
-        <InterferometrySequence labels={['سیگنال‌های مختلط دو برداشت', 'میدان فاز تداخل‌سنجی', 'سری زمانی جابه‌جایی نسبی']} />
-      </Figure>
-
-      <section><h2>۵. مرجع و تفسیر هندسی</h2><p>جابه‌جایی InSAR مطلق نیست. مقدار هر پیکسل نسبت به تاریخ مرجع و پیکسل یا ناحیهٔ مرجع تعیین می‌شود. مرجع باید همدوسی پایدار داشته باشد، بیرون از پهنهٔ تغییرشکل مورد انتظار باشد و از پهنهٔ تحلیل با شکاف کم‌همدوس جدا نشده باشد [۲]. مختصات، شعاع، روش تجمیع و دلیل انتخاب مرجع جزئی از محصول‌اند.</p><p>رابطهٔ میان بردار جابه‌جایی سه‌بعدی <i>u</i> و مشاهدهٔ LOS با بردار یکهٔ نگاه <i>l</i>، از زمین به سوی سنجنده، چنین است:</p><Equation number={6}>{String.raw`d_{\mathrm{LOS}}=l_Eu_E+l_Nu_N+l_Uu_U`}</Equation><p>تنها اگر مؤلفه‌های افقی صفر فرض شوند، می‌توان با زاویهٔ برخورد θ تقریب زیر را نوشت:</p><Equation number={7}>{String.raw`u_U\simeq\frac{d_{\mathrm{LOS}}}{\cos\theta}\qquad (u_E=u_N=0)`}</Equation><p>این فرض باید روی محصول قائم درج شود. برای جداسازی مؤلفه‌ها، ترکیب هندسه‌های صعودی و نزولی و در صورت امکان GNSS لازم است. حتی در این حالت، حساسیت به مؤلفهٔ شمالی معمولاً ضعیف می‌ماند.</p></section>
-
-      <section><h2>۶. اصلاح خطا و کنترل کیفیت</h2><p>تأخیر تروپوسفری، خطای مدار، خطای باقیماندهٔ DEM، دکورلیشن و خطای گشودن فاز می‌توانند با تغییرشکل اشتباه شوند [۲، ۳]. هر اصلاح باید به عنوان یک مرحلهٔ نسخه‌دار ثبت شود. خروجی پیش و پس از اصلاح، پارامترها و منبع دادهٔ کمکی باید قابل بازیابی باشند.</p><p>حداقل کنترل انتشار شامل اتصال شبکه، تعداد مشاهده، همدوسی زمانی، باقیماندهٔ بست فاز، پوشش ماسک، پایداری مرجع، عدم قطعیت سرعت و بازبینی دیداری است. عبور از آستانهٔ عددی به تنهایی اثبات صحت ژئوفیزیکی نیست.</p></section>
-
-      <Figure label="شکل" number={3} caption="چهار نمودار مستقل کنترل کیفیت. اتصال شبکه، همدوسی، باقیماندهٔ بست فاز و عدم قطعیت باید پیش از انتشار هم‌زمان بررسی شوند.">
-        <QualityControlPanels labels={['شبکهٔ زوج‌های زمانی', 'همدوسی و ناحیهٔ ماسک‌شده', 'باقیماندهٔ بست فاز', 'عدم قطعیت سرعت و حاشیهٔ نامعتبر']} />
-      </Figure>
-
-      <section><h2>۷. مرز اعتبار نسخهٔ کنونی</h2><p>داده‌های فعلی فرودید ساختگی‌اند. نقشه، نمونه‌برداری نقطه و نمودار فقط قرارداد رابط و جریان داده را آزمایش می‌کنند. تا زمانی که شناسهٔ برداشت‌های واقعی، خروجی پردازش، مرجع، QC و بازبینی متخصص ثبت نشده باشد، هیچ عددی از این نسخه نباید به عنوان نرخ واقعی فرونشست دشت ورامین نقل شود.</p></section>
+      <section><h2>۵. تفسیر و انتشار</h2>
+        <p>تبدیل LOS به قائم تنها با فرض صریح نبود حرکت افقی نوشته می‌شود. این یک هویت هندسی نیست و در حضور حرکت افقی می‌تواند سوگیر باشد [۲، ۳].</p>
+        <Equation number={5}>{String.raw`u_U\simeq\frac{d_{\mathrm{LOS}}}{\cos\theta}\qquad\left(u_E=u_N=0\right)`}</Equation>
+        <p>فرودید نام متغیر، واحد، سال‌های مشاهده، روش تصویرکردن، مجوز و citation منبع را بدون بازتفسیر نگه می‌دارد. نمایش نقشه تنها پس از نرمال‌سازی رستر، حفظ NoData، تطبیق ماسک، کنترل دامنه و ثبت نسخهٔ محصول مجاز است. تا آن زمان، سایت فقط شناسنامهٔ منبع واقعی را ارائه می‌کند.</p>
+      </section>
     </div>
-    <footer className="paper-references"><h2>منابع</h2><ol>{references.map(([author, title, href]) => <li key={href}><a href={href}>{author}. {title}</a></li>)}</ol></footer>
+    <References title="منابع" />
   </article>
 }
 
 function EnglishPaper() {
   return <article className="paper paper-en" lang="en" dir="ltr">
-    <header className="paper-header"><p className="paper-series">FORUDID METHODS NOTE 1, VERSION 0.1</p>
-      <h1>A Reproducible Framework for Estimating Relative Ground Displacement from Sentinel-1 Interferometric Time Series</h1>
-      <p className="paper-author">Komeil, Forudid Project</p><p className="paper-affiliation">Tehran, Iran, 2026</p>
-      <section className="paper-abstract" aria-labelledby="abstract-en"><h2 id="abstract-en">Abstract</h2><p>This paper defines the measurement convention and target processing chain for Forudid. The intended inputs are Sentinel-1 Interferometric Wide swath single-look complex data. Interferograms are formed after orbit update and co-registration, corrected for flat-Earth and topographic phase, filtered, unwrapped, and assembled into a connected temporal network. Displacement is reported along the satellite line of sight relative to an explicit reference date and reference point or area. Conversion to vertical motion is permitted only under a stated zero-horizontal-motion assumption. The current Forudid release uses synthetic data and reports no geophysical result for the Varamin Plain.</p></section>
-      <p className="paper-keywords"><strong>Keywords:</strong> InSAR, Sentinel-1, time series, line-of-sight displacement, MintPy, land subsidence</p></header>
+    <header className="paper-header">
+      <p className="paper-series">FORUDID METHODS NOTE, 2026 REVISION</p>
+      <h1>Method and Interpretation Limits of the Nationwide Iran Subsidence Dataset, 2014 to 2020</h1>
+      <p className="paper-author">Komeil, Forudid Project</p>
+      <section className="paper-abstract" aria-labelledby="abstract-en"><h2 id="abstract-en">Abstract</h2>
+        <p>This note separates general InSAR physics from the provenance of the real dataset registered by Forudid. The current source is version 1.0.0 of the Haghshenas Haghighi and Motagh dataset, derived from more than 6,000 Sentinel-1 scenes acquired on ten descending tracks between 2014 and 2020 [3, 4]. Forudid has registered the original files and their integrity identifiers, but displays no analytical map or rate until source-aware normalization, quality control, and publication are complete.</p></section>
+      <p className="paper-keywords"><strong>Keywords:</strong> Sentinel-1, InSAR, Iran, land subsidence, time series, published data</p>
+    </header>
 
     <div className="paper-body">
-      <section><h2>1. Introduction</h2><p>Interferometric synthetic aperture radar uses the phase difference between repeated complex observations to measure a relative change in sensor-to-ground range [1, 2]. The result is a one-dimensional displacement projected onto the radar line of sight. A LOS map is therefore not, by itself, a map of vertical subsidence and is insensitive to motion along the satellite azimuth direction [2].</p><p>This note defines an auditable contract for Forudid. Every product must retain its inputs, pair network, reference, sign convention, corrections, masks, quality evidence, and software version. A single interferogram is not sufficient evidence for a displacement conclusion. The HyP3 guide likewise recommends a time-series approach [2].</p></section>
-      <section><h2>2. Observation model</h2><p>For co-registered complex samples <i>s₁</i> and <i>s₂</i>, the interferometric phase is the argument of one sample multiplied by the complex conjugate of the other. The observation contains geometric, topographic, deformation, atmospheric, orbital, and noise terms [1].</p><Equation number={1}>{String.raw`\begin{aligned}\phi_{\mathrm{int}}&=\operatorname{arg}(s_2s_1^{*})\\&=\phi_{\mathrm{flat}}+\phi_{\mathrm{topo}}+\phi_{\mathrm{def}}\\&\quad+\phi_{\mathrm{atm}}+\phi_{\mathrm{orb}}+\phi_{\mathrm{noise}}\end{aligned}`}</Equation><p>After removal of flat-Earth and topographic phase and after spatial referencing, the HyP3 convention converts unwrapped phase to LOS displacement using Eq. 2. Positive LOS values indicate motion toward the sensor and negative values indicate motion away from it [2].</p><Equation number={2}>{String.raw`d_{\mathrm{LOS}}^{*}=-\frac{\lambda}{4\pi}\left(\phi_{\mathrm{unw}}-\phi_{\mathrm{ref}}\right)`}</Equation><p>The HyP3 guide uses λ = 0.055465763 m for Sentinel-1 [2]. One complete 2π phase cycle corresponds to one half-wavelength, approximately 2.8 cm of LOS displacement.</p></section>
-      <Figure label="Figure" number={1} caption="Repeat-pass geometry. InSAR measures only the projection of the displacement vector onto the sensor look direction.">
-        <RepeatPassGeometry />
+      <section><h2>1. Data scope</h2>
+        <p>The registered version contains annual-rate, seasonal-amplitude, and subsidence-mask rasters. The publisher describes the rate and seasonal amplitude as descending line-of-sight measurements projected to the vertical [4]. They must therefore not be labelled as LOS products. The projection assumes that horizontal deformation is negligible relative to vertical deformation [3].</p>
+        <p>Time span, method, and units are read from source metadata. A NoData pixel means that no valid value is available; it does not indicate stable ground or a zero rate. Checksum verification establishes file identity, not scientific validity.</p>
+      </section>
+
+      <section><h2>2. Interferometric observation</h2>
+        <p>An SLC image retains the amplitude and phase of the radar return. For two co-registered images, the interferogram is formed by multiplying one complex image by the conjugate of the other; its argument is the phase difference [1]. Image order determines the phase sign.</p>
+        <Equation number={1}>{String.raw`\begin{aligned}I_{12}&=s_1s_2^{*}\\\Delta\phi&=\arg(I_{12})\end{aligned}`}</Equation>
+        <p>Under the HyP3 convention, after spatial referencing, positive LOS displacement is toward the sensor and negative displacement is away from it [2]. This convention must not be transferred to another processor without checking its metadata.</p>
+        <Equation number={2}>{String.raw`d_{\mathrm{LOS}}=-\frac{\lambda}{4\pi}\left(\Delta\phi-\Delta\phi_{\mathrm{ref}}\right)`}</Equation>
+      </section>
+
+      <Figure label="Figure" caption="Two repeat acquisitions measure ranges R₁ and R₂. Their range change appears as a phase difference; the final sign depends on the processing convention.">
+        <RepeatPassGeometry labels={['First acquisition, t₀', 'Second acquisition, t₀ + Δt', 'Phase difference and wavelength']} />
       </Figure>
-      <section><h2>3. Data and interferogram formation</h2><p>The intended inputs are co-polarized Sentinel-1 IW SLC pairs with overlapping bursts. Restituted or precise orbit data replace predicted state vectors. Copernicus GLO-30 provides the elevation model used to simulate and remove topographic phase [2, 4]. All pairs must share a relative orbit, compatible geometry, and polarization.</p><p>Co-registration must achieve sub-pixel precision. Flat-Earth and topographic phase are removed after interferogram formation. Phase filtering and masks for water or low-coherence regions are applied before unwrapping and recorded. Thresholds are not universal constants. Each value belongs to a versioned processing profile.</p><p>Normalized coherence is a bounded indicator of phase stability. Its sample estimate is expressed by Eq. 3.</p><Equation number={3}>{String.raw`\gamma=\frac{\left|\langle s_1s_2^{*}\rangle\right|}{\sqrt{\langle |s_1|^2\rangle\,\langle |s_2|^2\rangle}}`}</Equation></section>
-      <section><h2>4. Time-series inversion</h2><p>Unwrapped interferograms form a graph whose nodes are acquisition dates and whose edges are processed pairs. The network must be connected to the reference date. MintPy solves the network using weighted least squares and evaluates unwrapping errors and noise in the time domain [3].</p><Equation number={4}>{String.raw`\mathbf d=\mathbf G\mathbf m+\boldsymbol\varepsilon`}</Equation><Equation number={5}>{String.raw`\begin{aligned}\widehat{\mathbf m}={}&\left(\mathbf G^{\mathsf T}\mathbf W\mathbf G\right)^{-1}\\&\mathbf G^{\mathsf T}\mathbf W\mathbf d\end{aligned}`}</Equation><p>Here, <i>d</i> contains pairwise phase or displacement, <i>G</i> maps pairs to acquisition dates, <i>W</i> is the weight matrix, and <i>m̂</i> is the estimated time series. A rank-deficient or disconnected network must not be published.</p></section>
-      <Figure label="Figure" number={2} caption="Three independent views of phase difference, interferometric phase, and the relative displacement time series. Quantities and conventions are defined in the text.">
-        <InterferometrySequence labels={['Complex signals from two acquisitions', 'Interferometric phase field', 'Relative displacement time series']} />
-      </Figure>
-      <section><h2>5. Reference and geometric interpretation</h2><p>InSAR displacement is relative. Every value depends on a reference date and reference pixel or area. The spatial reference should remain coherent, lie outside the expected deformation field, and not be separated from the analysis area by an incoherent gap [2]. Its coordinates, radius, aggregation rule, and selection rationale are product metadata.</p><p>The relation between the three-dimensional displacement vector <i>u</i> and the LOS measurement uses the unit look vector <i>l</i>, directed from ground to sensor:</p><Equation number={6}>{String.raw`d_{\mathrm{LOS}}=l_Eu_E+l_Nu_N+l_Uu_U`}</Equation><p>Only under an explicit zero-horizontal-motion assumption can incidence angle θ be used to write:</p><Equation number={7}>{String.raw`u_U\simeq\frac{d_{\mathrm{LOS}}}{\cos\theta}\qquad (u_E=u_N=0)`}</Equation><p>This assumption must remain attached to every vertical product. Separating components requires ascending and descending geometries and, where possible, GNSS constraints. Sensitivity to northward motion generally remains weak.</p></section>
-      <section><h2>6. Error correction and quality control</h2><p>Tropospheric delay, orbit error, residual DEM error, decorrelation, and phase-unwrapping errors can mimic deformation [2, 3]. Every correction is a versioned operation. Inputs, parameters, auxiliary data, and pre-correction and post-correction outputs must remain recoverable.</p><p>Minimum release evidence includes graph connectivity, observation count, temporal coherence, phase-closure residuals, valid-mask coverage, reference stability, velocity uncertainty, and visual review. Passing a numerical threshold alone does not establish geophysical validity.</p></section>
-      <Figure label="Figure" number={3} caption="Four independent quality-control plots. Pair-network integrity, coherence, phase-closure residuals, and uncertainty must be reviewed together before release.">
-        <QualityControlPanels labels={['Temporal pair network', 'Coherence and masked area', 'Phase-closure residuals', 'Velocity uncertainty and invalid margin']} />
-      </Figure>
-      <section><h2>7. Validity boundary of the current release</h2><p>The current Forudid dataset is synthetic. Its map, point sampling, and chart validate only the interface and data contract. No value from this release may be cited as an observed Varamin subsidence rate until real acquisition identifiers, processing outputs, reference definition, quality evidence, and expert review are recorded.</p></section>
+
+      <section><h2>3. Processing reported by the source</h2>
+        <p>The source study concatenated same-date frames within each track into long SLC strips and selected one date per track as the co-registration reference. Its network used an ideal temporal baseline of 60 days and connected each image to the two images closest to that interval. Interferograms were multilooked by factors of 10 in range and 2 in azimuth [3].</p>
+        <p>Precise orbits and the SRTM elevation model were used to remove geometric and topographic phase. Adaptive filtering, minimum-cost-flow unwrapping, and 2 by 2 downsampling followed, producing an approximately 100 m by 100 m ground spacing. Interferometric processing used GAMMA, followed by network inversion for the phase time series [3].</p>
+      </section>
+
+      <section><h2>4. Reference, atmosphere, and temporal model</h2>
+        <p>Because the strips are extensive and deformation is spatially distributed, the study did not use one reference point. For each date, a correction surface was estimated in 25 km by 25 km patches. The first term accounts for the reference and broad-scale tropospheric delay; the second models elevation-correlated delay [3].</p>
+        <Equation number={3}>{String.raw`c_i^{(k)}=p_1^{(k)}+p_2^{(k)}\left(h_i-h_0^{(k)}\right)`}</Equation>
+        <p>The fit was iterative: areas with absolute deformation above 1 cm/year were excluded and the mask was dilated with a 9 by 9 kernel. The corrected series was then modelled with trend, acceleration, and annual terms [3].</p>
+        <Equation number={4}>{String.raw`X(t)=\beta_1+\beta_2t+\beta_3t^2+\beta_4\sin\!\left(\frac{2\pi t}{365}\right)+\beta_5\cos\!\left(\frac{2\pi t}{365}\right)+\varepsilon`}</Equation>
+      </section>
+
+      <section><h2>5. Interpretation and publication</h2>
+        <p>A LOS-to-vertical conversion requires an explicit zero-horizontal-motion assumption. It is not a geometric identity and can be biased where horizontal motion is present [2, 3].</p>
+        <Equation number={5}>{String.raw`u_U\simeq\frac{d_{\mathrm{LOS}}}{\cos\theta}\qquad\left(u_E=u_N=0\right)`}</Equation>
+        <p>Forudid preserves the source variable name, unit, observation years, projection method, licence, and citation without reinterpretation. Map display requires raster normalization, NoData preservation, mask consistency checks, range checks, and a recorded product version. Until those gates pass, the site exposes only the verified real-source record.</p>
+      </section>
     </div>
-    <footer className="paper-references"><h2>References</h2><ol>{references.map(([author, title, href]) => <li key={href}><a href={href}>{author}. {title}</a></li>)}</ol></footer>
+    <References title="References" />
   </article>
 }
 
