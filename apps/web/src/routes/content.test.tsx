@@ -11,7 +11,7 @@ describe('scientific content pages', () => {
     expect(document.querySelectorAll('.paper-figure img')).toHaveLength(0)
     expect(document.querySelectorAll('.paper-figure svg')).toHaveLength(3)
     expect(screen.getByText(/بیش از ۶۰۰۰ صحنه/)).toBeInTheDocument()
-    expect(document.querySelectorAll('.katex')).toHaveLength(5)
+    expect(document.querySelectorAll('.katex')).toHaveLength(7)
     expect(document.querySelector('.paper')?.textContent).not.toMatch(/ساختگی|آزمایشی/)
     expect(document.querySelector('.paper')?.textContent).not.toContain(String.fromCodePoint(8212))
   })
@@ -21,7 +21,7 @@ describe('scientific content pages', () => {
     fireEvent.click(screen.getByRole('button', { name: 'English' }))
     expect(screen.getByRole('heading', { name: 'Interferometric observation.' })).toBeInTheDocument()
     expect(screen.getByText(/more than 6,000 Sentinel-1 scenes/)).toBeInTheDocument()
-    expect(screen.getByText(/displays no analytical map or rate/)).toBeInTheDocument()
+    expect(screen.getByText(/cannot assign confidence intervals/)).toBeInTheDocument()
     expect(document.querySelector('.paper')?.textContent).not.toMatch(/synthetic|fixture/i)
   })
 

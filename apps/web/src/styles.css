@@ -171,7 +171,7 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
 .paper-body p + p { text-indent: 1.15em; }
 .paper-equation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin: 9px 0 10px;
   font: 400 13.5px/1.4 KaTeX_Main, 'Times New Roman', serif; break-inside: avoid; overflow: visible; }
-.paper-equation span { grid-column: 2; text-align: center; min-width: 0; }
+.paper-equation > span { grid-column: 2; text-align: center; min-width: 0; }
 .paper-equation .katex-display { margin: 0; }
 .paper-equation b { grid-column: 3; justify-self: end; font-size: 11px; font-weight: 400; }
 .paper-figure { column-span: all; width: 100%; margin: 20px auto 24px; break-inside: avoid; text-align: center; }
@@ -199,6 +199,10 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
 .paper-references li { margin-bottom: 2px; text-align: start; }
 .paper-references li span { display: inline-block; min-width: 20px; }
 .paper-references a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.paper-discussion { margin-top: 18px; }
+.paper-discussion section { margin-bottom: 12px; }
+.paper-references ol { direction: ltr; font-family: KaTeX_Main, 'Times New Roman', serif; columns: 2; column-gap: 30px; }
+.paper-references li { break-inside: avoid; padding-left: 22px; text-indent: -22px; margin-bottom: 5px; }
 .about-page { max-width: 620px; margin: 0 auto; padding-top: 1px; }
 .about-heading { margin: 56px 0 32px; }
 .about-heading h1 { margin: 0; font-size: 22px; line-height: 1.7; font-weight: 600; }
@@ -267,6 +271,7 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
   .paper-stamp { display: none; }
   .paper-header h1, .paper-en .paper-header h1 { font-size: 22px; }
   .paper-body { column-count: 1; }
+  .paper-references ol { columns: 1; }
   .paper-figure { width: 100%; margin-block: 20px 24px; }
   .method-figure-sequence { grid-template-columns: 1fr; }
   .paper-equation { grid-template-columns: 1fr auto 28px; font-size: 11px; overflow-x: auto; overflow-y: hidden; }
