@@ -1,6 +1,6 @@
 # فرودید | FORUDID
 
-WebGIS محلی برای مشاهدهٔ تغییرشکل در راستای دید ماهواره. محدودهٔ نخست، ورامین است.
+WebGIS محلی برای مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، با منبع و نسخهٔ قابل ردیابی.
 
 ## مسیر V2
 
@@ -8,16 +8,19 @@ WebGIS محلی برای مشاهدهٔ تغییرشکل در راستای دی�
 تغییرشکل گسترش می‌دهد. [ممیزی V1 و ترتیب اجرا](docs/v2/audit.md) و
 [تصمیم‌های معماری V2](docs/v2/adr/) مبنای این گذارند. رجیستری منبع و صفحهٔ `/sources`
 با فایل‌های واقعی Haghighi–Motagh پیاده‌سازی شده است؛ [شواهد این مرحله](docs/v2/source-registry.md)
-را ببینید. نقشه و تحلیل V2 هنوز پذیرفته نشده‌اند؛ V2 به تولید اختصاصی InSAR وابسته نخواهد بود و exposure را ریسک
+را ببینید. دو لایهٔ تاریخی واقعی روی نقشه منتشر شده‌اند؛ تحلیل مواجههٔ V2 هنوز کامل نیست.
+V2 به تولید اختصاصی InSAR وابسته نخواهد بود و exposure را ریسک
 سازه معرفی نمی‌کند. وضعیت بررسی مرحلهٔ صفر در [گزارش آزمون](docs/v2/verification.md) است.
 
 ## وضعیت نسخهٔ اجراشدنی
 
-**نسخهٔ فعلی یک برش نرم‌افزاری با دادهٔ ساختگی است؛ نتیجهٔ علمی دربارهٔ ورامین نیست.**
-نسخهٔ 0.1.0 هنوز پذیرش کامل Compose/E2E را نگرفته است؛ شواهد و مانع محیط در
-[وضعیت اجرا](docs/operations/milestones.md) ثبت شده‌اند.
-COG، پایگاه داده، S3 خصوصی، tile، نمونه‌برداری نقطه و نمودار واقعی‌اند؛ اعداد fixture هستند.
-LOS با فرونشست عمودی یکسان نیست. قرارداد علامت و مرجع از فراداده خوانده می‌شود.
+نسخهٔ `0.2.0-alpha.2` دادهٔ واقعی Haghighi–Motagh (۲۰۱۴–۲۰۲۰) را نمایش می‌دهد:
+نرخ فرونشست قائم برآوردشده و دامنهٔ قله‌تا‌قلهٔ فصلی. این‌ها تصویرکردن راستای دید نزولی
+با فرض ناچیزبودن حرکت افقی‌اند و وضعیت کنونی زمین را نشان نمی‌دهند.
+سری زمانی و عدم‌قطعیت پیکسلی در این منبع ارائه نشده‌اند؛ رابط هم آن‌ها را تولید نمی‌کند.
+هر سه COG با تمام پیکسل‌های فایل اصلی تطبیق داده شده‌اند؛ [شواهد](docs/v2/raster-normalization.md).
+دادهٔ ساختگی V1 فقط برای آزمون باقی مانده و در تنظیم پیش‌فرض API قابل مشاهده نیست.
+V2 MVP شامل زیرساخت، تحلیل مواجهه، جمعیت و گزارش هنوز کامل نشده است.
 
 ## اجرای محلی
 
@@ -31,10 +34,12 @@ docker compose up --build
 اسکریپت اول رمزهای تصادفی محلی می‌سازد و `.env` موجود را دست نمی‌زند. هیچ رمز یا
 فایل `.env` نباید commit شود. `.env.example` فقط نام متغیرها را دارد.
 
-یک سرویس موقت `initialize` migrationهای رو به جلو و seed تکرارپذیر fixture را اجرا می‌کند.
+یک سرویس موقت `initialize` migrationهای رو به جلو و ساخت bucket خصوصی را اجرا می‌کند؛
+دادهٔ ساختگی به‌صورت خودکار تولید نمی‌شود. برای دادهٔ واقعی، مراحل ورود منبع پایین را اجرا کنید.
 API هنگام startup خود migration انجام نمی‌دهد. مسیرهای محلی بعد از آماده‌شدن stack:
 
 - [نقشهٔ محلی](http://localhost:58080/map)
+- [منابع داده](http://localhost:58080/sources)
 - [سلامت API](http://localhost:58080/health/ready)
 
 `LOCAL_PORT` پورت ورودی، `API_PORT` پورت API، `DB_PORT` پورت PostGIS و `S3_PORT`
@@ -59,7 +64,7 @@ pnpm install --frozen-lockfile
 uv sync --project apps/api --frozen
 docker compose up -d postgres object-storage
 uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
-uv run --project apps/api python -m forudid_api.seed
+uv run --project apps/api python -m forudid_api.initialize
 ```
 
 در دو ترمینال، از ریشهٔ مخزن اجرا کنید:
@@ -88,7 +93,8 @@ pnpm --filter @forudid/web exec playwright install chromium
 pnpm test:e2e
 ```
 
-آزمون API به PostGIS و S3 همین پروژه و seed نیاز دارد. آزمون مرورگر به دو سرور توسعهٔ بالا
+آزمون‌های قدیمی API به PostGIS و S3 همین پروژه و اجرای صریح `python -m forudid_api.seed`
+نیاز دارند؛ مجوز دیدن fixture فقط داخل همان آزمون‌ها فعال می‌شود. آزمون مرورگر به دو سرور توسعهٔ بالا
 نیاز دارد. برای آزمون build Compose از `WEB_BASE_URL=http://localhost:58080` استفاده کنید.
 در صورت نبود Chromium تست و وجود Chrome نصب‌شده، `PLAYWRIGHT_CHANNEL=chrome` را تنظیم کنید؛
 Playwright از پروفایل موقت استفاده می‌کند. اسکرین‌شات‌ها در `/tmp/forudid-qa` قرار می‌گیرند.
@@ -100,12 +106,17 @@ Playwright از پروفایل موقت استفاده می‌کند. اسکری
 ```sh
 uv run --project apps/api python -m forudid_api.ingest data/sources/haghighi-motagh-2024/1.0.0
 uv run --project apps/api python -m forudid_api.register_source data/sources/haghighi-motagh-2024/1.0.0
+uv run --project apps/api python -m forudid_api.normalize data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
+uv run --project apps/api python -m forudid_api.publish_historical data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
 ```
 
 فرمان اول سه رستر نسخهٔ ثابت Zenodo را دریافت و با MD5 منتشرشده تطبیق می‌دهد.
 فرمان دوم SHA-256 را دوباره بررسی، فایل‌ها را به‌صورت streaming در S3 خصوصی آرشیو
 و منبع و نسخه را اتمیک ثبت می‌کند. تکرار با محتوای یکسان همان شناسه را برمی‌گرداند؛
-تعارض checksum خطاست. این فرمان‌ها هنوز محصول نقشه یا نتیجهٔ exposure منتشر نمی‌کنند.
+تعارض checksum خطاست. فرمان سوم COGهای هم‌شبکه با اصل داده می‌سازد؛ فرمان چهارم
+پس از تطبیق پیکسل‌ها، دو لایهٔ واقعی را همراه STAC، کیفیت و provenance محلی منتشر می‌کند.
+برای آزمون‌های واقعی API و مرورگر، `FORUDID_REAL_SOURCE_TESTS=1` را تنظیم کنید.
+تنظیم `ALLOW_FIXTURE_PRODUCTS` در حالت عادی false است و نباید برای نمایش محصول فعال شود.
 فایل‌های حجیم در `data/` و S3 می‌مانند و وارد Git نمی‌شوند.
 صفحهٔ `/sources` فقط اطلاعات عمومی منبع و نسخه را نشان می‌دهد.
 
@@ -125,7 +136,7 @@ git diff --exit-code -- docs/openapi.json apps/web/src/generated/api
 `VITE_BASEMAP_STYLE_URL` و `VITE_BASEMAP_ATTRIBUTION` فقط پس از انتخاب provider دارای مجوز
 تنظیم شوند. Attribution پنهان نمی‌شود. WebGL2 لازم است.
 
-دادهٔ fixture شامل ۶۴×۶۴ پیکسل، ۲۶ تاریخ و یک تاریخ گمشده است. نقطهٔ
+دادهٔ fixture آزمون شامل ۶۴×۶۴ پیکسل، ۲۶ تاریخ و یک تاریخ گمشده است. نقطهٔ
 `51.6452, 35.3241` باید `-71.2 mm/year`، عدم قطعیت `6.0 mm/year` و coherence برابر `0.89`
 داشته باشد. تعداد مشاهدات معتبر ۲۵ است. کیفیت آن همیشه «نیازمند احتیاط» و ساختگی است.
 

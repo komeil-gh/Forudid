@@ -8,7 +8,6 @@ from pathlib import Path
 import numpy as np
 import rasterio
 from rasterio.shutil import copy as raster_copy
-from rasterio.windows import Window
 
 from forudid_api.ingest import FILES, digest
 
@@ -30,7 +29,7 @@ def verify_cog(original: Path, output: Path) -> None:
         ):
             raise ValueError("COG geometry or encoding mismatch")
         for row in range(0, source.height, 64):
-            window = Window(0, row, source.width, min(64, source.height - row))
+            window = ((row, min(row + 64, source.height)), (0, source.width))
             if not np.array_equal(source.read(1, window=window), result.read(1, window=window)):
                 raise ValueError("COG changed source pixel values")
 
@@ -76,7 +75,7 @@ def normalize(source: Path, output: Path) -> dict:
         minimum, maximum, total = float("inf"), float("-inf"), 0.0
         peak = None
         for row in range(0, rate.height, 64):
-            window = Window(0, row, rate.width, min(64, rate.height - row))
+            window = ((row, min(row + 64, rate.height)), (0, rate.width))
             values = rate.read(1, window=window, masked=True)
             amplitude = rasters["seasonal_amplitude"].read(1, window=window, masked=True)
             mask = rasters["mask"].read(1, window=window)

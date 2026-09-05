@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 
-const golden = '/map?pointLon=51.6452&pointLat=35.3241&panel=point&z=9.2'
+const golden = '/map?lon=55.65368745&lat=30.86962006&pointLon=55.65368745&pointLat=30.86962006&panel=point&z=10'
 test('map worker loads while the catalog is unavailable', async ({ page }, testInfo) => {
   await page.route('**/api/v1/**', route => route.fulfill({ status: 503, body: '{}' }))
   const worker = page.waitForResponse(r => r.url().includes('maplibre-gl-worker') && r.status() === 200)
@@ -14,29 +14,33 @@ test('map worker loads while the catalog is unavailable', async ({ page }, testI
   await mkdir('/tmp/forudid-qa', { recursive: true })
   await page.screenshot({ path: `/tmp/forudid-qa/${testInfo.project.name}-offline.png` })
 })
+// eslint-disable-next-line no-empty-pattern -- Playwright requires fixture destructuring.
+test.beforeEach(async ({}, info) => {
+  test.skip(!process.env.FORUDID_REAL_SOURCE_TESTS && !info.title.includes('worker loads'), 'Requires the verified historical snapshot')
+})
 async function layers(page: Page, mobile: boolean) {
   if (mobile) await page.getByRole('button', { name: 'لایه‌های نقشه', exact: true }).click()
   return mobile ? page.getByRole('dialog') : page.locator('.desktop-sidebar')
 }
-test('real COG tile, point click, chart and stable reload', async ({ page, isMobile }, testInfo) => {
+test('historical COG tile, source measurement and stable reload', async ({ page, isMobile }, testInfo) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   const tile = page.waitForResponse(r => r.url().includes('/tiles/') && r.status() === 200)
-  await page.goto('/map?z=9.2')
+  await page.goto('/map?lon=55.65&lat=30.87&z=10')
   await expect(page).toHaveTitle('فرودید | FORUDID')
   expect((await tile).headers()['content-type']).toContain('image/png')
+  await expect(page.locator('.maplibregl-ctrl-attrib-inner')).toContainText('Haghshenas Haghighi')
   const map = page.locator('.maplibregl-canvas')
   await expect(map).toBeVisible()
   await map.click({ position: { x: isMobile ? 200 : 560, y: isMobile ? 250 : 420 } })
   await expect(page.getByRole('region', { name: 'نقطهٔ انتخاب‌شده' })).toBeVisible()
-  await expect(page.getByText('△ نیازمند احتیاط')).toBeVisible()
   await page.goto(golden)
-  await expect(page.getByText('-71.2', { exact: true })).toBeVisible()
-  await expect(page.getByText('0.89', { exact: true })).toBeVisible()
-  await expect(page.getByText('25', { exact: true })).toBeVisible()
-  await expect(page.locator('.chart canvas')).toBeAttached()
+  await expect(page.getByText('370.0', { exact: true })).toBeVisible()
+  await expect(page.getByText('△ نیازمند احتیاط')).toBeVisible()
+  await expect(page.locator('.point-chart')).toContainText('سری زمانی پیکسلی در این مجموعهٔ تاریخی ارائه نشده است.')
+  await expect(page.locator('.chart canvas')).toHaveCount(0)
   await page.reload()
-  await expect(page.getByText('-71.2', { exact: true })).toBeVisible()
+  await expect(page.getByText('370.0', { exact: true })).toBeVisible()
   expect(await page.locator('html').getAttribute('dir')).toBe('rtl')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await mkdir('/tmp/forudid-qa', { recursive: true })
@@ -46,44 +50,46 @@ test('real COG tile, point click, chart and stable reload', async ({ page, isMob
 test('layer changes and opacity survive reload', async ({ page, isMobile }) => {
   await page.goto('/map')
   const panel = await layers(page, isMobile)
-  await panel.getByRole('radio', { name: 'Temporal Coherence' }).check()
-  await expect(page).toHaveURL(/layer=temporal_coherence/)
+  await panel.getByRole('radio', { name: 'دامنهٔ فصلی قله‌تا‌قله' }).check()
+  await expect(page).toHaveURL(/layer=seasonal_amplitude/)
   if (isMobile) await panel.getByRole('button', { name: 'بستن', exact: true }).click()
-  await expect(page.locator('.legend')).toContainText('Temporal Coherence')
+  await expect(page.locator('.legend')).toContainText('دامنهٔ قله‌تا‌قلهٔ فصلی')
   const panelAgain = await layers(page, isMobile)
-  await panelAgain.getByRole('radio', { name: 'Velocity Uncertainty' }).check()
+  await panelAgain.getByRole('radio', { name: 'نرخ فرونشست قائم برآوردشده' }).check()
   await panelAgain.getByRole('slider').fill('45')
   if (isMobile) await panelAgain.getByRole('button', { name: 'بستن', exact: true }).click()
   await expect(page).toHaveURL(/opacity=0.45/)
   await page.reload()
-  await expect(page.locator('.legend')).toContainText('Velocity Uncertainty')
+  await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
   const reloaded = await layers(page, isMobile)
   await expect(reloaded.getByRole('slider')).toHaveValue('45')
 })
-test('metadata is labelled synthetic and contains provenance', async ({ page, isMobile }) => {
+test('historical metadata identifies the actual source and projection', async ({ page, isMobile }) => {
   await page.goto('/map')
   const panel = await layers(page, isMobile)
   await panel.getByRole('button', { name: 'مشاهدهٔ فراداده' }).click()
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByText('STAC', { exact: true })).toBeVisible()
-  await expect(dialog.locator('pre').first()).toContainText('forudid:is_fixture')
+  await expect(dialog.locator('pre').first()).toContainText('descending_los_projection')
   await expect(dialog.locator('pre').nth(1)).toContainText('scientifically_validated')
   await dialog.getByRole('button', { name: 'بستن', exact: true }).click()
   await expect(dialog).not.toBeVisible()
 })
 test('invalid URL and empty product states are recoverable', async ({ page }) => {
   await page.goto('/map?lat=NaN&z=900&opacity=-1&layer=vertical')
-  await expect(page.locator('.legend')).toContainText('LOS Velocity')
+  await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
   await page.goto('/map?orbit=ascending')
-  await expect(page.getByText('برای این انتخاب محصول منتشرشده‌ای وجود ندارد.')).toBeVisible()
-  await page.locator('.map-message').getByRole('button', { name: 'بازگشت به ورامین' }).click()
-  await expect(page.locator('.legend')).toContainText('LOS Velocity')
+  await expect(page.getByText('هنوز محصول علمی واقعی و منتشرشده‌ای برای این محدوده وجود ندارد.')).toBeVisible()
+  await page.locator('.map-message').getByRole('button', { name: 'بازگشت به نمای ایران' }).click()
+  await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
 })
-test('time series failure leaves map and QC usable', async ({ page }) => {
-  await page.route('**/api/v1/points/timeseries?**', route => route.fulfill({ status: 503, body: '{}' }))
+test('unavailable time series is never requested or fabricated', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', request => { if (request.url().includes('/points/timeseries')) requests.push(request.url()) })
   await page.goto(golden)
-  await expect(page.getByText('-71.2', { exact: true })).toBeVisible()
-  await expect(page.locator('.point-chart').getByRole('alert')).toContainText('دریافت داده ممکن نشد.')
+  await expect(page.getByText('370.0', { exact: true })).toBeVisible()
+  await expect(page.locator('.point-chart')).toContainText('سری زمانی پیکسلی در این مجموعهٔ تاریخی ارائه نشده است.')
+  expect(requests).toEqual([])
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
   await expect(page.getByText('△ نیازمند احتیاط')).toBeVisible()
 })
@@ -91,6 +97,6 @@ test('QC/point failure never leaves an unqualified velocity value', async ({ pag
   await page.route('**/api/v1/points/summary?**', route => route.fulfill({ status: 503, body: '{}' }))
   await page.goto(golden)
   await expect(page.locator('.point-details').getByRole('alert')).toBeVisible()
-  await expect(page.getByText('-71.2', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('370.0', { exact: true })).toHaveCount(0)
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
 })

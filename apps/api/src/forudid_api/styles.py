@@ -5,6 +5,16 @@ from forudid_api.schemas import Legend
 
 # Versioned presentation ranges for fixtures; these are not scientific QC thresholds.
 STYLES = {
+    "historical-subsidence-v1": (
+        "velocity_vertical",
+        [0.0, 5.0, 10.0, 20.0, 40.0],
+        ["#f7f8f6", "#f2cb93", "#eb997d", "#bb5553", "#7a1834"],
+    ),
+    "historical-seasonal-v1": (
+        "seasonal_amplitude",
+        [0.0, 2.0, 5.0, 12.0],
+        ["#f7f8f6", "#b7d9d7", "#4e9fa0", "#155665"],
+    ),
     "velocity-default": (
         "velocity_los",
         [-0.1, -0.05, 0.0, 0.02],
@@ -24,6 +34,8 @@ STYLES = {
 }
 DEFAULT_STYLE = {value[0]: key for key, value in STYLES.items() if "contrast" not in key}
 LABELS = {
+    "velocity_vertical": "نرخ فرونشست قائم برآوردشده",
+    "seasonal_amplitude": "دامنهٔ قله‌تا‌قلهٔ فصلی",
     "velocity_los": "LOS Velocity",
     "temporal_coherence": "Temporal Coherence",
     "velocity_uncertainty": "Velocity Uncertainty",
@@ -37,7 +49,11 @@ def legend(item: Product) -> Legend:
         style=style,
         label=LABELS[item.kind],
         unit=item.unit,
-        display_unit="mm/year" if item.unit == "m/year" else "1",
+        display_unit="mm/year"
+        if item.unit in ("m/year", "cm/year")
+        else "mm"
+        if item.unit == "cm"
+        else "1",
         ticks=ticks,
         colors=colors,
         sign_convention=item.stats["sign_convention"],

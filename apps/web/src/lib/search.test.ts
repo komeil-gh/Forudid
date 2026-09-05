@@ -17,6 +17,8 @@ describe('shareable state and scientific units', () => {
     expect(presentation(null, 'm')).toBeNull()
     expect(presentation(0, 'm/year')).toBe(0)
     expect(presentation(0.89, '1')).toBe(0.89)
+    expect(presentation(37, 'cm/year')).toBe(370)
+    expect(presentation(1.2, 'cm')).toBe(12)
   })
   it('rounds to finer than the fixture raster resolution', () => {
     expect(roundCoordinate(51.645219)).toBe(51.64522)

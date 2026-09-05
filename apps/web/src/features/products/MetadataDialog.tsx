@@ -11,7 +11,7 @@ export function MetadataDialog({ product, open, onOpenChange }:
   return <Dialog.Root open={open} onOpenChange={onOpenChange}><Dialog.Portal><Dialog.Overlay className="dialog-overlay" />
     <Dialog.Content className="dialog-content" dir="rtl"><div className="dialog-heading"><Dialog.Title>{fa.metadata}</Dialog.Title>
       <Dialog.Close asChild><Button aria-label={fa.close} variant="ghost"><X size={18} /></Button></Dialog.Close></div>
-      <Dialog.Description>{fa.scientificNote}</Dialog.Description>
+      <Dialog.Description>{product.sign_convention}</Dialog.Description>
       {product.is_fixture && <p className="notice">{fa.fixture}</p>}
       <h3>STAC</h3>{metadata.isPending ? <Status /> : metadata.isError ? <Status error retry={() => void metadata.refetch()} /> :
         <pre dir="ltr">{JSON.stringify(metadata.data, null, 2)}</pre>}

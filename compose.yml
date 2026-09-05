@@ -33,7 +33,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       S3_ENDPOINT: http://object-storage:9000
-    command: ["sh", "-c", "alembic upgrade head && python -m forudid_api.seed"]
+    command: ["sh", "-c", "alembic upgrade head && python -m forudid_api.initialize"]
     depends_on:
       postgres: {condition: service_healthy}
       object-storage: {condition: service_healthy}

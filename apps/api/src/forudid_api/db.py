@@ -124,16 +124,19 @@ class Product(Record):
         ),
         CheckConstraint(
             "kind IN ('velocity_los','temporal_coherence','velocity_uncertainty',"
-            "'valid_mask','timeseries')",
+            "'valid_mask','timeseries','velocity_vertical','seasonal_amplitude')",
             name="product_kind",
         ),
         CheckConstraint("orbit_direction IN ('ascending','descending')", name="product_orbit"),
     )
     processing_run_id: Mapped[UUID] = mapped_column(ForeignKey("processing_runs.id"), index=True)
+    source_version_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("source_versions.id"), index=True
+    )
     aoi_id: Mapped[UUID] = mapped_column(ForeignKey("areas_of_interest.id"), index=True)
     kind: Mapped[str]
     orbit_direction: Mapped[str]
-    relative_orbit: Mapped[int]
+    relative_orbit: Mapped[int | None]
     start_date: Mapped[str]
     end_date: Mapped[str]
     unit: Mapped[str]

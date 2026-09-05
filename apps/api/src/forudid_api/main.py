@@ -113,7 +113,19 @@ def ready(db: DB) -> dict[str, str]:
 
 @app.get("/api/v1/aois", operation_id="listAreas", response_model=list[Area])
 def areas(db: DB):
-    return [Area.model_validate(a) for a in db.scalars(select(AOI).where(AOI.active)).all()]
+    query = (
+        select(AOI)
+        .join(Product, Product.aoi_id == AOI.id)
+        .join(Run, Run.id == Product.processing_run_id)
+        .where(
+            AOI.active,
+            Product.status == "published",
+            Run.status == "published",
+            catalog.visible_product(),
+        )
+        .distinct()
+    )
+    return [Area.model_validate(a) for a in db.scalars(query).all()]
 
 
 @app.get("/api/v1/aois/{slug}", operation_id="getArea", response_model=Area)
@@ -127,18 +139,25 @@ def area(slug: str, db: DB):
 @app.get("/api/v1/products", operation_id="listProducts", response_model=list[ProductInfo])
 def products(
     db: DB,
-    aoi: str = "varamin",
+    aoi: str = "iran",
     kind: Kind | None = None,
     orbit: Literal["ascending", "descending"] | None = None,
     relative_orbit: Annotated[int | None, Query(ge=1, le=175)] = None,
     status: Literal["published"] = "published",
     run: UUID | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0, le=100000)] = 0,
 ):
     query = (
         select(Product)
         .join(AOI)
         .join(Run, Product.processing_run_id == Run.id)
-        .where(AOI.slug == aoi, Product.status == status, Run.status == "published")
+        .where(
+            AOI.slug == aoi,
+            Product.status == status,
+            Run.status == "published",
+            catalog.visible_product(),
+        )
     )
     for column, value in (
         (Product.kind, kind),
@@ -148,7 +167,9 @@ def products(
     ):
         if value is not None:
             query = query.where(column == value)
-    items = db.scalars(query.order_by(Product.created_at.desc())).all()
+    items = db.scalars(
+        query.order_by(Product.created_at.desc(), Product.id).offset(offset).limit(limit)
+    ).all()
     area = db.scalar(select(AOI).where(AOI.slug == aoi))
     assets = db.scalars(select(Asset).where(Asset.product_id.in_([p.id for p in items]))).all()
     grouped: dict[UUID, list[Asset]] = {}
@@ -200,6 +221,10 @@ def get_series(lon: Lon, lat: Lat, run_id: UUID, db: DB):
 @app.get("/api/v1/runs/{run_id}", operation_id="getRun", response_model=RunInfo)
 def get_run(run_id: UUID, db: DB):
     run = db.get(Run, run_id)
-    if run is None or run.status != "published":
+    if (
+        run is None
+        or run.status != "published"
+        or (not settings().allow_fixture_products and run.config.get("is_fixture"))
+    ):
         raise catalog.missing("RUN_NOT_PUBLISHED")
     return RunInfo.model_validate(run)

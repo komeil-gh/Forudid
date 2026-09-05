@@ -2,11 +2,13 @@ import math
 from uuid import UUID
 
 import numpy as np
-from rio_tiler.io.rasterio import Reader
+import rasterio
+from rasterio.warp import transform
 from sqlalchemy.orm import Session
 
 from forudid_api import catalog
-from forudid_api.schemas import Coordinate, PointSummary, Quantity, TimeSeries
+from forudid_api.db import Product
+from forudid_api.schemas import Coordinate, Kind, PointSummary, Quantity, TimeSeries
 from forudid_api.storage import read_json, read_url
 
 
@@ -27,6 +29,8 @@ def pixel(data: dict, lon: float, lat: float) -> tuple[int, int] | None:
 
 def timeseries(db: Session, run_id: UUID, coordinate: Coordinate) -> TimeSeries:
     item = catalog.run_product(db, run_id, "velocity_los")
+    if item.relative_orbit is None:
+        raise catalog.missing("TIMESERIES_NOT_AVAILABLE")
     data = series_data(db, run_id)
     index = pixel(data, coordinate.lon, coordinate.lat)
     epochs = []
@@ -52,42 +56,65 @@ def timeseries(db: Session, run_id: UUID, coordinate: Coordinate) -> TimeSeries:
     )
 
 
+def sample_product(
+    db: Session, item: Product, coordinate: Coordinate
+) -> tuple[float | None, Coordinate | None]:
+    asset = catalog.role_asset(db, item, "data")
+    with rasterio.Env(
+        GDAL_HTTP_TIMEOUT=10,
+        GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR",
+        GDAL_CACHEMAX=16 * 1024 * 1024,
+    ):
+        with rasterio.open(read_url(asset.object_key)) as raster:
+            projected = transform("EPSG:4326", raster.crs, [coordinate.lon], [coordinate.lat])
+            row, col = raster.index(projected[0][0], projected[1][0])
+            if not 0 <= row < raster.height or not 0 <= col < raster.width:
+                return None, None
+            values = raster.read(1, window=((row, row + 1), (col, col + 1)), masked=True)
+            cx, cy = raster.xy(row, col)
+            geographic = transform(raster.crs, "EPSG:4326", [cx], [cy])
+            center = Coordinate(lon=geographic[0][0], lat=geographic[1][0])
+            if np.ma.getmaskarray(values)[0, 0]:
+                return None, center
+            value = float(values[0, 0]) * raster.scales[0] + raster.offsets[0]
+            return (value if math.isfinite(value) else None), center
+
+
 def summary(db: Session, product_id: UUID, coordinate: Coordinate) -> PointSummary:
     requested = catalog.product(db, product_id)
-    item = catalog.run_product(db, requested.processing_run_id, "velocity_los")
-    data = series_data(db, item.processing_run_id)
-    index = pixel(data, coordinate.lon, coordinate.lat)
-    values: dict[str, float | None] = {}
-    center = None
-    for kind in ("velocity_los", "velocity_uncertainty", "temporal_coherence"):
-        value = None
-        if index:
-            related = catalog.run_product(db, item.processing_run_id, kind)
-            source = catalog.role_asset(db, related, "data")
-            with Reader(input=read_url(source.object_key), options={}) as reader:
-                point = reader.point(coordinate.lon, coordinate.lat)
-                if not bool(np.ma.getmaskarray(point.array).flat[0]):
-                    value = float(point.array[0])
-        values[kind] = value
-    observations = sum(
-        e.displacement is not None
-        for e in timeseries(db, item.processing_run_id, coordinate).series
+    historical = requested.source_version_id is not None
+    item = (
+        requested
+        if historical
+        else catalog.run_product(db, requested.processing_run_id, "velocity_los")
     )
-    if index:
-        west, south, east, north = data["bbox"]
-        center = Coordinate(
-            lon=west + (index[1] + 0.5) * (east - west) / data["width"],
-            lat=north - (index[0] + 0.5) * (north - south) / data["height"],
+    value, center = sample_product(db, item, coordinate)
+    uncertainty, coherence, observations = None, None, None
+    if not historical:
+        uncertainty, _ = sample_product(
+            db, catalog.run_product(db, item.processing_run_id, "velocity_uncertainty"), coordinate
         )
-    quality = "nodata" if values["velocity_los"] is None else item.stats["quality"]["quality"]
+        coherence, _ = sample_product(
+            db, catalog.run_product(db, item.processing_run_id, "temporal_coherence"), coordinate
+        )
+        observations = sum(
+            e.displacement is not None
+            for e in timeseries(db, item.processing_run_id, coordinate).series
+        )
+    quality = "nodata" if value is None else item.stats["quality"]["quality"]
+    reasons = list(item.stats["quality"]["reasons"])
+    if value is None:
+        reasons.append("در این پیکسل داده موجود نیست؛ نبود داده به معنای نبود تغییرشکل نیست.")
     return PointSummary(
         coordinate=coordinate,
         sampled_coordinate=center,
         product_id=product_id,
         run_id=item.processing_run_id,
-        velocity_los=Quantity(value=values["velocity_los"], unit="m/year"),
-        velocity_uncertainty=Quantity(value=values["velocity_uncertainty"], unit="m/year"),
-        temporal_coherence=values["temporal_coherence"],
+        measurement=Quantity(value=value, unit=item.unit),
+        measurement_kind=Kind(item.kind),
+        velocity_los=Quantity(value=None if historical else value, unit="m/year"),
+        velocity_uncertainty=Quantity(value=uncertainty, unit=item.unit),
+        temporal_coherence=coherence,
         observations=observations,
         orbit_direction=item.orbit_direction,
         relative_orbit=item.relative_orbit,
@@ -96,9 +123,8 @@ def summary(db: Session, product_id: UUID, coordinate: Coordinate) -> PointSumma
         last_acquisition=item.stats["last_acquisition"],
         processing_version=item.processing_version,
         reference=item.stats["reference"],
+        reference_description=item.stats.get("reference_description"),
         quality=quality,
-        quality_reasons=["دادهٔ ساختگی است؛ برای استناد علمی مناسب نیست."]
-        if item.stats["is_fixture"]
-        else item.stats["quality"]["reasons"],
+        quality_reasons=reasons,
         is_fixture=item.stats["is_fixture"],
     )

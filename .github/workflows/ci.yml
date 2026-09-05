@@ -5,6 +5,8 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      FORUDID_REAL_SOURCE_TESTS: '1'
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +30,12 @@ jobs:
           uv run --project apps/api alembic -c apps/api/alembic.ini downgrade -1
           uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
           uv run --project apps/api python -m forudid_api.seed
+      - name: Acquire and publish the verified historical snapshot
+        run: |
+          uv run --project apps/api python -m forudid_api.ingest data/sources/haghighi-motagh-2024/1.0.0
+          uv run --project apps/api python -m forudid_api.register_source data/sources/haghighi-motagh-2024/1.0.0
+          uv run --project apps/api python -m forudid_api.normalize data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
+          uv run --project apps/api python -m forudid_api.publish_historical data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
       - name: Contract synchronization
         run: |
           uv run --project apps/api python scripts/export_openapi.py

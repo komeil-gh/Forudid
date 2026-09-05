@@ -172,7 +172,9 @@
           "temporal_coherence",
           "velocity_uncertainty",
           "valid_mask",
-          "timeseries"
+          "timeseries",
+          "velocity_vertical",
+          "seasonal_amplitude"
         ],
         "title": "Kind",
         "type": "string"
@@ -250,12 +252,32 @@
             "type": "boolean"
           },
           "last_acquisition": {
-            "title": "Last Acquisition",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Acquisition"
+          },
+          "measurement": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "measurement_kind": {
+            "$ref": "#/components/schemas/Kind"
           },
           "observations": {
-            "title": "Observations",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observations"
           },
           "orbit_direction": {
             "title": "Orbit Direction",
@@ -288,11 +310,36 @@
             "type": "array"
           },
           "reference": {
-            "$ref": "#/components/schemas/ReferenceInfo"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Description"
           },
           "relative_orbit": {
-            "title": "Relative Orbit",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Orbit"
           },
           "run_id": {
             "format": "uuid",
@@ -336,6 +383,8 @@
           "sampled_coordinate",
           "product_id",
           "run_id",
+          "measurement",
+          "measurement_kind",
           "velocity_los",
           "velocity_uncertainty",
           "temporal_coherence",
@@ -347,6 +396,7 @@
           "last_acquisition",
           "processing_version",
           "reference",
+          "reference_description",
           "quality",
           "quality_reasons",
           "is_fixture"
@@ -371,6 +421,10 @@
             },
             "title": "Assets",
             "type": "array"
+          },
+          "attribution": {
+            "title": "Attribution",
+            "type": "string"
           },
           "bbox": {
             "items": {
@@ -400,7 +454,22 @@
             "$ref": "#/components/schemas/Kind"
           },
           "last_acquisition": {
-            "title": "Last Acquisition",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Acquisition"
+          },
+          "measurement_component": {
+            "title": "Measurement Component",
+            "type": "string"
+          },
+          "measurement_method": {
+            "title": "Measurement Method",
             "type": "string"
           },
           "orbit_direction": {
@@ -425,15 +494,57 @@
             "type": "string"
           },
           "reference": {
-            "$ref": "#/components/schemas/ReferenceInfo"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Description"
           },
           "relative_orbit": {
-            "title": "Relative Orbit",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Orbit"
+          },
+          "resolution_metadata": {
+            "additionalProperties": true,
+            "title": "Resolution Metadata",
+            "type": "object"
           },
           "sign_convention": {
             "title": "Sign Convention",
             "type": "string"
+          },
+          "source_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Version Id"
           },
           "start_date": {
             "title": "Start Date",
@@ -444,6 +555,18 @@
             "title": "Status",
             "type": "string"
           },
+          "time_precision": {
+            "enum": [
+              "day",
+              "year"
+            ],
+            "title": "Time Precision",
+            "type": "string"
+          },
+          "timeseries_available": {
+            "title": "Timeseries Available",
+            "type": "boolean"
+          },
           "unit": {
             "title": "Unit",
             "type": "string"
@@ -452,6 +575,7 @@
         "required": [
           "id",
           "processing_run_id",
+          "source_version_id",
           "aoi_id",
           "aoi_slug",
           "kind",
@@ -462,12 +586,19 @@
           "last_acquisition",
           "unit",
           "crs",
+          "resolution_metadata",
           "processing_version",
           "product_version",
           "status",
           "is_fixture",
           "sign_convention",
           "reference",
+          "reference_description",
+          "measurement_component",
+          "measurement_method",
+          "time_precision",
+          "timeseries_available",
+          "attribution",
           "bbox",
           "assets"
         ],
@@ -1002,7 +1133,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.2.0-alpha.1"
+    "version": "0.2.0-alpha.2"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -1330,7 +1461,7 @@
             "name": "aoi",
             "required": false,
             "schema": {
-              "default": "varamin",
+              "default": "iran",
               "title": "Aoi",
               "type": "string"
             }
@@ -1415,6 +1546,30 @@
                 }
               ],
               "title": "Run"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
             }
           }
         ],

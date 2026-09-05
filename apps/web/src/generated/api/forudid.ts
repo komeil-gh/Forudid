@@ -68,6 +68,8 @@ export const Kind = {
   velocity_uncertainty: 'velocity_uncertainty',
   valid_mask: 'valid_mask',
   timeseries: 'timeseries',
+  velocity_vertical: 'velocity_vertical',
+  seasonal_amplitude: 'seasonal_amplitude',
 } as const;
 
 export interface Legend {
@@ -92,6 +94,11 @@ export const PointSummaryQuality = {
   nodata: 'nodata',
 } as const;
 
+export interface Quantity {
+  unit: string;
+  value: number | null;
+}
+
 export interface ReferenceInfo {
   coordinate: Coordinate;
   date: string;
@@ -100,24 +107,22 @@ export interface ReferenceInfo {
   reason: string;
 }
 
-export interface Quantity {
-  unit: string;
-  value: number | null;
-}
-
 export interface PointSummary {
   coordinate: Coordinate;
   end_date: string;
   is_fixture: boolean;
-  last_acquisition: string;
-  observations: number;
+  last_acquisition: string | null;
+  measurement: Quantity;
+  measurement_kind: Kind;
+  observations: number | null;
   orbit_direction: string;
   processing_version: string;
   product_id: string;
   quality: PointSummaryQuality;
   quality_reasons: string[];
-  reference: ReferenceInfo;
-  relative_orbit: number;
+  reference: ReferenceInfo | null;
+  reference_description: string | null;
+  relative_orbit: number | null;
   run_id: string;
   sampled_coordinate: Coordinate | null;
   start_date: string;
@@ -134,26 +139,44 @@ export const ProductInfoOrbitDirection = {
   descending: 'descending',
 } as const;
 
+export type ProductInfoResolutionMetadata = { [key: string]: unknown };
+
+export type ProductInfoTimePrecision = typeof ProductInfoTimePrecision[keyof typeof ProductInfoTimePrecision];
+
+
+export const ProductInfoTimePrecision = {
+  day: 'day',
+  year: 'year',
+} as const;
+
 export interface ProductInfo {
   aoi_id: string;
   aoi_slug: string;
   assets: AssetInfo[];
+  attribution: string;
   bbox: number[];
   crs: string;
   end_date: string;
   id: string;
   is_fixture: boolean;
   kind: Kind;
-  last_acquisition: string;
+  last_acquisition: string | null;
+  measurement_component: string;
+  measurement_method: string;
   orbit_direction: ProductInfoOrbitDirection;
   processing_run_id: string;
   processing_version: string;
   product_version: string;
-  reference: ReferenceInfo;
-  relative_orbit: number;
+  reference: ReferenceInfo | null;
+  reference_description: string | null;
+  relative_orbit: number | null;
+  resolution_metadata: ProductInfoResolutionMetadata;
   sign_convention: string;
+  source_version_id: string | null;
   start_date: string;
   status: 'published';
+  time_precision: ProductInfoTimePrecision;
+  timeseries_available: boolean;
   unit: string;
 }
 
@@ -289,6 +312,16 @@ orbit?: ListProductsOrbit;
 relative_orbit?: number | null;
 status?: 'published';
 run?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * @minimum 0
+ * @maximum 100000
+ */
+offset?: number;
 };
 
 export type ListProductsOrbit = typeof ListProductsOrbit[keyof typeof ListProductsOrbit] | null;

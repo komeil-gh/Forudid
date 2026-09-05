@@ -3,7 +3,7 @@ import Map, { Layer, Marker, NavigationControl, Source, type MapRef } from 'reac
 import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { Crosshair } from 'lucide-react'
-import type { MapSearch } from '../../lib/search'
+import { defaultSearch, type MapSearch } from '../../lib/search'
 import type { ProductInfo } from '../../generated/api/forudid'
 import { apiBase } from '../../lib/api'
 import { fa } from '../../messages/fa'
@@ -12,10 +12,10 @@ import { Button } from '../../components/ui/button'
 maplibre.setWorkerUrl(workerUrl)
 
 const grid = { type: 'FeatureCollection' as const, features: [
-  ...Array.from({ length: 13 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
-    type: 'LineString' as const, coordinates: [[50 + i * 0.25, 34], [50 + i * 0.25, 37]],
-  } })), ...Array.from({ length: 13 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
-    type: 'LineString' as const, coordinates: [[50, 34 + i * 0.25], [53, 34 + i * 0.25]],
+  ...Array.from({ length: 21 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
+    type: 'LineString' as const, coordinates: [[43 + i, 24], [43 + i, 40]],
+  } })), ...Array.from({ length: 17 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
+    type: 'LineString' as const, coordinates: [[43, 24 + i], [63, 24 + i]],
   } })),
 ] }
 const localStyle: maplibre.StyleSpecification = {
@@ -35,6 +35,7 @@ export function MapCanvas({ state, product, style, update, selectPoint }:
   })
   const sourceUrl = import.meta.env.VITE_BASEMAP_STYLE_URL
   const asset = product?.assets.find(a => a.role === 'data')
+  const attribution = product?.attribution.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   useEffect(() => {
     const map = ref.current
     if (!map) return
@@ -65,6 +66,7 @@ export function MapCanvas({ state, product, style, update, selectPoint }:
           'line-dasharray': [3, 4], 'line-opacity': 0.6 }} />
       </Source>}
       {asset && bbox && style && <Source key={asset.id} id="scientific-raster" type="raster"
+        attribution={attribution}
         tiles={[`${apiBase}/tiles/${asset.id}/{z}/{x}/{y}.png?style=${style}`]}
         tileSize={256} minzoom={0} maxzoom={18} bounds={bbox as [number, number, number, number]}>
         <Layer id="scientific-layer" type="raster" paint={{ 'raster-opacity': state.opacity,
@@ -74,11 +76,11 @@ export function MapCanvas({ state, product, style, update, selectPoint }:
         paint={{ 'line-color': '#176e79', 'line-width': 1.5 }} /></Source>
       {state.pointLon !== undefined && state.pointLat !== undefined && <Marker
         longitude={state.pointLon} latitude={state.pointLat}><span className="point-marker"><Crosshair size={26} /></span></Marker>}
-      {product && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>
+      {product?.reference && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>
         <span className="reference-marker" title={fa.reference}>REF</span></Marker>}
     </Map>
     {error && <p className="map-warning" role="alert">{error}</p>}
-    <div className="map-tools"><Button aria-label={fa.reset} onClick={() => update({ lon: 51.65, lat: 35.325, z: 9.2, pitch: 0, bearing: 0 })}><Crosshair size={19} /></Button>
+    <div className="map-tools"><Button aria-label={fa.reset} onClick={() => update({ lon: defaultSearch.lon, lat: defaultSearch.lat, z: defaultSearch.z, pitch: 0, bearing: 0 })}><Crosshair size={19} /></Button>
       <Button onClick={() => selectPoint(state.lon, state.lat)}>{fa.inspectCenter}</Button></div>
   </div>
 }

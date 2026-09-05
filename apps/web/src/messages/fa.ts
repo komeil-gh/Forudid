@@ -7,7 +7,7 @@ export const fa = {
   period: 'بازهٔ زمانی', version: 'نسخهٔ پردازش', metadata: 'مشاهدهٔ فراداده',
   reference: 'مرجع جابه‌جایی', referenceDate: 'تاریخ مرجع', lastAcquisition: 'آخرین برداشت',
   loading: 'در حال دریافت داده…', error: 'دریافت داده ممکن نشد.', retry: 'تلاش دوباره',
-  empty: 'هنوز محصول علمی واقعی و منتشرشده‌ای برای این محدوده وجود ندارد.', reset: 'بازگشت به ورامین',
+  empty: 'هنوز محصول علمی واقعی و منتشرشده‌ای برای این محدوده وجود ندارد.', reset: 'بازگشت به نمای ایران',
   point: 'نقطهٔ انتخاب‌شده', selectPoint: 'برای مشاهدهٔ جزئیات، روی محدودهٔ رنگی کلیک کنید.',
   inspectCenter: 'بررسی نقطهٔ مرکز نقشه', velocity: 'نرخ تغییرشکل LOS',
   uncertainty: 'عدم قطعیت سرعت', coherence: 'همدوسی زمانی', observations: 'تعداد مشاهدات معتبر',
@@ -25,6 +25,7 @@ export const fa = {
   run: 'شناسهٔ اجرا', downloadMetadata: 'بازکردن STAC', coordinates: 'مختصات',
 } as const
 export const layerLabels = {
+  velocity_vertical: 'نرخ فرونشست قائم برآوردشده', seasonal_amplitude: 'دامنهٔ فصلی قله‌تا‌قله',
   velocity_los: 'LOS Velocity', temporal_coherence: 'Temporal Coherence',
   velocity_uncertainty: 'Velocity Uncertainty',
 } as const

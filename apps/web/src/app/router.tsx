@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
-import { Search, Copy, LocateFixed } from 'lucide-react'
+import { Copy, LocateFixed } from 'lucide-react'
 import { useState } from 'react'
 import { defaultSearch, searchSchema } from '../lib/search'
 import { fa } from '../messages/fa'
@@ -29,8 +29,6 @@ function Shell() {
         <Link to="/map" search={defaultSearch}>{fa.map}</Link><Link to="/sources">منابع داده</Link>
         <Link to="/methodology">{fa.methodology}</Link><Link to="/about">{fa.about}</Link>
       </nav></details>
-    <label className="search"><Search size={18} aria-hidden="true" /><span className="sr-only">{fa.search}</span>
-      <select aria-label={fa.search} value="varamin" onChange={() => undefined}><option value="varamin">{fa.varamin}</option></select></label>
     <Button onClick={copy} className="copy" aria-label={fa.copy}><Copy size={16} /><span>{fa.copy}</span></Button>
   </header><div className="copy-status" role="status">{copyStatus}</div>
     <Boundary><Outlet /></Boundary></>
@@ -42,9 +40,10 @@ export const mapRoute = createRoute({ getParentRoute: () => rootRoute, path: '/m
   component: () => <Suspense fallback={<Status />}><MapPage /></Suspense>,
 })
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () =>
-  <main className="article"><h1>فرودید | FORUDID</h1><p>{fa.scientificNote}</p>
-    <p>پایش تغییرشکل زمین، با مرجع روشن و کیفیت قابل بررسی. محدودهٔ نخست: دشت ورامین.</p>
-    <Button asChild><Link to="/sources">مشاهدهٔ منابع واقعی</Link></Button></main> })
+  <main className="article"><h1>فرودید | FORUDID</h1>
+    <p>مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، همراه با منبع، نسخه و محدودیت‌های اندازه‌گیری.</p>
+    <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای سال‌های ۲۰۱۴ تا ۲۰۲۰ است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
+    <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button></main> })
 const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: MethodologyPage })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',

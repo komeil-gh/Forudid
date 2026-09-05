@@ -22,6 +22,11 @@ from forudid_api.styles import STYLES, colormap
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def enable_test_products(monkeypatch):
+    monkeypatch.setattr(settings(), "allow_fixture_products", True)
+
+
 def test_golden_cog_and_missing_epoch():
     with TemporaryDirectory() as directory:
         path = Path(directory)
@@ -46,8 +51,8 @@ def test_metadata_and_fixture_boundary():
     assert client.get("/health/live").status_code == 200
     assert client.get("/health/ready").status_code == 200
     areas = client.get("/api/v1/aois").json()
-    assert [a["slug"] for a in areas] == ["varamin"]
-    response = client.get("/api/v1/products", params={"kind": "velocity_los"})
+    assert "varamin" in [a["slug"] for a in areas]
+    response = client.get("/api/v1/products", params={"aoi": "varamin", "kind": "velocity_los"})
     assert response.status_code == 200, response.text
     product = response.json()[0]
     assert product["is_fixture"] is True
