@@ -70,11 +70,10 @@ const people = [
 ] as const
 
 const sourceMarks = [
-  { name: 'Sentinel-1', className: 'sentinel', href: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1' },
-  { name: 'Zenodo', className: 'zenodo', href: 'https://zenodo.org/records/10815578' },
-  { name: 'Science Advances', className: 'science', href: 'https://doi.org/10.1126/sciadv.adk3039' },
-  { name: 'OpenStreetMap', className: 'osm', href: 'https://www.openstreetmap.org/copyright' },
-  { name: 'Geofabrik', className: 'geofabrik', href: 'https://download.geofabrik.de/asia/iran.html' },
+  { name: 'Sentinel-1', className: 'sentinel', logo: '/source-marks/sentinel-1.png', href: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1', fa: 'تصویر راداری', en: 'Radar imagery' },
+  { name: 'Zenodo', className: 'zenodo', logo: '/source-marks/zenodo.svg', href: 'https://zenodo.org/records/10815578', fa: 'مخزن داده', en: 'Data repository' },
+  { name: 'Science Advances', className: 'science', logo: '/source-marks/science-advances.png', href: 'https://doi.org/10.1126/sciadv.adk3039', fa: 'مقالهٔ مبنا', en: 'Source paper' },
+  { name: 'OpenStreetMap', className: 'osm', logo: '/source-marks/openstreetmap.svg', href: 'https://www.openstreetmap.org/copyright', fa: 'دادهٔ زیرساخت', en: 'Infrastructure data' },
 ] as const
 
 function LetterWatermark() {
@@ -114,7 +113,7 @@ export default function AboutPage() {
     {language === 'fa' ? <>
     <figure className="biruni-quote">
       <blockquote>وظیفهٔ هر کس در دانش خویش آن است که کوششِ پیشینیان را با سپاس بپذیرد، کاستی را اگر یافت اصلاح کند، و آنچه بر او روشن شد برای آیندگان به یادگار بگذارد.</blockquote>
-      <figcaption>ابوریحان محمد بن احمد بیرونی، <cite>قانون مسعودی</cite>، جلد نخست، مقدمهٔ مؤلف، حیدرآباد دکن: مطبعهٔ مجلس دایرةالمعارف العثمانیه، چاپ نخست، ۱۳۷۳ هجری قمری / ۱۹۵۴ میلادی، ص. ۳. نسخهٔ چاپی این اثر بر اساس نسخه‌های خطی کهن تصحیح شده است.</figcaption>
+      <figcaption><strong>ابوریحان محمد بن احمد بیرونی</strong>، <cite>قانون مسعودی</cite>، جلد نخست، مقدمهٔ مؤلف، حیدرآباد دکن: مطبعهٔ مجلس دایرةالمعارف العثمانیه، چاپ نخست، ۱۳۷۳ هجری قمری / ۱۹۵۴ میلادی، ص. ۳. نسخهٔ چاپی این اثر بر اساس نسخه‌های خطی کهن تصحیح شده است.</figcaption>
     </figure>
 
     <article className="about-letter">
@@ -133,7 +132,7 @@ export default function AboutPage() {
     </> : <>
       <figure className="biruni-quote">
         <blockquote>The duty of each person in their field of knowledge is to receive the efforts of predecessors with gratitude, correct any shortcomings they find, and leave what has become clear to them as a legacy for those who follow.</blockquote>
-        <figcaption>Abu Rayhan Muhammad ibn Ahmad al-Biruni, <cite>Al-Qanun al-Masudi</cite>, volume I, author’s preface, Hyderabad Deccan: Osmania Oriental Publications Bureau, first edition, 1373 AH / 1954 CE, p. 3. This printed edition was prepared from early manuscripts.</figcaption>
+        <figcaption><strong>Abu Rayhan Muhammad ibn Ahmad al-Biruni</strong>, <cite>Al-Qanun al-Masudi</cite>, volume I, author’s preface, Hyderabad Deccan: Osmania Oriental Publications Bureau, first edition, 1373 AH / 1954 CE, p. 3. This printed edition was prepared from early manuscripts.</figcaption>
       </figure>
       <article className="about-letter">
         <p className="about-opening">Following in their steps, I have tried to carry this reckoning a little further.</p>
@@ -149,12 +148,19 @@ export default function AboutPage() {
     <footer className="about-site-footer">
       <div className="about-footer-brand">
         <span className="about-footer-mark" aria-hidden="true"><img src="/brand/selected/forudid-mark-black.png" alt="" /></span>
-        <span>{language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}</span>
+        <div><span>{language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}</span>
+          <small>{language === 'fa' ? 'فرودید تلاشی شخصی و مستقل است و به هیچ نهاد یا سازمانی وابسته نیست.' : 'Forudid is an independent personal project and is not affiliated with any institution or organization.'}</small></div>
       </div>
       <div className="about-source-strip">
         <small>{language === 'fa' ? 'داده و منابع' : 'Data & references'}</small>
-        <div>{sourceMarks.map(source => <a key={source.name} className={`source-mark source-mark-${source.className}`}
-          href={source.href} target="_blank" rel="noreferrer" title={source.name}>{source.name}</a>)}</div>
+        <nav aria-label={language === 'fa' ? 'منابع داده و مقاله' : 'Data and publication sources'}>
+          {sourceMarks.map(source => <a key={source.name} className={`source-mark source-mark-${source.className}`}
+            href={source.href} target="_blank" rel="noreferrer" aria-label={source.name}>
+            <span><img src={source.logo} alt="" /></span><small>{language === 'fa' ? source.fa : source.en}</small>
+          </a>)}
+        </nav>
+        <p>{language === 'fa' ? 'استخراج شبکهٔ زیرساخت از OpenStreetMap به‌وسیلهٔ ' : 'OpenStreetMap infrastructure extract provided by '}
+          <a href="https://download.geofabrik.de/asia/iran.html" target="_blank" rel="noreferrer">Geofabrik</a></p>
       </div>
     </footer>
   </main>
