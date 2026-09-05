@@ -51,6 +51,10 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   }, [selectedGeometry, region])
   useEffect(fitSelection, [fitSelection])
   useEffect(() => {
+    if (profilePoint && ref.current && !ref.current.getBounds().contains([profilePoint.lon, profilePoint.lat]))
+      ref.current.panTo([profilePoint.lon, profilePoint.lat], { duration: 0 })
+  }, [profilePoint])
+  useEffect(() => {
     const map = ref.current
     if (!map) return
     const center = map.getCenter()
@@ -83,7 +87,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       interactiveLayerIds={infrastructureKinds.map(kind => `infra-${kind}`)}
       onClick={e => {
         const id = e.features?.[0]?.properties?.asset_id
-        if (typeof id === 'string') update({ asset: id, analysis: undefined, panel: 'asset', pointLon: undefined, pointLat: undefined })
+        if (typeof id === 'string') update({ asset: id, analysis: undefined, segment: undefined, panel: 'asset', pointLon: undefined, pointLat: undefined })
         else selectPoint(e.lngLat.lng, e.lngLat.lat)
       }}
       onError={e => { if (('sourceId' in e && String(e.sourceId).startsWith('infra-')) || e.error.message.includes('/vector/')) {

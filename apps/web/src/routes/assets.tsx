@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
-import { useGetExposureRanking, useGetInfrastructureAsset, useGetLegend, useListProducts, type ProfileSample, type RankedAsset } from '../generated/api/forudid'
+import { useGetExposureRanking, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetLegend, useListProducts, type ProfileSample, type RankedAsset } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
 import { useLanguage } from '../i18n'
@@ -62,10 +62,15 @@ export default function AssetsPage() {
 
 export function AssetDetailPage() {
   const { assetId } = useParams({ from: '/assets/$assetId' }), search = useSearch({ from: '/assets/$assetId' })
+  const navigate = useNavigate({ from: '/assets/$assetId' })
   const { language } = useLanguage(), fa = language === 'fa'
   const asset = useGetInfrastructureAsset(assetId), products = useListProducts({ aoi: 'iran' })
   const product = products.data?.find(p => search.product ? p.id === search.product : p.kind === 'velocity_vertical')
   const legend = useGetLegend(product?.id ?? '', { query: { enabled: !!product } })
+  const exposure = useGetAssetExposure(assetId, { product_id: product?.id, run_id: search.analysis }, { query: { enabled: !!product, retry: false } })
+  const selectedInterval = useGetExposureSegments(exposure.data?.analysis_run_id ?? '', assetId, { offset: search.segment ?? 0, limit: 1 }, { query: { enabled: !!exposure.data && search.segment !== undefined } })
+  const interval = selectedInterval.data?.features.find(f => f.properties.ordinal === search.segment)
+  const activeRun = search.analysis ?? exposure.data?.analysis_run_id
   const [view, setView] = useState<MapSearch>({ ...defaultSearch, asset: assetId, panel: 'asset', infrastructure: 'none' })
   const [sample, setSample] = useState<{ assetId: string; value: ProfileSample }>()
   const inspect = useCallback((next?: ProfileSample) => setSample(next ? { assetId, value: next } : undefined), [assetId])
@@ -73,8 +78,8 @@ export function AssetDetailPage() {
     {asset.isPending || products.isPending ? <Status /> : asset.isError || products.isError ? <Status error retry={() => { void asset.refetch(); void products.refetch() }} /> : asset.data && <>
       <p>OSM <bdi>{asset.data.properties.external_id}</bdi> · {asset.data.properties.asset_type === 'railway' ? (fa ? 'راه‌آهن' : 'Railway') : (fa ? 'راه اصلی' : 'Major road')} · {(asset.data.properties.length_m/1000).toLocaleString(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 2 })} km</p>
       <p>{fa ? 'این هندسه یک قطعهٔ OSM است، نه الزاماً یک مسیر کامل. شبکهٔ ۲۰۲۶ با دادهٔ تغییرشکل ۲۰۱۴–۲۰۲۰ مقایسه می‌شود؛ هم‌زمانی، کامل‌بودن و دقت مکانی شبکه تأیید نشده است.' : 'This is one OSM way, not necessarily a complete route. The 2026 network is compared with 2014–2020 deformation; temporal alignment, network completeness and positional accuracy are unverified.'}</p>
-      <div className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={asset.data.geometry} profilePoint={sample?.assetId === assetId ? sample.value : undefined} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} /></div>
-      {product ? <ExposureDetails key={`${assetId}/${product.id}/${search.analysis}`} assetId={assetId} productId={product.id} runId={search.analysis} onInspect={inspect} /> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
+      <div className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={interval?.geometry ?? asset.data.geometry} profilePoint={sample?.assetId === assetId ? sample.value : undefined} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} /></div>
+      {product ? <ExposureDetails key={`${assetId}/${product.id}/${activeRun}`} assetId={assetId} productId={product.id} runId={activeRun} onInspect={inspect} selectedSegment={search.segment} onSelectSegment={ordinal => void navigate({ search: { ...search, segment: ordinal, analysis: exposure.data?.analysis_run_id } })} /> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
       <section className="source-version"><h2>{fa ? 'منابع و دریافت داده' : 'Sources and downloads'}</h2><p><a href={asset.data.license_url}>{asset.data.attribution} · ODbL 1.0</a></p><code>{asset.data.properties.source_version_id}</code>
         <p><a href={`${apiBase}/api/v1/assets/${assetId}`} download={`${assetId}.geojson`}>{fa ? 'هندسه و فرادادهٔ منبع (GeoJSON)' : 'Source geometry and metadata (GeoJSON)'}</a></p><Link to="/sources">{fa ? 'رجیستری منابع' : 'Source registry'}</Link></section>
     </>}

@@ -70,7 +70,7 @@ const assetsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/asset
   validateSearch: raw => assetSearchSchema.parse(raw),
   component: () => <Suspense fallback={<Status />}><AssetsPage /></Suspense> })
 const assetDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/assets/$assetId',
-  validateSearch: raw => z.object({ product: z.uuid().optional(), analysis: z.uuid().optional() }).parse(raw),
+  validateSearch: raw => z.object({ product: z.uuid().optional(), analysis: z.uuid().optional(), segment: z.coerce.number().int().min(0).max(200000).optional().catch(undefined) }).parse(raw),
   component: () => <Suspense fallback={<Status />}><AssetDetailPage /></Suspense> })
 export const router = createRouter({ routeTree: rootRoute.addChildren([
   homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute, assetsRoute, assetDetailRoute,

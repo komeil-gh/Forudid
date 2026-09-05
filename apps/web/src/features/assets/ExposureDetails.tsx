@@ -3,7 +3,7 @@ import { init, use as registerCharts } from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, DataZoomComponent, AriaComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { useGetAssetExposure, useGetAssetProfile, type ProfileSample } from '../../generated/api/forudid'
+import { useGetAssetExposure, useGetAssetProfile, useGetExposureSegments, type ProfileSample } from '../../generated/api/forudid'
 import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
@@ -45,14 +45,17 @@ function ProfileChart({ samples, onInspect }: { samples: ProfileSample[]; onInsp
   return <div className="chart" ref={ref} role="img" aria-label={label} dir="ltr" />
 }
 
-export function ExposureDetails({ assetId, productId, runId, onInspect }: {
+export function ExposureDetails({ assetId, productId, runId, onInspect, selectedSegment, onSelectSegment }: {
   assetId: string; productId: string; runId?: string; onInspect: (sample?: ProfileSample) => void;
+  selectedSegment?: number; onSelectSegment: (ordinal?: number) => void;
 }) {
   const { language } = useLanguage(), en = language === 'en'
   const [page, setPage] = useState(0)
   const exposure = useGetAssetExposure(assetId, { product_id: productId, run_id: runId }, { query: { retry: false } })
   const data = exposure.data
   const profile = useGetAssetProfile(data?.analysis_run_id || '', assetId, { page }, { query: { enabled: !!data } })
+  const segmentOffset = Math.floor((selectedSegment ?? 0)/25)*25
+  const segments = useGetExposureSegments(data?.analysis_run_id || '', assetId, { offset: segmentOffset, limit: 25 }, { query: { enabled: !!data } })
   const number = (v: unknown, digits = 1) => typeof v === 'number'
     ? v.toLocaleString(en ? 'en-US' : 'fa-IR', { maximumFractionDigits: digits }) : (en ? 'Unavailable' : 'ناموجود')
   if (exposure.isPending) return <Status />
@@ -60,6 +63,8 @@ export function ExposureDetails({ assetId, productId, runId, onInspect }: {
     ? <p>{en ? 'No published analysis is available for this segment and product.' : 'تحلیل منتشرشده‌ای برای این قطعه و محصول موجود نیست.'}</p>
     : <Status error retry={() => void exposure.refetch()} />
   if (!data) return null
+  const edges = Array.isArray(data.inputs.band_edges_mm_year) && data.inputs.band_edges_mm_year.every(v => typeof v === 'number') ? data.inputs.band_edges_mm_year : []
+  const bandLabel = (index: number | null) => index === null ? (en ? 'No data' : 'بدون داده') : !edges.length ? (en ? 'Unavailable' : 'ناموجود') : index === 0 ? `< ${number(edges[0])}` : index === edges.length ? `≥ ${number(edges.at(-1))}` : `${number(edges[index-1])} ≤ v < ${number(edges[index])}`
   return <section aria-label={en ? 'Descriptive exposure' : 'مواجههٔ توصیفی'}>
     <h3>{en ? 'Descriptive exposure · experimental method' : 'مواجههٔ توصیفی · روش آزمایشی'}</h3>
     <p>{en ? 'Length-weighted sampling of the historical raster; numerical bands are not hazard classes.' : 'نمونه‌برداری با وزن طول از رستر تاریخی؛ بازه‌های عددی، ردهٔ خطر نیستند.'}</p>
@@ -82,6 +87,19 @@ export function ExposureDetails({ assetId, productId, runId, onInspect }: {
         <Button disabled={profile.data.next_page === null} onClick={() => { setPage(page + 1); onInspect() }}>{en ? 'Next samples' : 'نمونه‌های بعدی'}</Button>
       </div>}
     </>}
+    <details className="series-table segment-table"><summary>{en ? 'Exposure intervals' : 'بازه‌های مواجهه'}</summary>
+      <p>{en ? 'Select a real interval to fit its geometry on the map. Bands describe historical rates, not hazard.' : 'یک بازهٔ واقعی را انتخاب کنید تا هندسهٔ آن روی نقشه نمایش داده شود. باندها نرخ تاریخی را توصیف می‌کنند، نه خطر را.'}</p>
+      {selectedSegment !== undefined && <Button onClick={() => onSelectSegment()}>{en ? 'Show the entire way' : 'نمایش کل قطعه'}</Button>}
+      {segments.isPending ? <Status /> : segments.isError ? <Status error retry={() => void segments.refetch()} /> : segments.data && <>
+        {selectedSegment !== undefined && !segments.data.features.some(f => f.properties.ordinal === selectedSegment) && <p role="status">{en ? 'The requested interval is unavailable.' : 'بازهٔ درخواست‌شده در دسترس نیست.'}</p>}
+        <table><caption>{en ? 'Real segment boundaries and descriptive bands' : 'مرز واقعی بازه‌ها و باندهای توصیفی'}</caption>
+          <thead><tr><th scope="col">{en ? 'Interval' : 'بازه'}</th><th scope="col">{en ? 'Start–end (km)' : 'ابتدا تا انتها (کیلومتر)'}</th><th scope="col">mm/year</th></tr></thead>
+          <tbody>{segments.data.features.map(feature => <tr key={feature.id}><td><button type="button" aria-pressed={selectedSegment === feature.properties.ordinal} onClick={() => onSelectSegment(feature.properties.ordinal)}>{number(feature.properties.ordinal+1, 0)}</button></td>
+            <td><bdi>{number(feature.properties.start_chainage_m/1000, 3)} – {number(feature.properties.end_chainage_m/1000, 3)}</bdi></td><td><bdi dir="ltr">{bandLabel(feature.properties.band_index)}</bdi></td></tr>)}</tbody>
+        </table>
+        {(segmentOffset > 0 || segments.data.next_offset !== null) && <div className="source-pagination"><Button disabled={segmentOffset === 0} onClick={() => onSelectSegment(Math.max(0, segmentOffset-25))}>{en ? 'Previous intervals' : 'بازه‌های قبلی'}</Button><Button disabled={segments.data.next_offset === null} onClick={() => onSelectSegment(segments.data!.next_offset!)}>{en ? 'Next intervals' : 'بازه‌های بعدی'}</Button></div>}
+      </>}
+    </details>
     <details><summary>{en ? 'Analysis provenance' : 'شناسنامهٔ تحلیل'}</summary>
       <p><bdi>{data.analysis_run_id}</bdi></p><p><bdi>{data.method_version}</bdi></p>
       <p>{en ? 'Infrastructure snapshot' : 'تاریخ snapshot زیرساخت'}: <bdi>{String(data.inputs.infrastructure_data_date)}</bdi></p>

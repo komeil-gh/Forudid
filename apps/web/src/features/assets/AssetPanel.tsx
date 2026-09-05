@@ -5,10 +5,11 @@ import { Status } from '../../components/Status'
 import { useLanguage } from '../../i18n'
 import { ExposureDetails } from './ExposureDetails'
 
-export function AssetPanel({ data, pending, error, retry, close, productId, runId, onInspect }: {
+export function AssetPanel({ data, pending, error, retry, close, productId, runId, onInspect, selectedSegment, onSelectSegment }: {
   data?: InfrastructureFeature; pending: boolean; error: boolean;
   retry: () => void; close: () => void;
   productId?: string; runId?: string; onInspect: (sample?: ProfileSample) => void;
+  selectedSegment?: number; onSelectSegment: (ordinal?: number) => void;
 }) {
   const { language, messages: m } = useLanguage(), en = language === 'en'
   const item = data?.properties
@@ -27,7 +28,7 @@ export function AssetPanel({ data, pending, error, retry, close, productId, runI
       </>}
     </div>
     {data && <div className="point-chart">
-      {productId && <ExposureDetails key={`${data.id}/${productId}/${runId}`} assetId={data.id} productId={productId} runId={runId} onInspect={onInspect} />}
+      {productId && <ExposureDetails key={`${data.id}/${productId}/${runId}`} assetId={data.id} productId={productId} runId={runId} onInspect={onInspect} selectedSegment={selectedSegment} onSelectSegment={onSelectSegment} />}
       <p>{en ? 'This geometry is one OSM segment and does not necessarily represent a complete route. Network completeness and positional accuracy have not been verified.' : 'این هندسه یک قطعهٔ ثبت‌شده در OSM است و لزوماً یک مسیر کامل نیست. کامل‌بودن شبکه و دقت مکانی آن تأیید نشده است.'}</p>
       <p>{en ? 'The infrastructure snapshot is from 2026, while the deformation data cover 2014 to 2020; their temporal alignment has not been established.' : 'snapshot زیرساخت مربوط به ۲۰۲۶ و دادهٔ تغییرشکل مربوط به ۲۰۱۴–۲۰۲۰ است؛ هم‌زمانی آن‌ها تأیید نشده است.'}</p>
       <p><a href={data.license_url} target="_blank" rel="noreferrer">{data.attribution} · ODbL 1.0</a></p>

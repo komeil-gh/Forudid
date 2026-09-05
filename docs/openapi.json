@@ -1971,6 +1971,81 @@
         "title": "RunInfo",
         "type": "object"
       },
+      "SegmentFeature": {
+        "properties": {
+          "geometry": {
+            "$ref": "#/components/schemas/LineGeometry"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/SegmentInfo"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "geometry",
+          "properties"
+        ],
+        "title": "SegmentFeature",
+        "type": "object"
+      },
+      "SegmentInfo": {
+        "properties": {
+          "band_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band Index"
+          },
+          "end_chainage_m": {
+            "title": "End Chainage M",
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "ordinal": {
+            "title": "Ordinal",
+            "type": "integer"
+          },
+          "start_chainage_m": {
+            "title": "Start Chainage M",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "ordinal",
+          "start_chainage_m",
+          "end_chainage_m",
+          "band_index",
+          "metrics"
+        ],
+        "title": "SegmentInfo",
+        "type": "object"
+      },
       "SegmentPage": {
         "properties": {
           "analysis_run_id": {
@@ -1985,8 +2060,7 @@
           },
           "features": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/SegmentFeature"
             },
             "title": "Features",
             "type": "array"
@@ -2360,7 +2434,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.2.0-alpha.7"
+    "version": "0.2.0-alpha.8"
   },
   "openapi": "3.1.0",
   "paths": {

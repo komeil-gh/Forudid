@@ -64,7 +64,9 @@ Neither API requests nor the browser launch processing.
 The selected-asset panel displays length coverage and length-weighted statistics.
 The distance chart preserves missing intervals and interval boundaries. Hover or
 keyboard-accessible table buttons locate a sample on the map. Long profiles have
-explicit pagination; a missing analysis is shown as unavailable. All reads retain
+explicit pagination. The segment table selects actual geometry, preserves ordinal
+and analysis in the URL and distinguishes numeric bands from NoData. Profile
+selection pans only when its marker is outside the current view. A missing analysis is shown as unavailable. All reads retain
 the analysis identity and historical source dates.
 
 ## Local evidence, 2026-09-05

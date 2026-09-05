@@ -464,12 +464,28 @@ export interface RunInfo {
   status: string;
 }
 
-export type SegmentPageFeaturesItem = { [key: string]: unknown };
+export type SegmentInfoMetrics = { [key: string]: unknown };
+
+export interface SegmentInfo {
+  band_index: number | null;
+  end_chainage_m: number;
+  id: string;
+  metrics: SegmentInfoMetrics;
+  ordinal: number;
+  start_chainage_m: number;
+}
+
+export interface SegmentFeature {
+  geometry: LineGeometry;
+  id: string;
+  properties: SegmentInfo;
+  type?: 'Feature';
+}
 
 export interface SegmentPage {
   analysis_run_id: string;
   asset_id: string;
-  features: SegmentPageFeaturesItem[];
+  features: SegmentFeature[];
   next_offset: number | null;
   type?: 'FeatureCollection';
 }

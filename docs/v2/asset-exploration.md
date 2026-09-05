@@ -29,7 +29,7 @@ recompute analysis. Browser/API requests never launch the analysis worker.
 
 The optional API region filter selects whole ways intersecting a region and is
 explicitly labelled `whole_assets_intersecting_region`; it is not a clipped
-regional exposure statistic. The regional aggregation is separate work.
+regional exposure statistic. The published clipped totals are documented in [regions](regions.md).
 
 ## Local acceptance, 2026-09-06
 
@@ -46,4 +46,16 @@ outage. The settled map image was visually inspected. A numeric URL query expose
 the router's automatic number decoding; the shared search validator now accepts
 finite numeric queries and rejects structured/oversized input.
 
-These checks do not complete the remaining V2 science, report and region work.
+## Interactive segments, 0.2.0-alpha.8
+
+Both the map panel and asset detail show 25 archived segments per page. Selecting
+an ordinal fits its actual LineString and pins the segment and analysis in the
+URL. Reload restores selection; choosing another asset or map mode clears it.
+The whole-way control restores the original geometry. Segment rows expose chainage,
+numeric velocity bands and explicit NoData, without inventing per-segment means or
+hazard classes. The API contract now types each geometry and metric record.
+
+Four real desktop/mobile asset and map-mode checks passed, including segment
+selection, URL restoration, whole-way restoration and profile-marker visibility
+after fitting a short segment. TypeScript, Pyright, ESLint and the real archive/
+CSV/GeoJSON API check passed. These checks do not complete V2 science and reports.

@@ -26,6 +26,7 @@ from forudid_api.db import (
     RegionalInfrastructureResult,
     session,
 )
+from forudid_api.infrastructure import LineGeometry
 from forudid_api.publish_historical import NOTE
 from forudid_api.storage import read_json, s3
 
@@ -523,11 +524,18 @@ class SegmentInfo(BaseModel):
     metrics: dict[str, Any]
 
 
+class SegmentFeature(BaseModel):
+    type: Literal["Feature"] = "Feature"
+    id: UUID
+    geometry: LineGeometry
+    properties: SegmentInfo
+
+
 class SegmentPage(BaseModel):
     type: Literal["FeatureCollection"] = "FeatureCollection"
     analysis_run_id: UUID
     asset_id: UUID
-    features: list[dict[str, Any]]
+    features: list[SegmentFeature]
     next_offset: int | None
 
 
@@ -604,12 +612,11 @@ def segments(
         analysis_run_id=run_id,
         asset_id=asset_id,
         features=[
-            {
-                "type": "Feature",
-                "id": str(row.id),
-                "geometry": json.loads(geometry),
-                "properties": SegmentInfo.model_validate(row).model_dump(mode="json"),
-            }
+            SegmentFeature(
+                id=row.id,
+                geometry=json.loads(geometry),
+                properties=SegmentInfo.model_validate(row),
+            )
             for row, geometry in rows[:limit]
         ],
         next_offset=offset + limit if len(rows) > limit else None,
