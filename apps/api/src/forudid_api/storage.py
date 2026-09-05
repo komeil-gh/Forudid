@@ -1,0 +1,63 @@
+import hashlib
+import json
+from functools import lru_cache
+
+import boto3
+from botocore.config import Config
+from botocore.exceptions import ClientError
+
+from forudid_api.config import settings
+
+
+@lru_cache
+def s3():
+    cfg = settings()
+    return boto3.client(
+        "s3",
+        endpoint_url=cfg.s3_endpoint,
+        region_name=cfg.s3_region,
+        aws_access_key_id=cfg.s3_access_key.get_secret_value(),
+        aws_secret_access_key=cfg.s3_secret_key.get_secret_value(),
+        config=Config(
+            signature_version="s3v4",
+            connect_timeout=3,
+            read_timeout=10,
+            retries={"max_attempts": 2},
+            s3={"addressing_style": "path" if cfg.s3_path_style else "virtual"},
+        ),
+    )
+
+
+def read_url(key: str) -> str:
+    return s3().generate_presigned_url(
+        "get_object", Params={"Bucket": settings().s3_bucket, "Key": key}, ExpiresIn=120
+    )
+
+
+def read_json(key: str):
+    response = s3().get_object(Bucket=settings().s3_bucket, Key=key)
+    with response["Body"] as body:
+        return json.load(body)
+
+
+def put_immutable(key: str, body: bytes, media_type: str) -> tuple[str, str]:
+    """Never replace objects; compare stored bytes after upload or conflict."""
+    checksum = hashlib.sha256(body).hexdigest()
+    try:
+        s3().put_object(
+            Bucket=settings().s3_bucket,
+            Key=key,
+            Body=body,
+            ContentType=media_type,
+            IfNoneMatch="*",
+            Metadata={"sha256": checksum},
+        )
+    except ClientError as exc:
+        if exc.response["Error"]["Code"] not in ("PreconditionFailed", "412"):
+            raise
+    stored = s3().get_object(Bucket=settings().s3_bucket, Key=key)
+    with stored["Body"] as stream:
+        actual = hashlib.sha256(stream.read()).hexdigest()
+    if actual != checksum:
+        raise ValueError("Immutable object checksum mismatch; create a new run")
+    return checksum, stored["ETag"].strip('"')

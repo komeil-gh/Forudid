@@ -1,0 +1,9 @@
+.git
+.env
+.tools
+**/.venv
+**/node_modules
+**/dist
+**/__pycache__
+.codex-toolkit
+data

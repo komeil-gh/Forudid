@@ -1,0 +1,131 @@
+from collections.abc import Generator
+from datetime import UTC, datetime
+from functools import lru_cache
+from typing import Any
+from uuid import UUID, uuid4
+
+from geoalchemy2 import Geometry
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, String, create_engine
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+
+from forudid_api.config import settings
+
+
+def now() -> datetime:
+    return datetime.now(UTC)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Record(Base):
+    __abstract__ = True
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AOI(Record):
+    __tablename__ = "areas_of_interest"
+    slug: Mapped[str] = mapped_column(unique=True)
+    name_fa: Mapped[str]
+    name_en: Mapped[str]
+    geom = mapped_column(Geometry("MULTIPOLYGON", srid=4326))
+    bbox: Mapped[list[float]] = mapped_column(JSONB)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Run(Record):
+    __tablename__ = "processing_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('created','discovering','submitting','processing','downloading','mintpy',"
+            "'qc','validation_required','publishing','published','failed','cancelled')",
+            name="run_status",
+        ),
+    )
+    aoi_id: Mapped[UUID] = mapped_column(ForeignKey("areas_of_interest.id"), index=True)
+    pipeline_version: Mapped[str]
+    git_sha: Mapped[str]
+    processing_profile: Mapped[str]
+    config: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    status: Mapped[str]
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    parent_run_id: Mapped[UUID | None] = mapped_column(ForeignKey("processing_runs.id"))
+    log_uri: Mapped[str | None]
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+
+
+class Product(Record):
+    __tablename__ = "products"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('draft','validated','published','superseded')", name="product_status"
+        ),
+        CheckConstraint(
+            "kind IN ('velocity_los','temporal_coherence','velocity_uncertainty',"
+            "'valid_mask','timeseries')",
+            name="product_kind",
+        ),
+        CheckConstraint("orbit_direction IN ('ascending','descending')", name="product_orbit"),
+    )
+    processing_run_id: Mapped[UUID] = mapped_column(ForeignKey("processing_runs.id"), index=True)
+    aoi_id: Mapped[UUID] = mapped_column(ForeignKey("areas_of_interest.id"), index=True)
+    kind: Mapped[str]
+    orbit_direction: Mapped[str]
+    relative_orbit: Mapped[int]
+    start_date: Mapped[str]
+    end_date: Mapped[str]
+    unit: Mapped[str]
+    crs: Mapped[str]
+    resolution_metadata: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    status: Mapped[str] = mapped_column(index=True)
+    processing_version: Mapped[str]
+    stats: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    stac_item_id: Mapped[str]
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Asset(Record):
+    __tablename__ = "product_assets"
+    product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"), index=True)
+    role: Mapped[str]
+    object_key: Mapped[str] = mapped_column(unique=True)
+    media_type: Mapped[str]
+    size_bytes: Mapped[int]
+    checksum_sha256: Mapped[str] = mapped_column(String(64))
+    etag: Mapped[str]
+
+
+class Reference(Record):
+    __tablename__ = "reference_points"
+    processing_run_id: Mapped[UUID] = mapped_column(ForeignKey("processing_runs.id"), index=True)
+    geom = mapped_column(Geometry("POINT", srid=4326))
+    method: Mapped[str]
+    reason: Mapped[str]
+    selected_by: Mapped[str]
+    stability_metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class QCMetric(Record):
+    __tablename__ = "qc_metrics"
+    processing_run_id: Mapped[UUID] = mapped_column(ForeignKey("processing_runs.id"), index=True)
+    product_id: Mapped[UUID | None] = mapped_column(ForeignKey("products.id"))
+    metric_name: Mapped[str]
+    value_number: Mapped[float | None]
+    value_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    threshold: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    passed: Mapped[bool | None]
+
+
+@lru_cache
+def engine():
+    return create_engine(settings().database_url.get_secret_value(), pool_pre_ping=True)
+
+
+def session() -> Generator[Session]:
+    with Session(engine()) as db:
+        yield db

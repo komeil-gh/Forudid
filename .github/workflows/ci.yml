@@ -1,0 +1,46 @@
+name: Local WebGIS checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.24.0'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.10'
+          python-version: '3.13'
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --project apps/api --frozen
+      - run: python3 scripts/init_env.py
+      - run: docker compose up -d --wait postgres object-storage
+      - name: Migration round trip on fresh CI database
+        run: |
+          uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
+          uv run --project apps/api alembic -c apps/api/alembic.ini downgrade -1
+          uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
+          uv run --project apps/api python -m forudid_api.seed
+      - name: Contract synchronization
+        run: |
+          uv run --project apps/api python scripts/export_openapi.py
+          pnpm generate:api
+          git diff --exit-code -- docs/openapi.json apps/web/src/generated/api
+      - run: make check
+      - run: pnpm --filter @forudid/web exec playwright install --with-deps chromium
+      - run: FORUDID_START_SERVERS=1 pnpm test:e2e
+      - name: Verify complete static stack
+        run: |
+          docker compose up -d --build --wait
+          curl --fail http://localhost:58080/health/ready
+          curl --fail http://localhost:58080/map
+      - name: Stop this project's containers
+        if: always()
+        run: docker compose down

@@ -1,0 +1,15 @@
+{
+  "name": "forudid",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "pnpm --filter @forudid/web dev",
+    "build": "pnpm --filter @forudid/web build",
+    "lint": "pnpm --filter @forudid/web lint",
+    "typecheck": "pnpm --filter @forudid/web typecheck",
+    "test": "pnpm --filter @forudid/web test",
+    "test:e2e": "pnpm --filter @forudid/web test:e2e",
+    "generate:api": "pnpm --filter @forudid/web generate:api"
+  }
+}

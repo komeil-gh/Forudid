@@ -1,0 +1,1 @@
+"""FORUDID local WebGIS API."""
