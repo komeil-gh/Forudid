@@ -19,6 +19,7 @@
 .about-page[dir='ltr'] { font-family: Georgia, 'Times New Roman', serif; }
 .about-page[dir='ltr'] .person-note { direction: ltr; text-align: left; font-family: Georgia, 'Times New Roman', serif; }
 .about-page .signature time { margin-top: 8px; }
+.about-page .signature .signature-brand { margin-top: 14px; color: #4f4f4f; font-size: 10px; font-weight: 500; }
 .about-page .person-trigger { padding: 0; border-bottom: 0; color: inherit; text-decoration: underline;
   text-decoration-color: #b7b7b7; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .about-page .person-trigger:hover { color: #111; text-decoration-color: #333; }

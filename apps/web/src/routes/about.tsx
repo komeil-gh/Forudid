@@ -134,6 +134,7 @@ export default function AboutPage() {
         <strong>کمیل</strong>
         <span>عضوی کوچک از جامعهٔ سنجش و شناخت زمین ایران</span>
         <time dateTime="2026">طهران، ۱۴۰۵ هجری خورشیدی</time>
+        <span className="signature-brand">فرودید | پایش ماهواره‌ای فرونشست ایران زمین</span>
       </footer>
     </article>
     </> : <>
@@ -150,7 +151,8 @@ export default function AboutPage() {
         <p className="dedication">This small work is an acknowledgement of a debt to geodesy in Iran and to those who measured before us, so that we may understand this land better today.</p>
         <footer className="signature"><p>With respect,</p><strong>Komeil</strong>
           <span>A small member of Iran’s community of Earth observation and measurement</span>
-          <time dateTime="2026">Tehran, 1405 Solar Hijri</time></footer>
+          <time dateTime="2026">Tehran, 1405 Solar Hijri</time>
+          <span className="signature-brand">Forudid | Satellite monitoring of land subsidence in Iran</span></footer>
       </article>
     </>}
   </main>
