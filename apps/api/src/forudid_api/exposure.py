@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Float, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from starlette.background import BackgroundTask
 
 from forudid_api.catalog import missing, product
@@ -23,6 +23,7 @@ from forudid_api.db import (
     InfrastructureAsset,
     PopulationExposureResult,
     Region,
+    RegionalInfrastructureResult,
     session,
 )
 from forudid_api.publish_historical import NOTE
@@ -156,6 +157,84 @@ def ranking(
             )
             for summary, asset in rows
         ],
+    )
+
+
+class InfrastructureMetrics(BaseModel):
+    way_count: int
+    ways_with_valid_data: int
+    total_length_m: float
+    valid_length_m: float
+    nodata_length_m: float
+    coverage_fraction: float | None
+    length_by_numeric_band_m: list[float]
+    band_edges_mm_year: list[float]
+    hazard_length_m: None = None
+
+
+class RegionalInfrastructureSummary(BaseModel):
+    analysis_run_id: UUID
+    upstream_run_id: UUID
+    product_id: UUID
+    region_id: UUID | None
+    asset_type: Literal["railway", "road"]
+    method_version: str
+    method_status: str
+    metrics: InfrastructureMetrics
+    inputs: dict[str, Any]
+    checksum_sha256: str
+    disclaimer: str = NOTE
+
+
+@router.get(
+    "/products/{product_id}/infrastructure-exposure",
+    response_model=RegionalInfrastructureSummary,
+    operation_id="getRegionalInfrastructureExposure",
+)
+def regional_infrastructure(
+    product_id: UUID,
+    asset_type: Literal["railway", "road"],
+    db: DB,
+    region_id: UUID | None = None,
+    run_id: UUID | None = None,
+):
+    product(db, product_id)
+    parent, parent_method = aliased(AnalysisRun), aliased(AnalysisMethod)
+    query = (
+        select(RegionalInfrastructureResult, AnalysisRun, AnalysisMethod)
+        .join(AnalysisRun, RegionalInfrastructureResult.analysis_run_id == AnalysisRun.id)
+        .join(AnalysisMethod, AnalysisRun.method_id == AnalysisMethod.id)
+        .join(parent, RegionalInfrastructureResult.upstream_run_id == parent.id)
+        .join(parent_method, parent.method_id == parent_method.id)
+        .where(
+            AnalysisRun.product_id == product_id,
+            AnalysisRun.status == "published",
+            AnalysisMethod.status != "deprecated",
+            parent.status == "published",
+            parent_method.status != "deprecated",
+            RegionalInfrastructureResult.region_id == region_id,
+            RegionalInfrastructureResult.asset_type == asset_type,
+        )
+    )
+    if run_id:
+        query = query.where(AnalysisRun.id == run_id)
+    row = db.execute(
+        query.order_by(AnalysisRun.finished_at.desc(), AnalysisRun.id).limit(1)
+    ).first()
+    if row is None:
+        raise missing("REGIONAL_INFRASTRUCTURE_NOT_AVAILABLE")
+    result, run, method = row
+    return RegionalInfrastructureSummary(
+        analysis_run_id=run.id,
+        upstream_run_id=result.upstream_run_id,
+        product_id=product_id,
+        region_id=result.region_id,
+        asset_type=result.asset_type,
+        method_version=method.version,
+        method_status=method.status,
+        metrics=result.metrics,
+        inputs=run.inputs,
+        checksum_sha256=result.checksum_sha256,
     )
 
 

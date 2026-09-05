@@ -151,6 +151,19 @@ export interface InfrastructureFeature {
   type?: 'Feature';
 }
 
+export interface InfrastructureMetrics {
+  band_edges_mm_year: number[];
+  coverage_fraction: number | null;
+  /** @nullable */
+  hazard_length_m?: null;
+  length_by_numeric_band_m: number[];
+  nodata_length_m: number;
+  total_length_m: number;
+  valid_length_m: number;
+  way_count: number;
+  ways_with_valid_data: number;
+}
+
 export interface InfrastructurePage {
   items: InfrastructureInfo[];
   next_cursor: string | null;
@@ -413,6 +426,30 @@ export interface RegionPage {
   source_version_id: string | null;
 }
 
+export type RegionalInfrastructureSummaryAssetType = typeof RegionalInfrastructureSummaryAssetType[keyof typeof RegionalInfrastructureSummaryAssetType];
+
+
+export const RegionalInfrastructureSummaryAssetType = {
+  railway: 'railway',
+  road: 'road',
+} as const;
+
+export type RegionalInfrastructureSummaryInputs = { [key: string]: unknown };
+
+export interface RegionalInfrastructureSummary {
+  analysis_run_id: string;
+  asset_type: RegionalInfrastructureSummaryAssetType;
+  checksum_sha256: string;
+  disclaimer?: string;
+  inputs: RegionalInfrastructureSummaryInputs;
+  method_status: string;
+  method_version: string;
+  metrics: InfrastructureMetrics;
+  product_id: string;
+  region_id: string | null;
+  upstream_run_id: string;
+}
+
 export type RunInfoConfig = { [key: string]: unknown };
 
 export interface RunInfo {
@@ -650,6 +687,20 @@ export type ListProductsOrbit = typeof ListProductsOrbit[keyof typeof ListProduc
 export const ListProductsOrbit = {
   ascending: 'ascending',
   descending: 'descending',
+} as const;
+
+export type GetRegionalInfrastructureExposureParams = {
+asset_type: GetRegionalInfrastructureExposureAssetType;
+region_id?: string | null;
+run_id?: string | null;
+};
+
+export type GetRegionalInfrastructureExposureAssetType = typeof GetRegionalInfrastructureExposureAssetType[keyof typeof GetRegionalInfrastructureExposureAssetType];
+
+
+export const GetRegionalInfrastructureExposureAssetType = {
+  railway: 'railway',
+  road: 'road',
 } as const;
 
 export type GetMetadata200 = { [key: string]: unknown };
@@ -2343,6 +2394,122 @@ export function useGetProduct<TData = Awaited<ReturnType<typeof getProduct>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetProductQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetRegionalInfrastructureExposureUrl = (productId: string,
+    params: GetRegionalInfrastructureExposureParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/products/${productId}/infrastructure-exposure?${stringifiedParams}` : `/api/v1/products/${productId}/infrastructure-exposure`
+}
+
+/**
+ * @summary Regional Infrastructure
+ */
+export const getRegionalInfrastructureExposure = async (productId: string,
+    params: GetRegionalInfrastructureExposureParams, options?: Parameters<typeof apiFetch>[1]): Promise<RegionalInfrastructureSummary> => {
+
+  return apiFetch<RegionalInfrastructureSummary>(getGetRegionalInfrastructureExposureUrl(productId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRegionalInfrastructureExposureQueryKey = (productId: string,
+    params?: GetRegionalInfrastructureExposureParams,) => {
+    return [
+    `/api/v1/products/${productId}/infrastructure-exposure`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetRegionalInfrastructureExposureQueryOptions = <TData = Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError = ErrorResponse>(productId: string,
+    params: GetRegionalInfrastructureExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRegionalInfrastructureExposureQueryKey(productId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>> = ({ signal }) => getRegionalInfrastructureExposure(productId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productId !== null && productId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRegionalInfrastructureExposureQueryResult = NonNullable<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>>
+export type GetRegionalInfrastructureExposureQueryError = ErrorResponse
+
+
+export function useGetRegionalInfrastructureExposure<TData = Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params: GetRegionalInfrastructureExposureParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRegionalInfrastructureExposure<TData = Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params: GetRegionalInfrastructureExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRegionalInfrastructureExposure<TData = Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params: GetRegionalInfrastructureExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Regional Infrastructure
+ */
+
+export function useGetRegionalInfrastructureExposure<TData = Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params: GetRegionalInfrastructureExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegionalInfrastructureExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRegionalInfrastructureExposureQueryOptions(productId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

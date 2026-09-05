@@ -12,6 +12,7 @@ jobs:
       FORUDID_EXPOSURE_TESTS: '1'
       FORUDID_REGION_TESTS: '1'
       FORUDID_POPULATION_TESTS: '1'
+      FORUDID_REGION_INFRA_TESTS: '1'
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4

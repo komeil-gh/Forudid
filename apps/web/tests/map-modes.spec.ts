@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test'
+
+// eslint-disable-next-line no-empty-pattern -- Playwright requires fixture destructuring.
+test.beforeEach(async ({}) => test.skip(!process.env.FORUDID_POPULATION_TESTS || !process.env.FORUDID_RANKING_TESTS, 'Requires published real population and infrastructure results'))
+
+test('map modes retain real ranking selection and historical-region population in the URL', async ({ page, isMobile }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/map?mode=infrastructure&infrastructure=railway&rankQuery=963780743')
+  await expect(page.getByRole('group', { name: 'حالت نقشه' }).getByRole('button', { name: 'زیرساخت', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  if (isMobile) await page.locator('.mobile-layer-button').click()
+  await expect(page.locator('.rank-asset:visible')).toHaveCount(1)
+  await page.locator('.rank-asset:visible').click()
+  await expect(page.getByTestId('exposure-mean')).toHaveText('۹۳٫۵ mm/year')
+  await expect(page).toHaveURL(/analysis=f30d71aa-bda6-5098-b050-eed1f9657f0f/)
+  await page.reload()
+  await expect(page.getByTestId('exposure-mean')).toHaveText('۹۳٫۵ mm/year')
+  await page.getByRole('group', { name: 'حالت نقشه' }).getByRole('button', { name: 'جمعیت و مناطق', exact: true }).click()
+  if (isMobile) await page.locator('.mobile-layer-button').click()
+  await expect(page.getByTestId('population-total').filter({ visible: true })).toHaveText('۸۰٬۳۸۲٬۵۲۱')
+  const boundaryResponse = page.waitForResponse(r => /\/api\/v1\/regions\/[0-9a-f-]+$/.test(r.url()) && r.ok())
+  await page.getByRole('combobox', { name: 'محدودهٔ تاریخی', exact: true }).selectOption({ label: 'تهران' })
+  await boundaryResponse
+  await expect(page.getByTestId('population-total').filter({ visible: true })).toHaveText('۱۲٬۵۲۳٬۹۷۲')
+  await expect(page).toHaveURL(/mode=population/)
+  await expect(page).toHaveURL(/region=/)
+  if (isMobile) await page.locator('.sheet-close').click()
+  await page.reload()
+  if (isMobile) await page.locator('.mobile-layer-button').click()
+  await expect(page.getByRole('combobox', { name: 'محدودهٔ تاریخی', exact: true })).toContainText('تهران')
+  await expect(page.getByTestId('population-total').filter({ visible: true })).toHaveText('۱۲٬۵۲۳٬۹۷۲')
+  if (isMobile) await page.locator('.sheet-close').click()
+  await expect(page.locator('.maplibregl-ctrl-attrib')).toContainText('geoBoundaries')
+  const legend = await page.locator('.legend').boundingBox(), hint = await page.locator('.map-hint').boundingBox()
+  expect(legend).not.toBeNull(); expect(hint).not.toBeNull()
+  expect(legend!.x + legend!.width <= hint!.x || hint!.x + hint!.width <= legend!.x || legend!.y + legend!.height <= hint!.y || hint!.y + hint!.height <= legend!.y).toBe(true)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.screenshot({ path: `/tmp/forudid-qa/map-population-${isMobile ? 'mobile' : 'desktop'}.png` })
+  expect(errors).toEqual([])
+})

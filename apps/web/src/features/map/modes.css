@@ -1,0 +1,34 @@
+.map-page { height: calc(100dvh - 76px); display: flex; flex-direction: column; }
+.map-page .workspace { flex: 1; min-height: 0; height: auto; }
+.map-modes { display: flex; flex-shrink: 0; gap: 6px; padding: 6px 12px; background: #fff; border-bottom: 1px solid var(--border); }
+.map-modes button { min-height: 44px; padding: 6px 16px; border: 1px solid transparent; border-radius: 4px; background: transparent; font: inherit; cursor: pointer; }
+.map-modes button[aria-pressed=true] { color: #fff; background: #176e79; }
+.map-modes button:focus-visible, .rank-asset:focus-visible { outline: 2px solid #176e79; outline-offset: 2px; }
+.mode-panel { padding: 18px; font-size: 13px; min-width: 0; }
+.mode-panel .source-card { padding: 0; border: 0; box-shadow: none; margin-block: 20px; }
+.mode-panel .region-table { font-size: 12px; table-layout: fixed; }
+.mode-panel .region-table td, .mode-panel .region-table th { overflow-wrap: anywhere; padding: 8px 4px; }
+.mode-panel .region-table th:first-child { width: 42%; }
+.mode-panel .field-label input { min-height: 44px; width: 100%; min-width: 0; padding: 8px; font: inherit; border: 1px solid var(--border); border-radius: 4px; }
+.mode-panel .field-label { margin-block: 12px; }
+.mode-panel .source-pagination { flex-wrap: wrap; }
+.mode-panel h2 { font-size: 17px; }
+.rank-asset { border: 0; padding: 4px; min-height: 44px; background: none; font: inherit; color: #176e79; text-align: start; cursor: pointer; text-decoration: underline; }
+.mode-display > summary { padding: 18px; cursor: pointer; }
+.map-guidance { position: absolute; inset-inline: 20px; bottom: calc(var(--attribution-height, 20px) + 10px); display: flex; align-items: end; justify-content: space-between; gap: 12px; pointer-events: none; }
+[dir=rtl] .map-guidance { flex-direction: row-reverse; }
+.map-guidance > .legend, .map-guidance > .map-hint { position: static; pointer-events: auto; flex-shrink: 0; }
+.map-guidance > .map-hint { max-width: min(50%, 480px); flex-shrink: 1; }
+@media (max-width: 1050px) {
+  .map-guidance, [dir=rtl] .map-guidance { flex-direction: column-reverse; align-items: flex-end; }
+  [dir=ltr] .map-guidance { align-items: flex-start; }
+  .map-guidance > .map-hint { max-width: 288px; }
+}
+@media (max-width: 760px) {
+  .map-page { height: calc(100dvh - 64px); }
+  .map-modes { gap: 2px; padding-inline: 8px; }
+  .map-modes button { flex: 1; min-width: 0; padding-inline: 4px; font-size: 12px; }
+  .mobile-layers .mode-panel { padding-top: 50px; }
+  .map-guidance { inset-inline: 12px; }
+  .map-guidance > .map-hint { max-width: 100%; }
+}

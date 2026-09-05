@@ -455,6 +455,71 @@
         "title": "InfrastructureInfo",
         "type": "object"
       },
+      "InfrastructureMetrics": {
+        "properties": {
+          "band_edges_mm_year": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Band Edges Mm Year",
+            "type": "array"
+          },
+          "coverage_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Fraction"
+          },
+          "hazard_length_m": {
+            "title": "Hazard Length M",
+            "type": "null"
+          },
+          "length_by_numeric_band_m": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Length By Numeric Band M",
+            "type": "array"
+          },
+          "nodata_length_m": {
+            "title": "Nodata Length M",
+            "type": "number"
+          },
+          "total_length_m": {
+            "title": "Total Length M",
+            "type": "number"
+          },
+          "valid_length_m": {
+            "title": "Valid Length M",
+            "type": "number"
+          },
+          "way_count": {
+            "title": "Way Count",
+            "type": "integer"
+          },
+          "ways_with_valid_data": {
+            "title": "Ways With Valid Data",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "way_count",
+          "ways_with_valid_data",
+          "total_length_m",
+          "valid_length_m",
+          "nodata_length_m",
+          "coverage_fraction",
+          "length_by_numeric_band_m",
+          "band_edges_mm_year"
+        ],
+        "title": "InfrastructureMetrics",
+        "type": "object"
+      },
       "InfrastructurePage": {
         "properties": {
           "items": {
@@ -1756,6 +1821,84 @@
         "title": "RegionPage",
         "type": "object"
       },
+      "RegionalInfrastructureSummary": {
+        "properties": {
+          "analysis_run_id": {
+            "format": "uuid",
+            "title": "Analysis Run Id",
+            "type": "string"
+          },
+          "asset_type": {
+            "enum": [
+              "railway",
+              "road"
+            ],
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "checksum_sha256": {
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "disclaimer": {
+            "default": "FORUDID یک ابزار پایش و غربالگری مکانی است و جایگزین ارزیابی ژئوتکنیکی، سازه‌ای، نقشه‌برداری زمینی یا بازدید میدانی نیست.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "method_status": {
+            "title": "Method Status",
+            "type": "string"
+          },
+          "method_version": {
+            "title": "Method Version",
+            "type": "string"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/InfrastructureMetrics"
+          },
+          "product_id": {
+            "format": "uuid",
+            "title": "Product Id",
+            "type": "string"
+          },
+          "region_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Id"
+          },
+          "upstream_run_id": {
+            "format": "uuid",
+            "title": "Upstream Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analysis_run_id",
+          "upstream_run_id",
+          "product_id",
+          "region_id",
+          "asset_type",
+          "method_version",
+          "method_status",
+          "metrics",
+          "inputs",
+          "checksum_sha256"
+        ],
+        "title": "RegionalInfrastructureSummary",
+        "type": "object"
+      },
       "RunInfo": {
         "properties": {
           "aoi_id": {
@@ -2217,7 +2360,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.2.0-alpha.6"
+    "version": "0.2.0-alpha.7"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -3777,6 +3920,126 @@
           }
         },
         "summary": "Get Product"
+      }
+    },
+    "/api/v1/products/{product_id}/infrastructure-exposure": {
+      "get": {
+        "operationId": "getRegionalInfrastructureExposure",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Product Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "asset_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "railway",
+                "road"
+              ],
+              "title": "Asset Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "region_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "run_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionalInfrastructureSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Regional Infrastructure",
+        "tags": [
+          "exposure"
+        ]
       }
     },
     "/api/v1/products/{product_id}/legend": {

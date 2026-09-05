@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { useListProducts, useListRegions, useGetPopulationExposure, type PopulationSummary } from '../generated/api/forudid'
+import { useListProducts, useListRegions, useGetPopulationExposure, useGetRegionalInfrastructureExposure, type PopulationSummary } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { useLanguage } from '../i18n'
 import { apiBase } from '../lib/api'
@@ -44,7 +44,42 @@ function PopulationResult({ result }: { result: PopulationSummary }) {
   </section>
 }
 
-function Result({ product, region }: { product: string, region?: string }) {
+function InfrastructureResult({ product, region, type }: { product: string, region?: string, type: 'railway' | 'road' }) {
+  const { language } = useLanguage(), fa = language === 'fa'
+  const query = useGetRegionalInfrastructureExposure(product, { region_id: region, asset_type: type }, { query: { retry: false } })
+  const title = type === 'railway' ? (fa ? 'مواجههٔ راه‌آهن' : 'Railway exposure') : (fa ? 'مواجههٔ راه‌های اصلی' : 'Major-road exposure')
+  if (query.isPending) return <section className="source-card" aria-label={title}><h2>{title}</h2><Status /></section>
+  if (query.isError) return <section className="source-card" aria-label={title}><h2>{title}</h2>{query.error instanceof Error && query.error.message === 'HTTP 404'
+    ? <p role="status">{fa ? 'هنوز نتیجهٔ کامل این محدوده و محصول منتشر نشده است.' : 'A complete result has not yet been published for this scope and product.'}</p>
+    : <Status error retry={() => void query.refetch()} />}</section>
+  const result = query.data, m = result.metrics
+  const number = (v: number, digits = 1) => v.toLocaleString(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: digits })
+  const band = (i: number) => i === 0 ? `< ${number(m.band_edges_mm_year[0])}` : i === m.band_edges_mm_year.length ? `≥ ${number(m.band_edges_mm_year.at(-1)!)}` : `${number(m.band_edges_mm_year[i-1])} ≤ v < ${number(m.band_edges_mm_year[i])}`
+  return <section className="source-card" aria-label={title}>
+    <h2>{title}</h2><p>{region
+      ? (fa ? 'طول بخش‌های واقعاً داخل مرز تاریخی محدوده؛ بخش بیرون مرز در این اعداد محاسبه نشده است.' : 'Lengths of portions inside the historical boundary; outside portions are excluded.')
+      : (fa ? 'کل شبکهٔ واردشدهٔ OSM؛ دامنهٔ آن مستقل از محدودهٔ رستر جمعیت است.' : 'The entire imported OSM snapshot; its footprint is independent of the population raster.')}</p>
+    <dl className="region-metrics">
+      <div><dt>{fa ? 'تعداد قطعه‌های دارای طول در محدوده' : 'Ways with length in scope'}</dt><dd>{number(m.way_count, 0)}</dd></div>
+      <div><dt>{fa ? 'طول کل (کیلومتر)' : 'Total length (km)'}</dt><dd data-testid={`regional-${type}-total`}>{number(m.total_length_m/1000)}</dd></div>
+      <div><dt>{fa ? 'طول دارای داده (کیلومتر)' : 'Length with data (km)'}</dt><dd data-testid={`regional-${type}-valid`}>{number(m.valid_length_m/1000)}</dd></div>
+      <div><dt>{fa ? 'طول بدون داده (کیلومتر)' : 'Length without data (km)'}</dt><dd>{number(m.nodata_length_m/1000)}</dd></div>
+      <div><dt>{fa ? 'پوشش معتبر طولی' : 'Valid length coverage'}</dt><dd>{m.coverage_fraction === null ? '—' : new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { style: 'percent', maximumFractionDigits: 1 }).format(m.coverage_fraction)}</dd></div>
+    </dl>
+    <p>{fa ? 'مجموع قطعه‌های OSM است؛ مسیرهای موازی و هم‌پوشان یکتاسازی نشده‌اند. نبود داده نشانهٔ پایداری نیست و باندها طبقه‌بندی خطر نیستند.' : 'Summed OSM ways; parallel and overlapping ways are not deduplicated. Missing data do not imply stability, and bands are not hazard classes.'}</p>
+    <table className="region-table"><caption>{fa ? 'طول در باندهای عددی نرخ تاریخی' : 'Length in numerical historical-rate bands'}</caption>
+      <thead><tr><th scope="col">mm/year</th><th scope="col">{fa ? 'کیلومتر' : 'Kilometres'}</th></tr></thead>
+      <tbody>{m.length_by_numeric_band_m.map((value, index) => <tr key={index}><td><bdi dir="ltr">{band(index)}</bdi></td><td>{number(value/1000)}</td></tr>)}</tbody>
+    </table>
+    <details className="source-version"><summary>{fa ? 'روش و شناسه‌های محاسبه' : 'Method and calculation identities'}</summary>
+      <p>{fa ? 'روش آزمایشی؛ برش دوبعدی مرز و اندازه‌گیری ژئودزیک روی WGS84. دقت مستقل مرز و زیرساخت تأیید نشده است.' : 'Experimental method: planar boundary intersection followed by WGS84 geodesic length. Independent boundary and infrastructure accuracy are unverified.'}</p>
+      <code>{result.method_version}</code><code>{result.analysis_run_id}</code><code>{result.upstream_run_id}</code><code>{result.checksum_sha256}</code>
+      <Link to="/sources">{fa ? 'نسخه‌ها و مجوز منابع' : 'Source versions and licenses'}</Link>
+    </details>
+  </section>
+}
+
+export function PopulationExposure({ product, region }: { product: string, region?: string }) {
   const query = useGetPopulationExposure(product, { region_id: region }, { query: { retry: false } })
   const { language } = useLanguage()
   if (query.isPending) return <Status />
@@ -76,7 +111,10 @@ export default function RegionsPage() {
         <p>{fa ? 'مرز تاریخی ۲۰۱۷ از geoBoundaries / OpenStreetMap؛ این مرز مرجع رسمیِ وضعیت کنونی نیست.' : 'Historical 2017 boundary from geoBoundaries / OpenStreetMap; not an official current administrative boundary.'}</p>
         <p>{fa ? 'فرادادهٔ منبع ۳۳ واحد اعلام کرده، اما فایل ۳۲ هندسه و ۳۱ نام یکتا دارد. دو بخش مازندران با حفظ شناسه‌های اصلی یکپارچه شده‌اند.' : 'Provider metadata reports 33 units; the file contains 32 geometries and 31 unique names. The two Mazandaran parts were merged with original identifiers preserved.'}</p>
         <a href={`${apiBase}/api/v1/regions/${region.id}`} download={`${region.name_en}.geojson`}>{fa ? 'دریافت مرز و فراداده (GeoJSON)' : 'Download boundary and metadata (GeoJSON)'}</a> · <a href="https://www.openstreetmap.org/copyright">ODbL 1.0</a></section>}
-      {product ? <Result key={`${product.id}/${selected}`} product={product.id} region={region?.id} /> : <p role="status">{fa ? 'محصول نرخ تغییرشکل منتشرشده در دسترس نیست.' : 'No published deformation-rate product is available.'}</p>}
+      {product ? <div key={`${product.id}/${selected}`}><PopulationExposure product={product.id} region={region?.id} />
+        <InfrastructureResult product={product.id} region={region?.id} type="railway" />
+        <InfrastructureResult product={product.id} region={region?.id} type="road" />
+      </div> : <p role="status">{fa ? 'محصول نرخ تغییرشکل منتشرشده در دسترس نیست.' : 'No published deformation-rate product is available.'}</p>}
     </>}
   </main>
 }

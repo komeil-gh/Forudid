@@ -4,7 +4,7 @@ import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { Crosshair } from 'lucide-react'
 import { defaultSearch, type MapSearch } from '../../lib/search'
-import type { ProductInfo, LineGeometry } from '../../generated/api/forudid'
+import type { ProductInfo, LineGeometry, RegionFeature } from '../../generated/api/forudid'
 import { apiBase } from '../../lib/api'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
@@ -22,9 +22,10 @@ const localStyle: maplibre.StyleSpecification = {
   version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
     paint: { 'background-color': '#eaf0f3' } }],
 }
-export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint }:
+export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint, region }:
   { state: MapSearch; product?: ProductInfo; style?: string;
     selectedGeometry?: LineGeometry;
+    region?: RegionFeature;
     profilePoint?: { lon: number; lat: number };
     update: (values: Partial<MapSearch>) => void; selectPoint: (lon: number, lat: number) => void }) {
   const { language, messages: m } = useLanguage()
@@ -42,11 +43,12 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   const attribution = product?.attribution.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   const infrastructureKinds = (['railway', 'road'] as const).filter(kind => state.infrastructure === 'all' || state.infrastructure === kind)
   const fitSelection = useCallback(() => {
-    if (!ref.current || !selectedGeometry?.coordinates.length) return
+    const coordinates = selectedGeometry?.coordinates ?? region?.geometry.coordinates.flat(2)
+    if (!ref.current || !coordinates?.length) return
     const bounds = new maplibre.LngLatBounds()
-    selectedGeometry.coordinates.forEach(coordinate => bounds.extend(coordinate))
+    coordinates.forEach(coordinate => bounds.extend(coordinate))
     ref.current.fitBounds(bounds, { padding: 45, maxZoom: 12, duration: 0 })
-  }, [selectedGeometry])
+  }, [selectedGeometry, region])
   useEffect(fitSelection, [fitSelection])
   useEffect(() => {
     const map = ref.current
@@ -81,7 +83,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       interactiveLayerIds={infrastructureKinds.map(kind => `infra-${kind}`)}
       onClick={e => {
         const id = e.features?.[0]?.properties?.asset_id
-        if (typeof id === 'string') update({ asset: id, panel: 'asset', pointLon: undefined, pointLat: undefined })
+        if (typeof id === 'string') update({ asset: id, analysis: undefined, panel: 'asset', pointLon: undefined, pointLat: undefined })
         else selectPoint(e.lngLat.lng, e.lngLat.lat)
       }}
       onError={e => { if (('sourceId' in e && String(e.sourceId).startsWith('infra-')) || e.error.message.includes('/vector/')) {
@@ -120,6 +122,11 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       </Source>}
       <Source id="aoi" type="geojson" data={area}><Layer id="aoi-outline" type="line"
         paint={{ 'line-color': '#176e79', 'line-width': 1.5 }} /></Source>
+      {region && <Source id="historical-region" type="geojson" data={{ type: 'Feature', properties: {}, geometry: { type: 'MultiPolygon', coordinates: region.geometry.coordinates } }}
+        attribution={region.attribution.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}>
+        <Layer id="historical-region-fill" type="fill" paint={{ 'fill-color': '#176e79', 'fill-opacity': 0.04 }} />
+        <Layer id="historical-region-line" type="line" paint={{ 'line-color': '#244953', 'line-width': 2, 'line-dasharray': [3, 2] }} />
+      </Source>}
       {state.pointLon !== undefined && state.pointLat !== undefined && <Marker
         longitude={state.pointLon} latitude={state.pointLat}><span className="point-marker"><Crosshair size={26} /></span></Marker>}
       {product?.reference && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>

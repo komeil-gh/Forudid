@@ -197,6 +197,20 @@ class Region(Record):
     properties: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
+class RegionalInfrastructureResult(Record):
+    __tablename__ = "regional_infrastructure_results"
+    __table_args__ = (
+        CheckConstraint("asset_type IN ('railway','road')", name="regional_infrastructure_type"),
+    )
+    analysis_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), unique=True)
+    upstream_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), index=True)
+    region_id: Mapped[UUID | None] = mapped_column(ForeignKey("regions.id"), index=True)
+    asset_type: Mapped[str]
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    object_key: Mapped[str] = mapped_column(unique=True)
+    checksum_sha256: Mapped[str] = mapped_column(String(64))
+
+
 class PopulationExposureResult(Record):
     __tablename__ = "population_exposure_results"
     __table_args__ = (
