@@ -1,4 +1,5 @@
 import { HoverCard } from 'radix-ui'
+import './about.css'
 
 const people = [
   {
@@ -87,6 +88,7 @@ function PeopleList() {
 export default function AboutPage() {
   return <main className="scientific-page about-page">
     <header className="about-heading">
+      <div className="letter-heading"><img src="/brand/selected/forudid-mark-black.png" alt="" width="36" height="36" /><span>فرودید<span>یادداشت سپاس</span></span></div>
       <h1>به یاد آنان که پیش از ما اندازه گرفتند</h1>
     </header>
 

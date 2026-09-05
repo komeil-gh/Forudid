@@ -1,5 +1,20 @@
 .mobile-navigation { display: none; }
+header.header { padding-inline: clamp(20px, 4vw, 60px); border-bottom-color: #e7e7e5; color: #252525; gap: 28px; }
+.header .brand { gap: 10px; }
+.header .brand-mark { display: block; width: 42px; height: 42px; object-fit: contain; }
+.header .brand-wordmark { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.header .brand strong { font: 600 26px/1.2 'Noto Naskh Arabic Variable', serif; }
+.header .brand-en { font: 500 9px/1.7 'Vazirmatn Variable', sans-serif; letter-spacing: .15em; }
+header.header nav a { font-size: 12px; border-bottom-width: 1px; transition: color 150ms; color: #737373; }
+.header nav a:hover { color: #111; }
+header.header nav a[data-status='active'] { color: #111; border-bottom-color: #111; font-weight: 600; }
+.header .copy { border-color: transparent; color: #777; font-size: 11px; padding-inline: 10px; }
+.header .copy:hover { color: #111; background: #f6f6f4; }
 @media (max-width: 760px) {
+  header.header { padding-inline: 18px; gap: 12px; }
+  .header .brand-mark { width: 34px; height: 34px; }
+  .header .brand strong { font-size: 23px; }
+  .header .brand-en { display: block; font-size: 8px; }
   .header > .search { display: none; }
   .header .mobile-navigation { display: block; position: relative; margin-inline-start: auto; }
   .mobile-navigation summary { cursor: pointer; padding: 10px; min-height: 44px; }

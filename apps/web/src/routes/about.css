@@ -1,0 +1,26 @@
+.scientific-page.about-page { max-width: 700px; padding: 1px 32px 88px; color: #202020;
+  font-family: 'Noto Naskh Arabic Variable', serif; }
+.about-page .about-heading { margin: 58px 0 34px; }
+.letter-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 24px; margin-bottom: 28px;
+  border-bottom: 1px solid #dededb; }
+.letter-heading img { width: 36px; height: 36px; object-fit: contain; }
+.letter-heading > span { font: 600 16px/1.5 'Noto Naskh Arabic Variable', serif; }
+.letter-heading > span > span { display: block; font: 400 10px/1.8 'Vazirmatn Variable', sans-serif; color: #777; }
+.about-page .about-heading h1 { font-size: clamp(23px, 3vw, 29px); line-height: 1.7; font-weight: 600; }
+.about-page .biruni-quote { margin-bottom: 32px; padding-bottom: 25px; border-bottom-color: #dededb; }
+.about-page .biruni-quote blockquote { font-size: 19px; line-height: 1.95; font-weight: 400; }
+.about-page .biruni-quote figcaption { max-width: 560px; font-size: 10px; line-height: 1.95; color: #737373; }
+.about-page .about-letter p { font-size: 18px; line-height: 2; margin-bottom: 20px; text-align: start; }
+.about-page .about-letter .about-opening { font-size: 19px; margin-bottom: 25px; }
+.about-page .about-letter .dedication { margin: 30px 0; font-size: 19px; }
+.about-page .signature { padding-top: 23px; margin-top: 32px; border-top: 1px solid #dededb; }
+.about-page .signature p { margin-bottom: 4px; font-size: 16px; }
+.about-page .signature strong { font: 500 29px/1.7 'Noto Naskh Arabic Variable', serif; }
+.about-page .signature span, .about-page .signature time { font-size: 10px; line-height: 2.1; color: #737373; }
+.about-page .person-trigger { color: inherit; text-decoration-color: #aaa; text-underline-offset: 5px; }
+@media (max-width: 760px) {
+  .scientific-page.about-page { padding-inline: 24px; }
+  .about-page .about-heading { margin-top: 32px; }
+  .about-page .about-letter p { font-size: 17px; line-height: 1.95; }
+  .about-page .biruni-quote blockquote { font-size: 18px; }
+}

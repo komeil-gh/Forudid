@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
-import { Copy, LocateFixed } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { useState } from 'react'
 import { defaultSearch, searchSchema } from '../lib/search'
 import { fa } from '../messages/fa'
@@ -20,8 +20,9 @@ function Shell() {
     catch { setCopyStatus(fa.copyError) }
   }
   return <><header className="header">
-    <Link to="/" className="brand"><LocateFixed aria-hidden="true" />
-      <strong>{fa.brand}</strong><span className="brand-en" dir="ltr">| FORUDID</span></Link>
+    <Link to="/" className="brand" aria-label="فرودید، صفحهٔ نخست">
+      <img className="brand-mark" src="/brand/selected/forudid-mark-black.png" alt="" width="42" height="42" />
+      <span className="brand-wordmark"><strong>{fa.brand}</strong><span className="brand-en" dir="ltr">FORUDID</span></span></Link>
     <nav aria-label="ناوبری اصلی"><Link to="/map" search={defaultSearch}>{fa.map}</Link>
       <Link to="/sources">منابع داده</Link><Link to="/methodology">{fa.methodology}</Link><Link to="/about">{fa.about}</Link></nav>
     <details className="mobile-navigation"><summary>فهرست</summary>
