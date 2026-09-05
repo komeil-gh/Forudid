@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { z } from 'zod'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
-import { defaultSearch, searchSchema } from '../lib/search'
+import { defaultSearch, searchSchema, assetSearchSchema, defaultAssetSearch } from '../lib/search'
 import { useLanguage, type Language } from '../i18n'
 import { Button } from '../components/ui/button'
 import { Status } from '../components/Status'
@@ -13,6 +13,8 @@ import './navigation.css'
 const MapPage = lazy(() => import('../routes/map'))
 const SourcesPage = lazy(() => import('../routes/sources'))
 const RegionsPage = lazy(() => import('../routes/regions'))
+const AssetsPage = lazy(() => import('../routes/assets'))
+const AssetDetailPage = lazy(() => import('../routes/assets').then(module => ({ default: module.AssetDetailPage })))
 function Shell() {
   const { language, setLanguage, messages: m } = useLanguage()
   const selectLanguage = (nextLanguage: Language) => {
@@ -28,11 +30,12 @@ function Shell() {
       <span className="brand-wordmark"><strong>{language === 'fa' ? 'فرودید' : 'Forudid'}</strong>
         <span className="brand-en">{language === 'fa' ? 'پایش زمین ایران' : 'IRAN EARTH OBSERVATION'}</span></span></Link>
     <nav aria-label={language === 'fa' ? 'ناوبری اصلی' : 'Main navigation'}><Link to="/map" search={defaultSearch}>{m.map}</Link>
-      <Link to="/regions">{language === 'fa' ? 'جمعیت و مناطق' : 'Population & regions'}</Link><Link to="/sources">{m.sources}</Link><Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link></nav>
+      <Link to="/assets" search={defaultAssetSearch}>{language === 'fa' ? 'زیرساخت' : 'Infrastructure'}</Link><Link to="/regions">{language === 'fa' ? 'جمعیت و مناطق' : 'Population & regions'}</Link><Link to="/sources">{m.sources}</Link><Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link></nav>
     <details className="mobile-navigation"><summary>{m.menu}</summary>
       <nav aria-label={language === 'fa' ? 'ناوبری موبایل' : 'Mobile navigation'} onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>
         <Link to="/map" search={defaultSearch}>{m.map}</Link><Link to="/sources">{m.sources}</Link>
         <Link to="/regions">{language === 'fa' ? 'جمعیت و مناطق' : 'Population & regions'}</Link>
+        <Link to="/assets" search={defaultAssetSearch}>{language === 'fa' ? 'زیرساخت' : 'Infrastructure'}</Link>
         <Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link>
       </nav></details>
     <div className="language-switch" role="group" aria-label={m.language}>
@@ -63,7 +66,13 @@ const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sour
 const regionsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/regions',
   validateSearch: raw => z.object({ region: z.uuid().optional(), product: z.uuid().optional() }).parse(raw),
   component: () => <Suspense fallback={<Status />}><RegionsPage /></Suspense> })
+const assetsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/assets',
+  validateSearch: raw => assetSearchSchema.parse(raw),
+  component: () => <Suspense fallback={<Status />}><AssetsPage /></Suspense> })
+const assetDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/assets/$assetId',
+  validateSearch: raw => z.object({ product: z.uuid().optional(), analysis: z.uuid().optional() }).parse(raw),
+  component: () => <Suspense fallback={<Status />}><AssetDetailPage /></Suspense> })
 export const router = createRouter({ routeTree: rootRoute.addChildren([
-  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute,
+  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute, assetsRoute, assetDetailRoute,
 ]) })
 declare module '@tanstack/react-router' { interface Register { router: typeof router } }

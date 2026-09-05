@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { defaultSearch, searchSchema, roundCoordinate } from './search'
+import { defaultSearch, searchSchema, assetSearchSchema, roundCoordinate } from './search'
 import { presentation } from './units'
 describe('shareable state and scientific units', () => {
+  it('accepts numeric OSM queries decoded from URLs without accepting structured input', () => {
+    expect(assetSearchSchema.parse({ q: 963780743 }).q).toBe('963780743')
+    expect(assetSearchSchema.parse({ q: 'راه‌آهن' }).q).toBe('راه‌آهن')
+    expect(assetSearchSchema.safeParse({ q: { id: 1 } }).success).toBe(false)
+    expect(assetSearchSchema.safeParse({ q: 'x'.repeat(81) }).success).toBe(false)
+  })
   it('falls back safely from malformed URLs', () => {
     const value = searchSchema.parse({ lat: 'NaN', z: 50, layer: 'vertical', product: 'bad', opacity: -1 })
     expect(value).toEqual(defaultSearch)

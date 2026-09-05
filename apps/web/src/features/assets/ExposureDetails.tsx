@@ -7,6 +7,7 @@ import { useGetAssetExposure, useGetAssetProfile, type ProfileSample } from '../
 import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
+import { apiBase } from '../../lib/api'
 
 registerCharts([LineChart, GridComponent, TooltipComponent, DataZoomComponent, AriaComponent, CanvasRenderer])
 
@@ -44,12 +45,12 @@ function ProfileChart({ samples, onInspect }: { samples: ProfileSample[]; onInsp
   return <div className="chart" ref={ref} role="img" aria-label={label} dir="ltr" />
 }
 
-export function ExposureDetails({ assetId, productId, onInspect }: {
-  assetId: string; productId: string; onInspect: (sample?: ProfileSample) => void;
+export function ExposureDetails({ assetId, productId, runId, onInspect }: {
+  assetId: string; productId: string; runId?: string; onInspect: (sample?: ProfileSample) => void;
 }) {
   const { language } = useLanguage(), en = language === 'en'
   const [page, setPage] = useState(0)
-  const exposure = useGetAssetExposure(assetId, { product_id: productId }, { query: { retry: false } })
+  const exposure = useGetAssetExposure(assetId, { product_id: productId, run_id: runId }, { query: { retry: false } })
   const data = exposure.data
   const profile = useGetAssetProfile(data?.analysis_run_id || '', assetId, { page }, { query: { enabled: !!data } })
   const number = (v: unknown, digits = 1) => typeof v === 'number'
@@ -88,5 +89,10 @@ export function ExposureDetails({ assetId, productId, onInspect }: {
       <p>{en ? 'Pixel uncertainty and structural validation are unavailable.' : 'عدم‌قطعیت پیکسلی و اعتبارسنجی سازه‌ای موجود نیست.'}</p>
     </details>
     <p>{data.disclaimer}</p>
+    <div className="source-pagination">
+      <a href={`${apiBase}/api/v1/analyses/${data.analysis_run_id}/assets/${assetId}/download`}>{en ? 'Complete analysis (JSON)' : 'دادهٔ کامل تحلیل (JSON)'}</a>
+      <a href={`${apiBase}/api/v1/analyses/${data.analysis_run_id}/assets/${assetId}/profile.csv`}>{en ? 'Complete profile (CSV)' : 'پروفایل کامل (CSV)'}</a>
+      <a href={`${apiBase}/api/v1/analyses/${data.analysis_run_id}/assets/${assetId}/segments.geojson`}>{en ? 'Exposure segments (GeoJSON)' : 'قطعه‌بندی مواجهه (GeoJSON)'}</a>
+    </div>
   </section>
 }

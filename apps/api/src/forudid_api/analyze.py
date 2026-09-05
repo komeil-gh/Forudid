@@ -145,16 +145,34 @@ def analyze(
                     run.status, run.error = "processing", None
                 raster_path = str(local_raster) if local_raster else read_url(data.object_key)
                 unit = product.unit
+                completed = (
+                    db.scalar(
+                        select(func.count())
+                        .select_from(AssetExposureSummary)
+                        .where(AssetExposureSummary.analysis_run_id == run_id)
+                    )
+                    or 0
+                )
+            pending_assets = query.where(
+                ~select(AssetExposureSummary.id)
+                .where(
+                    AssetExposureSummary.analysis_run_id == run_id,
+                    AssetExposureSummary.asset_id == InfrastructureAsset.id,
+                )
+                .exists()
+            )
+            log.info(
+                "Analysis %s: resuming with %d/%d ways already stored", run_id, completed, expected
+            )
             try:
                 with (
                     rasterio.Env(GDAL_CACHEMAX=32 * 1024 * 1024, GDAL_NUM_THREADS="1"),
                     rasterio.open(raster_path) as raster,
                 ):
                     cursor = None
-                    completed = 0
                     while True:
                         with Session(engine()) as db:
-                            page = query.order_by(InfrastructureAsset.id).limit(100)
+                            page = pending_assets.order_by(InfrastructureAsset.id).limit(100)
                             if cursor is not None:
                                 page = page.where(InfrastructureAsset.id > cursor)
                             identities = list(db.scalars(page))

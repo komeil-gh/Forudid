@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Map, { Layer, Marker, NavigationControl, Source, type MapRef } from 'react-map-gl/maplibre'
 import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
@@ -41,6 +41,13 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   const asset = product?.assets.find(a => a.role === 'data')
   const attribution = product?.attribution.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   const infrastructureKinds = (['railway', 'road'] as const).filter(kind => state.infrastructure === 'all' || state.infrastructure === kind)
+  const fitSelection = useCallback(() => {
+    if (!ref.current || !selectedGeometry?.coordinates.length) return
+    const bounds = new maplibre.LngLatBounds()
+    selectedGeometry.coordinates.forEach(coordinate => bounds.extend(coordinate))
+    ref.current.fitBounds(bounds, { padding: 45, maxZoom: 12, duration: 0 })
+  }, [selectedGeometry])
+  useEffect(fitSelection, [fitSelection])
   useEffect(() => {
     const map = ref.current
     if (!map) return
@@ -62,6 +69,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       onMoveEnd={e => update({ lon: e.viewState.longitude, lat: e.viewState.latitude,
         z: e.viewState.zoom, bearing: e.viewState.bearing, pitch: e.viewState.pitch })}
       onLoad={({ target }) => {
+        fitSelection()
         const attribution = target.getContainer().querySelector('.maplibregl-ctrl-attrib')
         const region = target.getContainer().closest<HTMLElement>('.map-region')
         if (attribution && region) {

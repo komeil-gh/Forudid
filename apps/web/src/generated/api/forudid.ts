@@ -31,6 +31,35 @@ export interface AssetInfo {
   size_bytes: number;
 }
 
+export type AssetRankingInputs = { [key: string]: unknown };
+
+export interface RankedAsset {
+  asset_class: string;
+  asset_id: string;
+  asset_type: string;
+  coverage_fraction: number;
+  external_id: string;
+  max_abs_velocity: number | null;
+  mean_velocity: number | null;
+  name: string | null;
+  p95_velocity: number | null;
+  total_length_m: number;
+  valid_length_m: number;
+}
+
+export interface AssetRanking {
+  analysis_run_id: string | null;
+  disclaimer?: string;
+  inputs: AssetRankingInputs;
+  items: RankedAsset[];
+  method_status: string | null;
+  method_version: string | null;
+  next_offset: number | null;
+  scope: string;
+  total: number;
+  unit?: 'mm/year';
+}
+
 export interface Coordinate {
   /**
      * @minimum -90
@@ -516,6 +545,58 @@ run_id?: string | null;
 product_id?: string | null;
 };
 
+export type GetExposureRankingParams = {
+product_id: string;
+asset_type?: GetExposureRankingAssetType;
+run_id?: string | null;
+region_id?: string | null;
+q?: string | null;
+/**
+ * @minimum 0
+ * @maximum 1
+ */
+min_coverage?: number;
+sort?: GetExposureRankingSort;
+direction?: GetExposureRankingDirection;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * @minimum 0
+ * @maximum 200000
+ */
+offset?: number;
+};
+
+export type GetExposureRankingAssetType = typeof GetExposureRankingAssetType[keyof typeof GetExposureRankingAssetType];
+
+
+export const GetExposureRankingAssetType = {
+  railway: 'railway',
+  road: 'road',
+} as const;
+
+export type GetExposureRankingSort = typeof GetExposureRankingSort[keyof typeof GetExposureRankingSort];
+
+
+export const GetExposureRankingSort = {
+  max_abs_velocity: 'max_abs_velocity',
+  p95_velocity: 'p95_velocity',
+  mean_velocity: 'mean_velocity',
+  valid_length_m: 'valid_length_m',
+  coverage_fraction: 'coverage_fraction',
+} as const;
+
+export type GetExposureRankingDirection = typeof GetExposureRankingDirection[keyof typeof GetExposureRankingDirection];
+
+
+export const GetExposureRankingDirection = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
 export type GetPointSummaryParams = {
 /**
  * @minimum -180
@@ -638,6 +719,115 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getDownloadAssetAnalysisUrl = (runId: string,
+    assetId: string,) => {
+
+
+
+
+  return `/api/v1/analyses/${runId}/assets/${assetId}/download`
+}
+
+/**
+ * @summary Download Analysis
+ */
+export const downloadAssetAnalysis = async (runId: string,
+    assetId: string, options?: Parameters<typeof apiFetch>[1]): Promise<unknown> => {
+
+  return apiFetch<unknown>(getDownloadAssetAnalysisUrl(runId,assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadAssetAnalysisQueryKey = (runId: string,
+    assetId: string,) => {
+    return [
+    `/api/v1/analyses/${runId}/assets/${assetId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadAssetAnalysisQueryOptions = <TData = Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError = ErrorResponse>(runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadAssetAnalysisQueryKey(runId,assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadAssetAnalysis>>> = ({ signal }) => downloadAssetAnalysis(runId,assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadAssetAnalysisQueryResult = NonNullable<Awaited<ReturnType<typeof downloadAssetAnalysis>>>
+export type DownloadAssetAnalysisQueryError = ErrorResponse
+
+
+export function useDownloadAssetAnalysis<TData = Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetAnalysis>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetAnalysis>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetAnalysis<TData = Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetAnalysis>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetAnalysis>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetAnalysis<TData = Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Analysis
+ */
+
+export function useDownloadAssetAnalysis<TData = Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetAnalysis>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadAssetAnalysisQueryOptions(runId,assetId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetAssetProfileUrl = (runId: string,
     assetId: string,
@@ -763,6 +953,115 @@ export function useGetAssetProfile<TData = Awaited<ReturnType<typeof getAssetPro
 
 
 
+export const getDownloadAssetProfileCsvUrl = (runId: string,
+    assetId: string,) => {
+
+
+
+
+  return `/api/v1/analyses/${runId}/assets/${assetId}/profile.csv`
+}
+
+/**
+ * @summary Download Profile Csv
+ */
+export const downloadAssetProfileCsv = async (runId: string,
+    assetId: string, options?: Parameters<typeof apiFetch>[1]): Promise<unknown> => {
+
+  return apiFetch<unknown>(getDownloadAssetProfileCsvUrl(runId,assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadAssetProfileCsvQueryKey = (runId: string,
+    assetId: string,) => {
+    return [
+    `/api/v1/analyses/${runId}/assets/${assetId}/profile.csv`
+    ] as const;
+    }
+
+
+export const getDownloadAssetProfileCsvQueryOptions = <TData = Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError = ErrorResponse>(runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadAssetProfileCsvQueryKey(runId,assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadAssetProfileCsv>>> = ({ signal }) => downloadAssetProfileCsv(runId,assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadAssetProfileCsvQueryResult = NonNullable<Awaited<ReturnType<typeof downloadAssetProfileCsv>>>
+export type DownloadAssetProfileCsvQueryError = ErrorResponse
+
+
+export function useDownloadAssetProfileCsv<TData = Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetProfileCsv>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetProfileCsv>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetProfileCsv<TData = Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadAssetProfileCsv>>,
+          TError,
+          Awaited<ReturnType<typeof downloadAssetProfileCsv>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadAssetProfileCsv<TData = Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Profile Csv
+ */
+
+export function useDownloadAssetProfileCsv<TData = Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadAssetProfileCsv>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadAssetProfileCsvQueryOptions(runId,assetId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetExposureSegmentsUrl = (runId: string,
     assetId: string,
     params?: GetExposureSegmentsParams,) => {
@@ -875,6 +1174,115 @@ export function useGetExposureSegments<TData = Awaited<ReturnType<typeof getExpo
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetExposureSegmentsQueryOptions(runId,assetId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDownloadExposureSegmentsUrl = (runId: string,
+    assetId: string,) => {
+
+
+
+
+  return `/api/v1/analyses/${runId}/assets/${assetId}/segments.geojson`
+}
+
+/**
+ * @summary Download Segments
+ */
+export const downloadExposureSegments = async (runId: string,
+    assetId: string, options?: Parameters<typeof apiFetch>[1]): Promise<unknown> => {
+
+  return apiFetch<unknown>(getDownloadExposureSegmentsUrl(runId,assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadExposureSegmentsQueryKey = (runId: string,
+    assetId: string,) => {
+    return [
+    `/api/v1/analyses/${runId}/assets/${assetId}/segments.geojson`
+    ] as const;
+    }
+
+
+export const getDownloadExposureSegmentsQueryOptions = <TData = Awaited<ReturnType<typeof downloadExposureSegments>>, TError = ErrorResponse>(runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadExposureSegmentsQueryKey(runId,assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadExposureSegments>>> = ({ signal }) => downloadExposureSegments(runId,assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: runId !== null && runId !== undefined && assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadExposureSegmentsQueryResult = NonNullable<Awaited<ReturnType<typeof downloadExposureSegments>>>
+export type DownloadExposureSegmentsQueryError = ErrorResponse
+
+
+export function useDownloadExposureSegments<TData = Awaited<ReturnType<typeof downloadExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadExposureSegments>>,
+          TError,
+          Awaited<ReturnType<typeof downloadExposureSegments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadExposureSegments<TData = Awaited<ReturnType<typeof downloadExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadExposureSegments>>,
+          TError,
+          Awaited<ReturnType<typeof downloadExposureSegments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadExposureSegments<TData = Awaited<ReturnType<typeof downloadExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Segments
+ */
+
+export function useDownloadExposureSegments<TData = Awaited<ReturnType<typeof downloadExposureSegments>>, TError = ErrorResponse>(
+ runId: string,
+    assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadExposureSegments>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadExposureSegmentsQueryOptions(runId,assetId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -1402,6 +1810,114 @@ export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetEx
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAssetExposureQueryOptions(assetId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetExposureRankingUrl = (params: GetExposureRankingParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/exposure-ranking?${stringifiedParams}` : `/api/v1/exposure-ranking`
+}
+
+/**
+ * @summary Ranking
+ */
+export const getExposureRanking = async (params: GetExposureRankingParams, options?: Parameters<typeof apiFetch>[1]): Promise<AssetRanking> => {
+
+  return apiFetch<AssetRanking>(getGetExposureRankingUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetExposureRankingQueryKey = (params?: GetExposureRankingParams,) => {
+    return [
+    `/api/v1/exposure-ranking`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetExposureRankingQueryOptions = <TData = Awaited<ReturnType<typeof getExposureRanking>>, TError = ErrorResponse>(params: GetExposureRankingParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetExposureRankingQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getExposureRanking>>> = ({ signal }) => getExposureRanking(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetExposureRankingQueryResult = NonNullable<Awaited<ReturnType<typeof getExposureRanking>>>
+export type GetExposureRankingQueryError = ErrorResponse
+
+
+export function useGetExposureRanking<TData = Awaited<ReturnType<typeof getExposureRanking>>, TError = ErrorResponse>(
+ params: GetExposureRankingParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getExposureRanking>>,
+          TError,
+          Awaited<ReturnType<typeof getExposureRanking>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetExposureRanking<TData = Awaited<ReturnType<typeof getExposureRanking>>, TError = ErrorResponse>(
+ params: GetExposureRankingParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getExposureRanking>>,
+          TError,
+          Awaited<ReturnType<typeof getExposureRanking>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetExposureRanking<TData = Awaited<ReturnType<typeof getExposureRanking>>, TError = ErrorResponse>(
+ params: GetExposureRankingParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Ranking
+ */
+
+export function useGetExposureRanking<TData = Awaited<ReturnType<typeof getExposureRanking>>, TError = ErrorResponse>(
+ params: GetExposureRankingParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getExposureRanking>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetExposureRankingQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

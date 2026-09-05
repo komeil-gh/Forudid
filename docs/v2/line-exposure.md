@@ -35,7 +35,8 @@ hashed. Published profiles are immutable private objects with SHA-256 verificati
 One worker holds an advisory lock, reads at most 100 asset IDs at a time and
 commits each asset with its segments. GDAL uses one thread and a 32 MiB block
 cache. A line exceeding 200,000 samples is rejected rather than silently coarsened.
-Completed asset records survive interruption. A rerun skips completed assets;
+Completed asset records survive interruption. A rerun counts completed assets once
+and excludes them in the database before paging, avoiding a per-asset rescan;
 publication requires the full expected count. Failed/incomplete runs are not
 served. Downgrade refuses to destroy existing analysis runs.
 
@@ -87,5 +88,14 @@ all 12,722 imported ways. Their summed geodesic length is 16,044,032.450 m, with
 
 The 2026 asset snapshot is not proof that the same asset geometry existed in
 2014–2020. These way lengths are not deduplicated route lengths. Independent
-scientific validation, road completion, population/region analysis and
-reports remain separate V2 work; this milestone does not complete V2.
+scientific validation, regional infrastructure aggregation and reports remain
+separate V2 work; this milestone does not complete V2.
+
+## Road completion, 2026-09-06
+
+Run `6ae7ccf5-0f5f-56c6-ae70-406dad9072e4` published all 120,393 imported major-road
+ways after a resumable sequential run. Summed way length is 142,796,850.033 m;
+15,416,292.349 m have valid velocity coverage. There are 128,895 contiguous
+segments, including NoData. These are summed OSM-way lengths, not a deduplicated
+road-network inventory. The earlier road interruption retained its completed
+records; resumption used the same analysis identity and completed the expected count.

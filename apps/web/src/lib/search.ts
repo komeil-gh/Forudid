@@ -17,4 +17,13 @@ export const searchSchema = z.object({
 })
 export type MapSearch = z.infer<typeof searchSchema>
 export const defaultSearch = searchSchema.parse({})
+export const assetSearchSchema = z.object({
+  product: z.uuid().optional(), type: z.enum(['railway', 'road']).catch('railway'),
+  q: z.union([z.string(), z.number().finite()]).transform(String).pipe(z.string().max(80)).optional(),
+  sort: z.enum(['max_abs_velocity', 'p95_velocity', 'mean_velocity', 'valid_length_m', 'coverage_fraction']).catch('max_abs_velocity'),
+  direction: z.enum(['asc', 'desc']).catch('desc'),
+  coverage: z.coerce.number().min(0).max(1).catch(0),
+  offset: z.coerce.number().int().min(0).max(200000).catch(0),
+})
+export const defaultAssetSearch = assetSearchSchema.parse({})
 export const roundCoordinate = (value: number) => Math.round(value * 100000) / 100000

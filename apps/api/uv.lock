@@ -266,7 +266,7 @@ requires-dist = [
 
 [[package]]
 name = "forudid-api"
-version = "0.2.0a5"
+version = "0.2.0a6"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },

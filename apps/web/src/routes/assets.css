@@ -1,0 +1,14 @@
+.assets-page, .asset-detail { max-width: 1120px; }
+.asset-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.asset-filters form { font-size: .85rem; }
+.asset-search { display: flex; gap: 8px; margin-top: 6px; }
+.asset-search input { min-width: 0; width: 100%; min-height: 44px; border: 1px solid #9ba9ad; padding: 8px; border-radius: 4px; font: inherit; }
+.asset-search input:focus-visible, .asset-table-scroll:focus-visible { outline: 2px solid #08686e; outline-offset: 3px; }
+.asset-table-scroll { max-width: 100%; overflow-x: auto; margin-bottom: 20px; }
+.asset-table-scroll table { min-width: 680px; }
+.asset-table-scroll small { display: block; color: #64717a; }
+.asset-preview { position: relative; height: 360px; margin-block: 24px; border: 1px solid #cbd5d9; }
+.asset-detail > section { margin-block: 28px; }
+.asset-detail .chart { height: 280px; }
+.asset-detail details { overflow-wrap: anywhere; }
+@media (max-width: 700px) { .asset-filters { grid-template-columns: 1fr; } .asset-preview { height: 300px; } }
