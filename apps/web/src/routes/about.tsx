@@ -70,17 +70,11 @@ const people = [
 ] as const
 
 function BinaryLogoWatermark() {
-  return <svg className="about-binary-watermark" viewBox="0 0 440 440" aria-hidden="true">
-    <defs>
-      <pattern id="binary-grid" width="78" height="24" patternUnits="userSpaceOnUse">
-        <text x="0" y="9">01001101</text><text x="-10" y="21">10110010</text>
-      </pattern>
-      <mask id="forudid-binary-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="440" height="440" style={{ maskType: 'alpha' }}>
-        <image href="/brand/selected/forudid-mark-black.png" x="0" y="0" width="440" height="440" preserveAspectRatio="xMidYMid meet" />
-      </mask>
-    </defs>
-    <rect width="440" height="440" fill="url(#binary-grid)" mask="url(#forudid-binary-mask)" />
-  </svg>
+  return <div className="about-binary-watermark" aria-hidden="true">
+    {Array.from({ length: 24 }, (_, row) => <span key={row}>
+      {row % 2 ? '10100110100101101001011010010110' : '01011001011010010110100101101001'}
+    </span>)}
+  </div>
 }
 
 function PersonNote({ person, language }: { person: (typeof people)[number], language: Language }) {
@@ -129,13 +123,12 @@ export default function AboutPage() {
       <p>آنچه امروز از فرونشست زمین ایران می‌دانیم، یکباره فراهم نیامده است. کسانی اندازه گرفتند و ثبت کردند؛ دیگران بر آن افزودند؛ و هر نسل، حاصل کار خود را برای نسل پس از خویش باقی گذاشت. از ترازیابی و اندازه‌گیری‌های زمینی تا GPS و مشاهدات ماهواره‌ای، هر اندازه بر اندازهٔ پیشین بنا شده است.</p>
       <p>از این رو «فرودید» را، به رسم حق‌شناسی، به پیشگامان و ادامه‌دهندگان این راه، از جمله <PeopleList language="fa" />، و به همهٔ کسانی تقدیم می‌کنم که با تحقیق و اندازه‌گیری، با نگاهداری داده‌ها، با تعلیم، یا با در دسترس نهادن حاصل کار خویش، چیزی بر شناخت فرونشست زمین ایران افزوده‌اند.</p>
       <p className="dedication">این اندک، ادای دِینی است به دانش ژئودزی در ایران و به آنان که پیش از ما اندازه گرفتند، تا ما امروز این سرزمین را بهتر بشناسیم.</p>
-      <footer className="signature">
+      <div className="signature">
         <p>با احترام،</p>
         <strong>کمیل</strong>
         <span>عضوی کوچک از جامعهٔ سنجش و شناخت زمین ایران</span>
         <time dateTime="2026">طهران، ۱۴۰۵ هجری خورشیدی</time>
-        <span className="signature-brand">فرودید | پایش ماهواره‌ای فرونشست ایران زمین</span>
-      </footer>
+      </div>
     </article>
     </> : <>
       <header className="about-heading"><h1>In memory of those who measured before us</h1></header>
@@ -149,11 +142,13 @@ export default function AboutPage() {
         <p>What we know today about land subsidence in Iran did not appear all at once. Some measured and recorded; others added to their work; and every generation left its results to the next. From levelling and ground surveys to GPS and satellite observations, each measurement has been built upon those before it.</p>
         <p>I therefore dedicate Forudid, in gratitude, to the pioneers and those who continued this work, including <PeopleList language="en" />, and to everyone who has added to our understanding of land subsidence in Iran through research and measurement, preserving data, teaching, or making their work available.</p>
         <p className="dedication">This small work is an acknowledgement of a debt to geodesy in Iran and to those who measured before us, so that we may understand this land better today.</p>
-        <footer className="signature"><p>With respect,</p><strong>Komeil</strong>
+        <div className="signature"><p>With respect,</p><strong>Komeil</strong>
           <span>A small member of Iran’s community of Earth observation and measurement</span>
-          <time dateTime="2026">Tehran, 1405 Solar Hijri</time>
-          <span className="signature-brand">Forudid | Satellite monitoring of land subsidence in Iran</span></footer>
+          <time dateTime="2026">Tehran, 1405 Solar Hijri</time></div>
       </article>
     </>}
+    <footer className="about-site-footer">
+      {language === 'fa' ? 'فرودید | پایش ماهواره‌ای فرونشست ایران زمین' : 'Forudid | Satellite monitoring of land subsidence in Iran'}
+    </footer>
   </main>
 }

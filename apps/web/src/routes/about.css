@@ -1,9 +1,13 @@
 .scientific-page.about-page { position: relative; isolation: isolate; max-width: 704px;
   padding: 1px 32px 80px; color: #252525; font-family: 'Estedad Variable', sans-serif; }
-.about-binary-watermark { position: absolute; z-index: -1; top: 330px; left: 50%;
-  width: min(72%, 440px); height: auto; transform: translateX(-50%); color: #50585b;
-  opacity: .36; pointer-events: none; }
-.about-binary-watermark text { fill: currentColor; font: 800 9.5px/1 'SFMono-Regular', Consolas, monospace; letter-spacing: 1.2px; }
+.about-page > :not(.about-binary-watermark) { position: relative; z-index: 1; }
+.about-binary-watermark { position: absolute; z-index: 0; bottom: 96px; left: 20px;
+  width: min(34%, 220px); aspect-ratio: 1; overflow: hidden; color: #111;
+  opacity: .27; pointer-events: none; mask: url('/brand/selected/forudid-mark-black.png') center/contain no-repeat;
+  -webkit-mask: url('/brand/selected/forudid-mark-black.png') center/contain no-repeat; }
+.about-page[dir='ltr'] .about-binary-watermark { right: 20px; left: auto; }
+.about-binary-watermark span { display: block; width: max-content;
+  font: 900 16px/1.05 'SFMono-Regular', Consolas, monospace; letter-spacing: 2px; }
 .about-page .about-heading { margin: 64px 0 32px; }
 .about-page .about-heading h1 { margin: 0; font-size: clamp(20px, 2.8vw, 25px); line-height: 1.8; font-weight: 550; }
 .about-page .biruni-quote { margin: 0 0 36px; padding: 0; border: 0; }
@@ -12,14 +16,15 @@
 .about-page .about-letter p { margin: 0 0 22px; font-size: 15px; line-height: 2.1; text-align: start; }
 .about-page .about-letter .about-opening { margin-bottom: 22px; font-size: 15px; }
 .about-page .about-letter .dedication { margin: 28px 0 0; font-size: 15px; }
-.about-page .signature { gap: 6px; margin: 32px 0 0; padding: 0; border: 0; }
+.about-page .signature { min-height: 190px; gap: 6px; margin: 32px 0 0; padding: 0; padding-inline-end: 240px; border: 0; }
 .about-page .signature p { margin: 0; font-size: 14px; }
 .about-page .signature strong { font: 500 15px/1.8 'Estedad Variable', sans-serif; }
 .about-page .signature span, .about-page .signature time { font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
 .about-page[dir='ltr'] { font-family: Georgia, 'Times New Roman', serif; }
 .about-page[dir='ltr'] .person-note { direction: ltr; text-align: left; font-family: Georgia, 'Times New Roman', serif; }
 .about-page .signature time { margin-top: 8px; }
-.about-page .signature .signature-brand { margin-top: 14px; color: #4f4f4f; font-size: 10px; font-weight: 500; }
+.about-page .about-site-footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #d2d2d2;
+  color: #555; font: 500 10px/1.9 'Estedad Variable', sans-serif; }
 .about-page .person-trigger { padding: 0; border-bottom: 0; color: inherit; text-decoration: underline;
   text-decoration-color: #b7b7b7; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .about-page .person-trigger:hover { color: #111; text-decoration-color: #333; }
@@ -30,5 +35,8 @@
   .about-page .biruni-quote { margin-bottom: 28px; }
   .about-page .about-letter p { font-size: 14px; line-height: 2.05; }
   .about-page .biruni-quote blockquote { font-size: 15px; }
-  .about-binary-watermark { top: 440px; width: 80%; opacity: .30; }
+  .about-binary-watermark { bottom: 84px; left: 12px; width: min(38%, 160px); opacity: .22; }
+  .about-page[dir='ltr'] .about-binary-watermark { right: 12px; left: auto; }
+  .about-page .signature { min-height: 155px; padding-inline-end: 170px; }
+  .about-page .about-site-footer { margin-top: 38px; }
 }
