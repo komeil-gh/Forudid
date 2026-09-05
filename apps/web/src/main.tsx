@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
 import { router } from './app/router'
 import '@fontsource-variable/vazirmatn'
+import '@fontsource-variable/noto-naskh-arabic'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './styles.css'
 const client = new QueryClient({ defaultOptions: { queries: {
