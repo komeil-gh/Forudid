@@ -71,9 +71,13 @@ const people = [
 
 const sourceMarks = [
   { name: 'Sentinel-1', className: 'sentinel', logo: '/source-marks/sentinel-1.png', href: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1', fa: 'تصویر راداری', en: 'Radar imagery' },
+  { name: 'Alaska Satellite Facility', className: 'asf', logo: '/source-marks/asf.png', href: 'https://hyp3-docs.asf.alaska.edu/guides/insar_product_guide/', fa: 'راهنمای InSAR', en: 'InSAR guide' },
   { name: 'Zenodo', className: 'zenodo', logo: '/source-marks/zenodo.svg', href: 'https://zenodo.org/records/10815578', fa: 'مخزن داده', en: 'Data repository' },
   { name: 'Science Advances', className: 'science', logo: '/source-marks/science-advances.png', href: 'https://doi.org/10.1126/sciadv.adk3039', fa: 'مقالهٔ مبنا', en: 'Source paper' },
-  { name: 'OpenStreetMap', className: 'osm', logo: '/source-marks/openstreetmap.svg', href: 'https://www.openstreetmap.org/copyright', fa: 'دادهٔ زیرساخت', en: 'Infrastructure data' },
+  { name: 'GFZ', className: 'gfz', logo: '/source-marks/gfz.svg', href: 'https://www.gfz.de/staff/mahdi.motagh', fa: 'مرکز پژوهش', en: 'Research centre' },
+  { name: 'AGU', className: 'agu', logo: '/source-marks/agu.svg', href: 'https://doi.org/10.1029/2008GL033814', fa: 'ناشر علمی', en: 'Scientific publisher' },
+  { name: 'OpenStreetMap', className: 'osm', logo: '/source-marks/openstreetmap.svg', href: 'https://www.openstreetmap.org/copyright', fa: 'شبکهٔ زیرساخت', en: 'Infrastructure network' },
+  { name: 'Geofabrik', className: 'geofabrik', logo: '/source-marks/geofabrik.png', href: 'https://download.geofabrik.de/asia/iran.html', fa: 'استخراج OSM', en: 'OSM extract', titleFa: 'استخراج شبکهٔ زیرساخت از OpenStreetMap', titleEn: 'OpenStreetMap infrastructure extract' },
 ] as const
 
 function LetterWatermark() {
@@ -154,24 +158,28 @@ export default function AboutPage() {
       </div>
       <div className="about-source-strip">
         <Tooltip.Provider delayDuration={180}>
-        <nav aria-label={language === 'fa' ? 'منابع داده و مقاله' : 'Data and publication sources'}>
-          {sourceMarks.map(source => <Tooltip.Root key={source.name}>
-            <Tooltip.Trigger asChild><a className={`source-mark source-mark-${source.className}`}
-            href={source.href} target="_blank" rel="noreferrer" aria-label={source.name}>
-            <span><img src={source.logo} alt="" /></span>
-          </a></Tooltip.Trigger>
-            <Tooltip.Portal><Tooltip.Content className="source-tooltip" side="top" sideOffset={10} collisionPadding={16} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-              {language === 'fa' ? source.fa : source.en}
-              <Tooltip.Arrow className="source-tooltip-arrow" />
-            </Tooltip.Content></Tooltip.Portal>
-          </Tooltip.Root>)}
+        <nav className="source-marquee" aria-label={language === 'fa' ? 'منابع داده و مقاله' : 'Data and publication sources'}>
+          <div className="source-track">
+            {[false, true].map(clone => <div className="source-group" aria-hidden={clone || undefined} key={clone ? 'clone' : 'original'}>
+              {sourceMarks.map(source => <Tooltip.Root key={source.name}>
+                <Tooltip.Trigger asChild><a className={`source-mark source-mark-${source.className}`}
+                  href={source.href} target="_blank" rel="noreferrer" aria-label={source.name} tabIndex={clone ? -1 : undefined}>
+                  <span><img src={source.logo} alt="" /></span>
+                  <i aria-hidden="true" />
+                  <small>{language === 'fa' ? source.fa : source.en}</small>
+                </a></Tooltip.Trigger>
+                {!clone && <Tooltip.Portal><Tooltip.Content className="source-tooltip" side="top" sideOffset={10} collisionPadding={16} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+                  <strong>{source.name}</strong><span>{language === 'fa' ? ('titleFa' in source ? source.titleFa : source.fa) : ('titleEn' in source ? source.titleEn : source.en)}</span>
+                  <Tooltip.Arrow className="source-tooltip-arrow" />
+                </Tooltip.Content></Tooltip.Portal>}
+              </Tooltip.Root>)}
+            </div>)}
+          </div>
         </nav>
         </Tooltip.Provider>
       </div>
       <div className="about-footer-notes">
         <p>{language === 'fa' ? 'فرودید تلاشی شخصی و مستقل است و به هیچ نهاد یا سازمانی وابسته نیست.' : 'Forudid is an independent personal project and is not affiliated with any institution or organization.'}</p>
-        <p>{language === 'fa' ? 'استخراج شبکهٔ زیرساخت از OpenStreetMap به‌وسیلهٔ ' : 'OpenStreetMap infrastructure extract provided by '}
-          <a href="https://download.geofabrik.de/asia/iran.html" target="_blank" rel="noreferrer">Geofabrik</a></p>
       </div>
     </footer>
   </div>
