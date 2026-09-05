@@ -7,7 +7,9 @@ describe('scientific content pages', () => {
   it('keeps the methodology scientifically qualified', () => {
     render(<MethodologyPage />)
     expect(screen.getByRole('heading', { name: '۵. مرجع و تفسیر هندسی' })).toBeInTheDocument()
-    expect(screen.getByAltText(/هندسهٔ دو برداشت Sentinel-1/)).toHaveAttribute('src', '/methodology/repeat-pass-los.png')
+    expect(document.querySelector('svg[aria-labelledby="repeat-title repeat-desc"]')).toBeInTheDocument()
+    expect(document.querySelectorAll('.paper-figure img')).toHaveLength(0)
+    expect(document.querySelectorAll('.paper-figure svg')).toHaveLength(8)
     expect(screen.getByText(/هیچ عددی از این نسخه نباید/)).toBeInTheDocument()
     expect(document.querySelectorAll('.katex')).toHaveLength(7)
     expect(document.querySelector('.paper')?.textContent).not.toContain(String.fromCodePoint(8212))

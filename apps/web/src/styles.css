@@ -172,7 +172,25 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
 .paper-equation .katex-display { margin: 0; }
 .paper-equation b { grid-column: 3; justify-self: end; font-size: 11px; font-weight: 400; }
 .paper-figure { column-span: all; width: 84%; margin: 24px auto 28px; break-inside: avoid; text-align: center; }
-.paper-figure img { display: block; width: 100%; height: auto; max-height: 440px; object-fit: contain; }
+.paper-figure-content, .paper-figure svg { display: block; width: 100%; height: auto; }
+.paper-figure svg { background: transparent; }
+.science-svg { overflow: visible; color: #172d3c; font: 12px/1.2 Georgia, 'Times New Roman', serif; }
+.science-svg .svg-line, .science-svg .svg-accent, .science-svg .svg-warn, .science-svg .svg-faint {
+  fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.science-svg .svg-line { stroke: #172d3c; stroke-width: 1.45; }
+.science-svg .svg-accent { stroke: #15717b; stroke-width: 1.55; }
+.science-svg .svg-warn { stroke: #a34a2a; stroke-width: 1.55; }
+.science-svg .svg-faint { stroke: #82919a; stroke-width: .85; }
+.science-svg .svg-dash { stroke-dasharray: 4 5; }
+.science-svg .svg-fill-ink { fill: #172d3c; }
+.science-svg .svg-fill-accent { fill: #15717b; opacity: .12; }
+.science-svg .svg-fill-warn, .science-svg .svg-text-warn { fill: #a34a2a; }
+.method-figure-sequence { display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr) 20px minmax(0, 1fr);
+  align-items: center; gap: 8px; direction: ltr; }
+.method-qc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.method-subfigure { min-width: 0; margin: 0; padding: 10px 10px 7px; border: 1px solid #bfc5c8; background: transparent; }
+.paper-figure .method-subfigure > figcaption { margin-top: 4px; color: #47545c; font-size: 9px; line-height: 1.6; text-align: center; }
+.figure-flow { color: #596a74; direction: ltr; font: 20px/1 Georgia, 'Times New Roman', serif; }
 .paper-figure figcaption { margin-top: 7px; font-size: 10px; line-height: 1.65; text-align: justify; }
 .paper-references { margin-top: 18px; padding-top: 12px; border-top: 1px solid #777; font-size: 10px; line-height: 1.6; }
 .paper-references ol { margin: 0; padding-inline-start: 22px; }
@@ -246,6 +264,8 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
   .paper-header h1, .paper-en .paper-header h1 { font-size: 22px; }
   .paper-body { column-count: 1; }
   .paper-figure { width: 100%; margin-block: 20px 24px; }
+  .method-figure-sequence, .method-qc-grid { grid-template-columns: 1fr; }
+  .figure-flow { justify-self: center; transform: rotate(90deg); }
   .paper-equation { grid-template-columns: 1fr auto 28px; font-size: 11px; overflow-x: auto; overflow-y: hidden; }
   .about-heading { margin-top: 46px; }
   .about-heading h1 { font-size: 26px; }
