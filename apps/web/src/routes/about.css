@@ -1,9 +1,9 @@
 .scientific-page.about-page { position: relative; isolation: isolate; max-width: 704px;
   padding: 1px 32px 80px; color: #252525; font-family: 'Estedad Variable', sans-serif; }
 .about-binary-watermark { position: absolute; z-index: -1; top: 330px; left: 50%;
-  width: min(72%, 440px); height: auto; transform: translateX(-50%); color: #6f7779;
-  opacity: .18; pointer-events: none; }
-.about-binary-watermark text { fill: currentColor; font: 700 9.5px/1 'SFMono-Regular', Consolas, monospace; letter-spacing: 1.2px; }
+  width: min(72%, 440px); height: auto; transform: translateX(-50%); color: #50585b;
+  opacity: .36; pointer-events: none; }
+.about-binary-watermark text { fill: currentColor; font: 800 9.5px/1 'SFMono-Regular', Consolas, monospace; letter-spacing: 1.2px; }
 .about-page .about-heading { margin: 64px 0 32px; }
 .about-page .about-heading h1 { margin: 0; font-size: clamp(20px, 2.8vw, 25px); line-height: 1.8; font-weight: 550; }
 .about-page .biruni-quote { margin: 0 0 36px; padding: 0; border: 0; }
@@ -30,5 +30,5 @@
   .about-page .biruni-quote { margin-bottom: 28px; }
   .about-page .about-letter p { font-size: 14px; line-height: 2.05; }
   .about-page .biruni-quote blockquote { font-size: 15px; }
-  .about-binary-watermark { top: 440px; width: 80%; opacity: .16; }
+  .about-binary-watermark { top: 440px; width: 80%; opacity: .30; }
 }
