@@ -1,0 +1,12 @@
+.region-controls { display: grid; gap: 18px; margin-bottom: 30px; }
+.region-controls label { display: grid; gap: 6px; font-size: .85rem; }
+.region-controls select { width: 100%; min-width: 0; min-height: 44px; padding: 10px; border: 1px solid #9ba9ad; background: #fff; border-radius: 4px; font: inherit; color: inherit; }
+.region-controls select:focus-visible { outline: 2px solid #08686e; outline-offset: 3px; }
+.region-metrics dd { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.region-metrics > div { flex: 1 1 200px; }
+.region-table { width: 100%; border-collapse: collapse; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.region-table caption { text-align: start; padding-block: 12px; }
+.region-table th, .region-table td { text-align: start; border-bottom: 1px solid #d6dddf; padding: 10px 6px; }
+.region-table td:last-child { text-align: end; }
+.region-disclaimer { font-size: .8rem; border-inline-start: 3px solid #647d87; padding-inline-start: 14px; margin-block-start: 28px; }
+.regions-page a { overflow-wrap: anywhere; }

@@ -40,7 +40,7 @@ function SourceCard({ source, language }: { source: SourceInfo, language: Langua
           {version.observation_years.length > 0 && <p>{text.years} {version.observation_years.map(y => year.format(y)).join(text.to)}</p>}
           {version.method === 'descending_los_projection' && <p>{text.projection}</p>}
           <p>{text.downloaded} <time dateTime={version.downloaded_at}>{new Date(version.downloaded_at).toLocaleDateString(language === 'fa' ? 'fa-IR' : 'en-GB')}</time></p>
-          <p>{version.validation_status === 'checksum_verified' ? text.verified : text.unchecked}</p>
+          <p>{version.validation_status === 'checksum_verified' ? text.verified : version.validation_status === 'local_sha256_and_pixels_verified' ? (language === 'fa' ? 'SHA-256 محلی ثبت شده و تمام پیکسل‌های COG با اصل فایل برابرند؛ checksum رمزنگاری‌شده‌ای از ارائه‌دهنده موجود نیست.' : 'Local SHA-256 recorded and every COG base pixel matches the original; no provider cryptographic checksum is available.') : text.unchecked}</p>
           <details><summary>{text.files}</summary>
             <p>{text.manifest}</p><code dir="ltr">{version.checksum_sha256}</code>
             <ul>{version.files.map(file => <li key={file.role}><bdi>{file.name}</bdi>

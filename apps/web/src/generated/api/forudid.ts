@@ -153,6 +153,15 @@ export interface Legend {
   unit: string;
 }
 
+export interface MultiPolygonGeometry {
+  /**
+     * @items.items.items.minItems 2
+     * @items.items.items.maxItems 2
+     */
+  coordinates: [number, number][][][];
+  type?: 'MultiPolygon';
+}
+
 export type PointSummaryQuality = typeof PointSummaryQuality[keyof typeof PointSummaryQuality];
 
 
@@ -198,6 +207,50 @@ export interface PointSummary {
   temporal_coherence: number | null;
   velocity_los: Quantity;
   velocity_uncertainty: Quantity;
+}
+
+export interface RegionMetrics {
+  area_m2: number;
+  area_weighted: boolean;
+  boundary_max_segment_degrees: number;
+  boundary_projection: string;
+  coverage_fraction: number;
+  maximum_mm_year: number | null;
+  mean_mm_year: number | null;
+  median_mm_year: number | null;
+  p95_mm_year: number | null;
+  valid_deformation_area_m2: number;
+}
+
+export interface PopulationMetrics {
+  alignment_method: string;
+  allocation_assumption: string;
+  band_edges_mm_year: number[];
+  coverage_fraction: number | null;
+  estimated_by_numeric_band: number[];
+  estimated_outside_deformation_extent: number;
+  estimated_total: number;
+  estimated_valid_coverage: number;
+  estimated_without_deformation_data: number;
+  /** @nullable */
+  hazard_population?: null;
+  region?: RegionMetrics | null;
+}
+
+export type PopulationSummaryInputs = { [key: string]: unknown };
+
+export interface PopulationSummary {
+  analysis_run_id: string;
+  checksum_sha256: string;
+  disclaimer?: string;
+  inputs: PopulationSummaryInputs;
+  method_status: string;
+  method_version: string;
+  metrics: PopulationMetrics;
+  population_source_version_id: string;
+  population_year: number;
+  product_id: string;
+  region_id: string | null;
 }
 
 export type ProductInfoOrbitDirection = typeof ProductInfoOrbitDirection[keyof typeof ProductInfoOrbitDirection];
@@ -300,6 +353,35 @@ export interface Quality {
   quality: QualityQuality;
   reasons: string[];
   thresholds: QualityThresholds;
+}
+
+export type RegionInfoProperties = { [key: string]: unknown };
+
+export interface RegionInfo {
+  area_m2: number;
+  bbox: number[];
+  id: string;
+  name_en: string;
+  name_fa: string;
+  properties: RegionInfoProperties;
+  source_code: string | null;
+  source_version_id: string;
+}
+
+export interface RegionFeature {
+  attribution: string;
+  geometry: MultiPolygonGeometry;
+  id: string;
+  license_url: string;
+  properties: RegionInfo;
+  source_year: string;
+  type?: 'Feature';
+}
+
+export interface RegionPage {
+  items: RegionInfo[];
+  next_offset: number | null;
+  source_version_id: string | null;
 }
 
 export type RunInfoConfig = { [key: string]: unknown };
@@ -491,7 +573,26 @@ export const ListProductsOrbit = {
 
 export type GetMetadata200 = { [key: string]: unknown };
 
+export type GetPopulationExposureParams = {
+run_id?: string | null;
+region_id?: string | null;
+};
+
 export type GetProvenance200 = { [key: string]: unknown };
+
+export type ListRegionsParams = {
+source_version_id?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * @minimum 0
+ * @maximum 100000
+ */
+offset?: number;
+};
 
 export type ListSourcesParams = {
 /**
@@ -1940,6 +2041,122 @@ export function useGetMetadata<TData = Awaited<ReturnType<typeof getMetadata>>, 
 
 
 
+export const getGetPopulationExposureUrl = (productId: string,
+    params?: GetPopulationExposureParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/products/${productId}/population-exposure?${stringifiedParams}` : `/api/v1/products/${productId}/population-exposure`
+}
+
+/**
+ * @summary Population Summary
+ */
+export const getPopulationExposure = async (productId: string,
+    params?: GetPopulationExposureParams, options?: Parameters<typeof apiFetch>[1]): Promise<PopulationSummary> => {
+
+  return apiFetch<PopulationSummary>(getGetPopulationExposureUrl(productId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPopulationExposureQueryKey = (productId: string,
+    params?: GetPopulationExposureParams,) => {
+    return [
+    `/api/v1/products/${productId}/population-exposure`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetPopulationExposureQueryOptions = <TData = Awaited<ReturnType<typeof getPopulationExposure>>, TError = ErrorResponse>(productId: string,
+    params?: GetPopulationExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPopulationExposureQueryKey(productId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPopulationExposure>>> = ({ signal }) => getPopulationExposure(productId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productId !== null && productId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPopulationExposureQueryResult = NonNullable<Awaited<ReturnType<typeof getPopulationExposure>>>
+export type GetPopulationExposureQueryError = ErrorResponse
+
+
+export function useGetPopulationExposure<TData = Awaited<ReturnType<typeof getPopulationExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params: undefined |  GetPopulationExposureParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationExposure<TData = Awaited<ReturnType<typeof getPopulationExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params?: GetPopulationExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationExposure>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationExposure>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationExposure<TData = Awaited<ReturnType<typeof getPopulationExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params?: GetPopulationExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Population Summary
+ */
+
+export function useGetPopulationExposure<TData = Awaited<ReturnType<typeof getPopulationExposure>>, TError = ErrorResponse>(
+ productId: string,
+    params?: GetPopulationExposureParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationExposure>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPopulationExposureQueryOptions(productId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetProvenanceUrl = (productId: string,) => {
 
 
@@ -2130,6 +2347,215 @@ export function useGetQuality<TData = Awaited<ReturnType<typeof getQuality>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetQualityQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListRegionsUrl = (params?: ListRegionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/regions?${stringifiedParams}` : `/api/v1/regions`
+}
+
+/**
+ * @summary Regions
+ */
+export const listRegions = async (params?: ListRegionsParams, options?: Parameters<typeof apiFetch>[1]): Promise<RegionPage> => {
+
+  return apiFetch<RegionPage>(getListRegionsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRegionsQueryKey = (params?: ListRegionsParams,) => {
+    return [
+    `/api/v1/regions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListRegionsQueryOptions = <TData = Awaited<ReturnType<typeof listRegions>>, TError = ErrorResponse>(params?: ListRegionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRegionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRegions>>> = ({ signal }) => listRegions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListRegionsQueryResult = NonNullable<Awaited<ReturnType<typeof listRegions>>>
+export type ListRegionsQueryError = ErrorResponse
+
+
+export function useListRegions<TData = Awaited<ReturnType<typeof listRegions>>, TError = ErrorResponse>(
+ params: undefined |  ListRegionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRegions>>,
+          TError,
+          Awaited<ReturnType<typeof listRegions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRegions<TData = Awaited<ReturnType<typeof listRegions>>, TError = ErrorResponse>(
+ params?: ListRegionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listRegions>>,
+          TError,
+          Awaited<ReturnType<typeof listRegions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListRegions<TData = Awaited<ReturnType<typeof listRegions>>, TError = ErrorResponse>(
+ params?: ListRegionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Regions
+ */
+
+export function useListRegions<TData = Awaited<ReturnType<typeof listRegions>>, TError = ErrorResponse>(
+ params?: ListRegionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listRegions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListRegionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetRegionUrl = (regionId: string,) => {
+
+
+
+
+  return `/api/v1/regions/${regionId}`
+}
+
+/**
+ * @summary Region
+ */
+export const getRegion = async (regionId: string, options?: Parameters<typeof apiFetch>[1]): Promise<RegionFeature> => {
+
+  return apiFetch<RegionFeature>(getGetRegionUrl(regionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRegionQueryKey = (regionId: string,) => {
+    return [
+    `/api/v1/regions/${regionId}`
+    ] as const;
+    }
+
+
+export const getGetRegionQueryOptions = <TData = Awaited<ReturnType<typeof getRegion>>, TError = ErrorResponse>(regionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRegionQueryKey(regionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRegion>>> = ({ signal }) => getRegion(regionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: regionId !== null && regionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRegionQueryResult = NonNullable<Awaited<ReturnType<typeof getRegion>>>
+export type GetRegionQueryError = ErrorResponse
+
+
+export function useGetRegion<TData = Awaited<ReturnType<typeof getRegion>>, TError = ErrorResponse>(
+ regionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRegion>>,
+          TError,
+          Awaited<ReturnType<typeof getRegion>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRegion<TData = Awaited<ReturnType<typeof getRegion>>, TError = ErrorResponse>(
+ regionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRegion>>,
+          TError,
+          Awaited<ReturnType<typeof getRegion>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRegion<TData = Awaited<ReturnType<typeof getRegion>>, TError = ErrorResponse>(
+ regionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Region
+ */
+
+export function useGetRegion<TData = Awaited<ReturnType<typeof getRegion>>, TError = ErrorResponse>(
+ regionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRegion>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRegionQueryOptions(regionId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

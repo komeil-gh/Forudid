@@ -509,6 +509,44 @@
         "title": "LineGeometry",
         "type": "object"
       },
+      "MultiPolygonGeometry": {
+        "properties": {
+          "coordinates": {
+            "items": {
+              "items": {
+                "items": {
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "type": {
+            "const": "MultiPolygon",
+            "default": "MultiPolygon",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "coordinates"
+        ],
+        "title": "MultiPolygonGeometry",
+        "type": "object"
+      },
       "PointSummary": {
         "properties": {
           "coordinate": {
@@ -673,6 +711,160 @@
           "is_fixture"
         ],
         "title": "PointSummary",
+        "type": "object"
+      },
+      "PopulationMetrics": {
+        "properties": {
+          "alignment_method": {
+            "title": "Alignment Method",
+            "type": "string"
+          },
+          "allocation_assumption": {
+            "title": "Allocation Assumption",
+            "type": "string"
+          },
+          "band_edges_mm_year": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Band Edges Mm Year",
+            "type": "array"
+          },
+          "coverage_fraction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Fraction"
+          },
+          "estimated_by_numeric_band": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Estimated By Numeric Band",
+            "type": "array"
+          },
+          "estimated_outside_deformation_extent": {
+            "title": "Estimated Outside Deformation Extent",
+            "type": "number"
+          },
+          "estimated_total": {
+            "title": "Estimated Total",
+            "type": "number"
+          },
+          "estimated_valid_coverage": {
+            "title": "Estimated Valid Coverage",
+            "type": "number"
+          },
+          "estimated_without_deformation_data": {
+            "title": "Estimated Without Deformation Data",
+            "type": "number"
+          },
+          "hazard_population": {
+            "title": "Hazard Population",
+            "type": "null"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegionMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "estimated_total",
+          "estimated_valid_coverage",
+          "estimated_without_deformation_data",
+          "estimated_outside_deformation_extent",
+          "coverage_fraction",
+          "estimated_by_numeric_band",
+          "band_edges_mm_year",
+          "allocation_assumption",
+          "alignment_method"
+        ],
+        "title": "PopulationMetrics",
+        "type": "object"
+      },
+      "PopulationSummary": {
+        "properties": {
+          "analysis_run_id": {
+            "format": "uuid",
+            "title": "Analysis Run Id",
+            "type": "string"
+          },
+          "checksum_sha256": {
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "disclaimer": {
+            "default": "FORUDID یک ابزار پایش و غربالگری مکانی است و جایگزین ارزیابی ژئوتکنیکی، سازه‌ای، نقشه‌برداری زمینی یا بازدید میدانی نیست.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "method_status": {
+            "title": "Method Status",
+            "type": "string"
+          },
+          "method_version": {
+            "title": "Method Version",
+            "type": "string"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/PopulationMetrics"
+          },
+          "population_source_version_id": {
+            "format": "uuid",
+            "title": "Population Source Version Id",
+            "type": "string"
+          },
+          "population_year": {
+            "title": "Population Year",
+            "type": "integer"
+          },
+          "product_id": {
+            "format": "uuid",
+            "title": "Product Id",
+            "type": "string"
+          },
+          "region_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Id"
+          }
+        },
+        "required": [
+          "analysis_run_id",
+          "product_id",
+          "population_source_version_id",
+          "population_year",
+          "region_id",
+          "method_version",
+          "method_status",
+          "metrics",
+          "inputs",
+          "checksum_sha256"
+        ],
+        "title": "PopulationSummary",
         "type": "object"
       },
       "ProductInfo": {
@@ -1149,6 +1341,237 @@
         "title": "ReferenceInfo",
         "type": "object"
       },
+      "RegionFeature": {
+        "properties": {
+          "attribution": {
+            "title": "Attribution",
+            "type": "string"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/MultiPolygonGeometry"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "license_url": {
+            "title": "License Url",
+            "type": "string"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/RegionInfo"
+          },
+          "source_year": {
+            "title": "Source Year",
+            "type": "string"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "properties",
+          "geometry",
+          "attribution",
+          "license_url",
+          "source_year"
+        ],
+        "title": "RegionFeature",
+        "type": "object"
+      },
+      "RegionInfo": {
+        "properties": {
+          "area_m2": {
+            "title": "Area M2",
+            "type": "number"
+          },
+          "bbox": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Bbox",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name_en": {
+            "title": "Name En",
+            "type": "string"
+          },
+          "name_fa": {
+            "title": "Name Fa",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "Properties",
+            "type": "object"
+          },
+          "source_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Code"
+          },
+          "source_version_id": {
+            "format": "uuid",
+            "title": "Source Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_version_id",
+          "name_en",
+          "name_fa",
+          "source_code",
+          "area_m2",
+          "bbox",
+          "properties"
+        ],
+        "title": "RegionInfo",
+        "type": "object"
+      },
+      "RegionMetrics": {
+        "properties": {
+          "area_m2": {
+            "title": "Area M2",
+            "type": "number"
+          },
+          "area_weighted": {
+            "title": "Area Weighted",
+            "type": "boolean"
+          },
+          "boundary_max_segment_degrees": {
+            "title": "Boundary Max Segment Degrees",
+            "type": "number"
+          },
+          "boundary_projection": {
+            "title": "Boundary Projection",
+            "type": "string"
+          },
+          "coverage_fraction": {
+            "title": "Coverage Fraction",
+            "type": "number"
+          },
+          "maximum_mm_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Mm Year"
+          },
+          "mean_mm_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Mm Year"
+          },
+          "median_mm_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Mm Year"
+          },
+          "p95_mm_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95 Mm Year"
+          },
+          "valid_deformation_area_m2": {
+            "title": "Valid Deformation Area M2",
+            "type": "number"
+          }
+        },
+        "required": [
+          "area_m2",
+          "valid_deformation_area_m2",
+          "coverage_fraction",
+          "mean_mm_year",
+          "median_mm_year",
+          "p95_mm_year",
+          "maximum_mm_year",
+          "boundary_projection",
+          "boundary_max_segment_degrees",
+          "area_weighted"
+        ],
+        "title": "RegionMetrics",
+        "type": "object"
+      },
+      "RegionPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RegionInfo"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          },
+          "source_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Version Id"
+          }
+        },
+        "required": [
+          "items",
+          "source_version_id",
+          "next_offset"
+        ],
+        "title": "RegionPage",
+        "type": "object"
+      },
       "RunInfo": {
         "properties": {
           "aoi_id": {
@@ -1610,7 +2033,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.2.0-alpha.4"
+    "version": "0.2.0-alpha.5"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -2866,6 +3289,113 @@
         "summary": "Get Metadata"
       }
     },
+    "/api/v1/products/{product_id}/population-exposure": {
+      "get": {
+        "operationId": "getPopulationExposure",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Product Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "run_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "region_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PopulationSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Population Summary",
+        "tags": [
+          "exposure"
+        ]
+      }
+    },
     "/api/v1/products/{product_id}/provenance": {
       "get": {
         "operationId": "getProvenance",
@@ -3006,6 +3536,183 @@
           }
         },
         "summary": "Get Quality"
+      }
+    },
+    "/api/v1/regions": {
+      "get": {
+        "operationId": "listRegions",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "source_version_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Version Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Regions",
+        "tags": [
+          "regions"
+        ]
+      }
+    },
+    "/api/v1/regions/{region_id}": {
+      "get": {
+        "operationId": "getRegion",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "region_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Region Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Region",
+        "tags": [
+          "regions"
+        ]
       }
     },
     "/api/v1/runs/{run_id}": {

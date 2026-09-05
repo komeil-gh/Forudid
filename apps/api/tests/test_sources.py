@@ -27,6 +27,18 @@ def test_download_integrity_and_conflict(tmp_path):
     with pytest.raises(ValueError, match="checksum mismatch"):
         fetch_file(origin.as_uri(), tmp_path / "invalid", origin.stat().st_size, "0" * 32)
     assert not (tmp_path / "invalid").exists()
+    interrupted = tmp_path / "sha-download.partial"
+    interrupted.write_bytes(b"preserved partial source")
+    downloaded = tmp_path / "sha-download"
+    fetch_file(
+        origin.as_uri(),
+        downloaded,
+        origin.stat().st_size,
+        hashlib.sha256(origin.read_bytes()).hexdigest(),
+        algorithm="sha256",
+    )
+    assert downloaded.read_bytes() == origin.read_bytes()
+    assert interrupted.read_bytes() == b"preserved partial source"
 
 
 def test_registry_pagination_privacy_and_database_immutability():

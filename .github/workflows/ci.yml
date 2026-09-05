@@ -10,6 +10,8 @@ jobs:
       FORUDID_OSM_TESTS: '1'
       FORUDID_MARTIN_TESTS: '1'
       FORUDID_EXPOSURE_TESTS: '1'
+      FORUDID_REGION_TESTS: '1'
+      FORUDID_POPULATION_TESTS: '1'
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +47,18 @@ jobs:
           uv run --project apps/api python -m forudid_api.configure_martin .tools/martin.json
           docker run -d --rm --name forudid-martin-ci --network host -v "$PWD/.tools/martin.json:/runtime/martin.json:ro" ghcr.io/maplibre/martin:1.15.0 --config /runtime/martin.json
           curl --retry 15 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:58300/vector/health
+      - name: Register real population and boundaries and compute country and Tehran
+        run: |
+          uv run --project apps/api python -m forudid_api.ingest_regions data/sources/geoboundaries/IRN-ADM1-17685810
+          uv run --project apps/api python -m forudid_api.ingest_population data/sources/worldpop-iran/2020-wpgp-31792
+          uv run --project apps/api python - <<'PY'
+          from pathlib import Path
+          from uuid import UUID, uuid5
+          from forudid_api.ingest_regions import VERSION_ID
+          from forudid_api.analyze_population import analyze
+          for region in (None, uuid5(VERSION_ID, "Tehran")):
+              analyze(UUID("744b6536-b9a7-56c5-85b1-66a629a78b91"), UUID("488059d8-d3f6-5064-af66-131da47742e3"), Path("data/sources/worldpop-iran/2020-wpgp-31792/population-count.cog.tif"), Path("data/normalized/haghighi-motagh-cog-1/rate.tif"), region)
+          PY
       - name: Contract synchronization
         run: |
           uv run --project apps/api python scripts/export_openapi.py

@@ -180,6 +180,43 @@ class ExposureSegment(Record):
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
+class Region(Record):
+    __tablename__ = "regions"
+    __table_args__ = (
+        UniqueConstraint("source_version_id", "name_en", name="region_source_name"),
+        CheckConstraint("ST_IsValid(geom) AND NOT ST_IsEmpty(geom)", name="region_geometry"),
+        CheckConstraint("area_m2 > 0", name="region_area"),
+    )
+    source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"), index=True)
+    name_en: Mapped[str]
+    name_fa: Mapped[str]
+    source_code: Mapped[str | None]
+    geom = mapped_column(Geometry("MULTIPOLYGON", srid=4326), nullable=False)
+    area_m2: Mapped[float]
+    bbox: Mapped[list[float]] = mapped_column(JSONB)
+    properties: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class PopulationExposureResult(Record):
+    __tablename__ = "population_exposure_results"
+    __table_args__ = (
+        CheckConstraint(
+            "estimated_total >= 0 AND estimated_valid_coverage >= 0 "
+            "AND estimated_valid_coverage <= estimated_total + 0.1",
+            name="population_count_balance",
+        ),
+    )
+    analysis_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), unique=True)
+    population_source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"))
+    population_year: Mapped[int]
+    region_id: Mapped[UUID | None] = mapped_column(ForeignKey("regions.id"), index=True)
+    estimated_total: Mapped[float]
+    estimated_valid_coverage: Mapped[float]
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    object_key: Mapped[str] = mapped_column(unique=True)
+    checksum_sha256: Mapped[str] = mapped_column(String(64))
+
+
 class Run(Record):
     __tablename__ = "processing_runs"
     __table_args__ = (

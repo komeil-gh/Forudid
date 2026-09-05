@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 from urllib.request import urlopen
+from uuid import uuid4
 
 RECORD = "https://zenodo.org/api/records/10815578"
 FILES = {
@@ -19,21 +20,27 @@ def digest(path: Path, algorithm: str = "sha256") -> str:
         return hashlib.file_digest(stream, algorithm).hexdigest()
 
 
-def fetch_file(url: str, path: Path, size: int, md5: str) -> None:
+def fetch_file(url: str, path: Path, size: int, checksum: str, *, algorithm: str = "md5") -> None:
     """Atomic verified download; a changed existing snapshot is never overwritten."""
     if path.exists():
-        if path.stat().st_size != size or digest(path, "md5") != md5:
+        if path.stat().st_size != size or digest(path, algorithm) != checksum:
             raise ValueError(f"Existing source checksum mismatch: {path.name}")
         return
     partial = path.with_suffix(path.suffix + ".partial")
-    with urlopen(url, timeout=60) as response, partial.open("wb") as target:
+    if partial.exists():
+        if partial.stat().st_size == size and digest(partial, algorithm) == checksum:
+            path.hardlink_to(partial)
+            partial.unlink()
+            return
+        partial = path.with_suffix(path.suffix + f".{uuid4().hex}.partial")
+    with urlopen(url, timeout=60) as response, partial.open("xb") as target:
         total = 0
         while chunk := response.read(1024 * 1024):
             total += len(chunk)
             if total > size:
                 raise ValueError("Source exceeds published size")
             target.write(chunk)
-    if total != size or digest(partial, "md5") != md5:
+    if total != size or digest(partial, algorithm) != checksum:
         raise ValueError(f"Downloaded source checksum mismatch: {path.name}")
     # Exclusive creation also protects against a concurrent ingestion.
     path.hardlink_to(partial)
