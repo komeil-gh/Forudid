@@ -17,6 +17,7 @@
   position: relative;
   isolation: isolate;
   max-width: 760px;
+  min-height: 0;
   margin: 0 auto;
   padding: 1px 42px 58px;
   overflow: hidden;
@@ -81,7 +82,7 @@
 .about-page .about-letter .dedication { margin: 34px 0 0; }
 .about-page .signature {
   display: flex;
-  min-height: 160px;
+  min-height: 0;
   flex-direction: column;
   gap: 0;
   margin-top: 42px;
@@ -113,23 +114,22 @@
 .about-page .person-trigger:hover { color: #000; text-decoration-color: #222; }
 .about-page .person-trigger:focus-visible { outline: 2px solid #555; outline-offset: 3px; }
 
-.about-page .about-site-footer {
+.about-site-footer {
   display: grid;
-  grid-template-columns: minmax(170px, .8fr) minmax(0, 1.7fr);
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
   align-items: start;
-  gap: 22px;
-  margin-inline: -42px;
-  margin-bottom: -58px;
-  margin-top: 12px;
-  padding: 24px 42px 30px;
+  gap: clamp(40px, 6vw, 88px);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 36px 32px 28px;
   border-top: 1px solid #deded9;
   color: #454542;
-  background: #f6f6f3;
+  background: #fff;
   font: 500 10.5px/1.8 'Vazirmatn Variable', sans-serif;
 }
 .about-footer-brand { display: flex; align-items: flex-start; gap: 12px; }
 .about-footer-brand > div { display: grid; gap: 7px; }
-.about-footer-brand > div > small { max-width: 230px; color: #7d7d78; font-size: 9.25px; line-height: 1.75; font-weight: 400; }
+.about-footer-brand > div > small { max-width: 280px; color: #7d7d78; font-size: 10px; line-height: 1.85; font-weight: 400; }
 .about-footer-mark {
   position: relative;
   display: grid;
@@ -147,22 +147,22 @@
   border-radius: 50%;
   animation: footer-signal 3.6s cubic-bezier(.22, 1, .36, 1) infinite;
 }
-.about-source-strip { display: grid; gap: 14px; }
+.about-source-strip { display: grid; gap: 20px; }
 .about-source-strip small { color: #969690; font-size: 8.5px; font-weight: 500; }
-.about-source-strip nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; direction: ltr; }
+.about-source-strip nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; direction: ltr; }
 .source-mark { display: grid; min-width: 0; gap: 8px; color: #777772; text-align: center; transition: color 160ms ease-out; }
-.source-mark > span { display: flex; height: 34px; align-items: center; justify-content: center; }
+.source-mark > span { display: flex; height: 40px; align-items: center; justify-content: center; }
 .source-mark img { display: block; max-width: 100%; max-height: 30px; width: auto; opacity: .68; transition: opacity 160ms ease-out; }
 .source-mark:hover, .source-mark:focus-visible { color: #30302e; }
 .source-mark:hover img, .source-mark:focus-visible img { opacity: .86; }
-.source-mark > small { font: 450 7.5px/1.3 'Vazirmatn Variable', sans-serif; letter-spacing: .01em; }
+.source-mark > small { font: 450 9px/1.5 'Vazirmatn Variable', sans-serif; }
 .source-mark-sentinel img { max-height: 25px; }
 .source-mark-sentinel img,
 .source-mark-osm img { filter: grayscale(1); }
 .source-mark-zenodo img { filter: brightness(0); opacity: .58; }
 .source-mark-science img { max-height: 20px; filter: none; opacity: .62; }
 .source-mark-osm img { max-height: 32px; opacity: .64; }
-.about-source-strip p { margin: 0; color: #989892; font-size: 8px; line-height: 1.7; }
+.about-source-strip p { margin: 0; color: #989892; font-size: 9px; line-height: 1.8; }
 .about-source-strip p a { color: #686864; text-decoration: underline; text-decoration-color: #bdbdb7; text-underline-offset: 2px; }
 @keyframes footer-signal {
   0%, 55% { transform: scale(.72); opacity: 0; }
@@ -180,10 +180,13 @@
   .about-page .about-letter p { font-size: 19px; line-height: 1.95; }
   .about-page[dir='ltr'] .biruni-quote blockquote { font-size: 17px; line-height: 1.7; }
   .about-page[dir='ltr'] .about-letter p { font-size: 16.5px; line-height: 1.72; }
-  .about-page .signature { min-height: 150px; margin-top: 34px; }
-  .about-page .about-site-footer { margin: 4px -24px -42px; padding: 22px 24px 26px; }
-  .about-page .about-site-footer { grid-template-columns: 1fr; }
-  .about-source-strip nav { grid-template-columns: repeat(2, 1fr); gap: 18px 26px; }
+  .about-page .signature { margin-top: 34px; }
+  .about-site-footer { margin: 0 24px; padding: 28px 0; grid-template-columns: 1fr; gap: 30px; }
+  .about-source-strip nav { gap: 18px; }
+}
+
+@media (max-width: 440px) {
+  .about-source-strip nav { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

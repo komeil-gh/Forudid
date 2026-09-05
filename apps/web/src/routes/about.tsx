@@ -108,7 +108,8 @@ function PeopleList({ language }: { language: Language }) {
 
 export default function AboutPage() {
   const { language } = useLanguage()
-  return <main className="scientific-page about-page" lang={language} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+  return <div className="about-layout" lang={language} dir={language === 'fa' ? 'rtl' : 'ltr'}>
+    <main className="scientific-page about-page" dir={language === 'fa' ? 'rtl' : 'ltr'}>
     <LetterWatermark />
     {language === 'fa' ? <>
     <figure className="biruni-quote">
@@ -145,6 +146,7 @@ export default function AboutPage() {
           <time dateTime="2026">Tehran, 2026</time></div>
       </article>
     </>}
+    </main>
     <footer className="about-site-footer">
       <div className="about-footer-brand">
         <span className="about-footer-mark" aria-hidden="true"><img src="/brand/selected/forudid-mark-black.png" alt="" /></span>
@@ -163,5 +165,5 @@ export default function AboutPage() {
           <a href="https://download.geofabrik.de/asia/iran.html" target="_blank" rel="noreferrer">Geofabrik</a></p>
       </div>
     </footer>
-  </main>
+  </div>
 }
