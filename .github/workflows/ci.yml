@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORUDID_REAL_SOURCE_TESTS: '1'
+      FORUDID_OSM_TESTS: '1'
+      FORUDID_MARTIN_TESTS: '1'
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +38,12 @@ jobs:
           uv run --project apps/api python -m forudid_api.register_source data/sources/haghighi-motagh-2024/1.0.0
           uv run --project apps/api python -m forudid_api.normalize data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
           uv run --project apps/api python -m forudid_api.publish_historical data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
+      - name: Import real infrastructure and start restricted vector tiles
+        run: |
+          uv run --project apps/api python -m forudid_api.ingest_osm data/sources/geofabrik-iran/260904
+          uv run --project apps/api python -m forudid_api.configure_martin .tools/martin.json
+          docker run -d --rm --name forudid-martin-ci --network host -v "$PWD/.tools/martin.json:/runtime/martin.json:ro" ghcr.io/maplibre/martin:1.15.0 --config /runtime/martin.json
+          curl --retry 15 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:58300/vector/health
       - name: Contract synchronization
         run: |
           uv run --project apps/api python scripts/export_openapi.py
@@ -51,4 +59,6 @@ jobs:
           curl --fail http://localhost:58080/map
       - name: Stop this project's containers
         if: always()
-        run: docker compose down
+        run: |
+          docker stop forudid-martin-ci || true
+          docker compose down

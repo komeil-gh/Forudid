@@ -59,6 +59,55 @@ export interface ErrorResponse {
   error: ErrorDetail;
 }
 
+export interface LineGeometry {
+  /**
+     * @items.minItems 2
+     * @items.maxItems 2
+     */
+  coordinates: [number, number][];
+  type?: 'LineString';
+}
+
+export type InfrastructureInfoAssetType = typeof InfrastructureInfoAssetType[keyof typeof InfrastructureInfoAssetType];
+
+
+export const InfrastructureInfoAssetType = {
+  road: 'road',
+  railway: 'railway',
+} as const;
+
+export type InfrastructureInfoDataQuality = { [key: string]: unknown };
+
+export type InfrastructureInfoProperties = { [key: string]: unknown };
+
+export interface InfrastructureInfo {
+  asset_class: string;
+  asset_type: InfrastructureInfoAssetType;
+  data_quality: InfrastructureInfoDataQuality;
+  external_id: string;
+  id: string;
+  length_m: number;
+  name: string | null;
+  properties: InfrastructureInfoProperties;
+  source_version_id: string;
+}
+
+export interface InfrastructureFeature {
+  attribution: string;
+  data_date: string | null;
+  geometry: LineGeometry;
+  id: string;
+  license_url: string;
+  properties: InfrastructureInfo;
+  type?: 'Feature';
+}
+
+export interface InfrastructurePage {
+  items: InfrastructureInfo[];
+  next_cursor: string | null;
+  source_version_id: string | null;
+}
+
 export type Kind = typeof Kind[keyof typeof Kind];
 
 
@@ -276,6 +325,27 @@ export interface VersionPage {
   items: VersionInfo[];
   next_cursor: string | null;
 }
+
+export type ListInfrastructureAssetsParams = {
+source_version_id?: string | null;
+asset_type?: ListInfrastructureAssetsAssetType;
+asset_class?: string | null;
+bbox?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+cursor?: string | null;
+};
+
+export type ListInfrastructureAssetsAssetType = typeof ListInfrastructureAssetsAssetType[keyof typeof ListInfrastructureAssetsAssetType] | null;
+
+
+export const ListInfrastructureAssetsAssetType = {
+  road: 'road',
+  railway: 'railway',
+} as const;
 
 export type GetPointSummaryParams = {
 /**
@@ -571,6 +641,215 @@ export function useGetArea<TData = Awaited<ReturnType<typeof getArea>>, TError =
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAreaQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListInfrastructureAssetsUrl = (params?: ListInfrastructureAssetsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/assets?${stringifiedParams}` : `/api/v1/assets`
+}
+
+/**
+ * @summary Assets
+ */
+export const listInfrastructureAssets = async (params?: ListInfrastructureAssetsParams, options?: Parameters<typeof apiFetch>[1]): Promise<InfrastructurePage> => {
+
+  return apiFetch<InfrastructurePage>(getListInfrastructureAssetsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListInfrastructureAssetsQueryKey = (params?: ListInfrastructureAssetsParams,) => {
+    return [
+    `/api/v1/assets`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListInfrastructureAssetsQueryOptions = <TData = Awaited<ReturnType<typeof listInfrastructureAssets>>, TError = ErrorResponse>(params?: ListInfrastructureAssetsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListInfrastructureAssetsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listInfrastructureAssets>>> = ({ signal }) => listInfrastructureAssets(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListInfrastructureAssetsQueryResult = NonNullable<Awaited<ReturnType<typeof listInfrastructureAssets>>>
+export type ListInfrastructureAssetsQueryError = ErrorResponse
+
+
+export function useListInfrastructureAssets<TData = Awaited<ReturnType<typeof listInfrastructureAssets>>, TError = ErrorResponse>(
+ params: undefined |  ListInfrastructureAssetsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInfrastructureAssets>>,
+          TError,
+          Awaited<ReturnType<typeof listInfrastructureAssets>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListInfrastructureAssets<TData = Awaited<ReturnType<typeof listInfrastructureAssets>>, TError = ErrorResponse>(
+ params?: ListInfrastructureAssetsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInfrastructureAssets>>,
+          TError,
+          Awaited<ReturnType<typeof listInfrastructureAssets>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListInfrastructureAssets<TData = Awaited<ReturnType<typeof listInfrastructureAssets>>, TError = ErrorResponse>(
+ params?: ListInfrastructureAssetsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Assets
+ */
+
+export function useListInfrastructureAssets<TData = Awaited<ReturnType<typeof listInfrastructureAssets>>, TError = ErrorResponse>(
+ params?: ListInfrastructureAssetsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listInfrastructureAssets>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListInfrastructureAssetsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetInfrastructureAssetUrl = (assetId: string,) => {
+
+
+
+
+  return `/api/v1/assets/${assetId}`
+}
+
+/**
+ * @summary Asset
+ */
+export const getInfrastructureAsset = async (assetId: string, options?: Parameters<typeof apiFetch>[1]): Promise<InfrastructureFeature> => {
+
+  return apiFetch<InfrastructureFeature>(getGetInfrastructureAssetUrl(assetId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInfrastructureAssetQueryKey = (assetId: string,) => {
+    return [
+    `/api/v1/assets/${assetId}`
+    ] as const;
+    }
+
+
+export const getGetInfrastructureAssetQueryOptions = <TData = Awaited<ReturnType<typeof getInfrastructureAsset>>, TError = ErrorResponse>(assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInfrastructureAssetQueryKey(assetId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInfrastructureAsset>>> = ({ signal }) => getInfrastructureAsset(assetId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: assetId !== null && assetId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetInfrastructureAssetQueryResult = NonNullable<Awaited<ReturnType<typeof getInfrastructureAsset>>>
+export type GetInfrastructureAssetQueryError = ErrorResponse
+
+
+export function useGetInfrastructureAsset<TData = Awaited<ReturnType<typeof getInfrastructureAsset>>, TError = ErrorResponse>(
+ assetId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getInfrastructureAsset>>,
+          TError,
+          Awaited<ReturnType<typeof getInfrastructureAsset>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetInfrastructureAsset<TData = Awaited<ReturnType<typeof getInfrastructureAsset>>, TError = ErrorResponse>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getInfrastructureAsset>>,
+          TError,
+          Awaited<ReturnType<typeof getInfrastructureAsset>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetInfrastructureAsset<TData = Awaited<ReturnType<typeof getInfrastructureAsset>>, TError = ErrorResponse>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Asset
+ */
+
+export function useGetInfrastructureAsset<TData = Awaited<ReturnType<typeof getInfrastructureAsset>>, TError = ErrorResponse>(
+ assetId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getInfrastructureAsset>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetInfrastructureAssetQueryOptions(assetId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

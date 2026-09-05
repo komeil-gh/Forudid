@@ -1,4 +1,7 @@
 :80 {
+    handle /vector/* {
+        reverse_proxy martin:3000
+    }
     handle /api/* {
         reverse_proxy api:8000
     }

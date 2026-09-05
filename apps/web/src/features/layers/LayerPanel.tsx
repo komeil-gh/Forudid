@@ -1,22 +1,24 @@
 import { Activity, Grid2X2, Sigma, FileText, Info } from 'lucide-react'
 import type { ProductInfo } from '../../generated/api/forudid'
 import type { MapSearch } from '../../lib/search'
-import { layerLabels, fa } from '../../messages/fa'
+import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
 const icons = { velocity_los: Activity, temporal_coherence: Grid2X2, velocity_uncertainty: Sigma,
   velocity_vertical: Activity, seasonal_amplitude: Activity }
 export function LayerPanel({ state, product, products, update, onMetadata }:
   { state: MapSearch; product?: ProductInfo; products: ProductInfo[];
     update: (next: Partial<MapSearch>) => void; onMetadata: () => void }) {
+  const { language, messages: m, layerLabels } = useLanguage()
+  const en = language === 'en'
   return <div className="layer-panel">
-    <div className="area-heading"><h1>{state.aoi === 'iran' ? 'ایران' : fa.varamin}</h1><span>{state.aoi === 'iran' ? 'مجموعهٔ تاریخی ۲۰۱۴ تا ۲۰۲۰' : 'Varamin'}</span></div>
-    {product?.is_fixture && <p className="notice"><Info size={17} />{fa.fixture}</p>}
-    <label className="field-label">{fa.product}<select value={product?.id || ''}
+    <div className="area-heading"><h1>{state.aoi === 'iran' ? (en ? 'Iran' : 'ایران') : (en ? 'Varamin Plain' : 'دشت ورامین')}</h1><span>{state.aoi === 'iran' ? (en ? 'Historical collection, 2014 to 2020' : 'مجموعهٔ تاریخی ۲۰۱۴ تا ۲۰۲۰') : 'Varamin'}</span></div>
+    {product?.is_fixture && <p className="notice"><Info size={17} />{m.fixture}</p>}
+    <label className="field-label">{m.product}<select value={product?.id || ''}
       onChange={e => { const chosen = products.find(p => p.id === e.target.value);
         if (chosen) update({ product: chosen.id, run: chosen.processing_run_id }) }}>
       {products.filter(p => p.kind === state.layer).map(p => <option value={p.id} key={p.id}>{p.product_version}</option>)}
     </select></label>
-    <fieldset className="layer-options"><legend>{fa.layers}</legend>
+    <fieldset className="layer-options"><legend>{m.layers}</legend>
       {(Object.keys(layerLabels) as (keyof typeof layerLabels)[]).filter(kind => products.some(p => p.kind === kind)).map(kind => {
         const Icon = icons[kind]
         return <label key={kind} className={state.layer === kind ? 'selected' : ''}>
@@ -26,20 +28,27 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
         </label>
       })}
     </fieldset>
-    <label className="opacity"><span>{fa.opacity}<b className="technical">{Math.round(state.opacity * 100)}%</b></span>
-      <input aria-label={fa.opacity} type="range" min="0" max="100" step="1" value={state.opacity * 100}
+    <label className="field-label">{en ? 'OpenStreetMap infrastructure' : 'زیرساخت OpenStreetMap'}
+      <select value={state.infrastructure} onChange={e => update({ infrastructure: e.target.value as MapSearch['infrastructure'] })}>
+        <option value="all">{en ? 'Roads and railways' : 'راه و راه‌آهن'}</option><option value="railway">{en ? 'Railways' : 'راه‌آهن'}</option>
+        <option value="road">{en ? 'Major roads' : 'جاده‌های اصلی'}</option><option value="none">{en ? 'Hidden' : 'پنهان'}</option>
+      </select>
+    </label>
+    <p className="scientific-note">{en ? 'The network appears from zoom level 6; OSM coverage may be incomplete.' : 'شبکه از بزرگ‌نمایی ۶ نمایش داده می‌شود؛ پوشش OSM ممکن است ناقص باشد.'}</p>
+    <label className="opacity"><span>{m.opacity}<b className="technical">{Math.round(state.opacity * 100)}%</b></span>
+      <input aria-label={m.opacity} type="range" min="0" max="100" step="1" value={state.opacity * 100}
         onChange={e => update({ opacity: Number(e.target.value) / 100 })} />
     </label>
     {product && <><dl className="metadata-list">
-      <div><dt>{fa.orbit}</dt><dd className="technical">{product.orbit_direction === 'descending' ? 'Descending' : 'Ascending'}</dd></div>
-      <div><dt>{fa.track}</dt><dd>{product.relative_orbit === null ? 'موزاییک چند ترک' : String(product.relative_orbit).padStart(3, '0')}</dd></div>
-      <div><dt>{fa.period}</dt><dd className="technical dates">{product.start_date}<br />{product.end_date}</dd></div>
-      <div><dt>دقت زمانی</dt><dd>{product.time_precision === 'year' ? 'سال میلادی' : 'روز میلادی'}</dd></div>
-      {Array.isArray(product.resolution_metadata?.pixel_size_degrees) && <div><dt>اندازهٔ پیکسل</dt>
-        <dd><bdi>{product.resolution_metadata.pixel_size_degrees.map(value => Number(value).toPrecision(5)).join(' × ')}</bdi> درجه</dd></div>}
-      <div><dt>{fa.version}</dt><dd className="technical">{product.processing_version}</dd></div>
-      <div><dt>{fa.lastAcquisition}</dt><dd>{product.last_acquisition ?? 'تاریخ دقیق ارائه نشده'}</dd></div>
-    </dl><Button className="metadata-button" onClick={onMetadata}><FileText size={17} />{fa.metadata}</Button>
-      <p className="scientific-note">{product.measurement_method === 'descending_los_projection' ? 'برآورد قائم از راستای دید نزولی، با فرض ناچیزبودن حرکت افقی. این دادهٔ تاریخی وضعیت کنونی زمین را نشان نمی‌دهد.' : fa.scientificNote}</p></>}
+      <div><dt>{m.orbit}</dt><dd className="technical">{product.orbit_direction === 'descending' ? 'Descending' : 'Ascending'}</dd></div>
+      <div><dt>{m.track}</dt><dd>{product.relative_orbit === null ? (en ? 'Multi-track mosaic' : 'موزاییک چند ترک') : String(product.relative_orbit).padStart(3, '0')}</dd></div>
+      <div><dt>{m.period}</dt><dd className="technical dates">{product.start_date}<br />{product.end_date}</dd></div>
+      <div><dt>{en ? 'Time precision' : 'دقت زمانی'}</dt><dd>{product.time_precision === 'year' ? (en ? 'Calendar year' : 'سال میلادی') : (en ? 'Calendar day' : 'روز میلادی')}</dd></div>
+      {Array.isArray(product.resolution_metadata?.pixel_size_degrees) && <div><dt>{en ? 'Pixel size' : 'اندازهٔ پیکسل'}</dt>
+        <dd><bdi>{product.resolution_metadata.pixel_size_degrees.map(value => Number(value).toPrecision(5)).join(' × ')}</bdi> {en ? 'degrees' : 'درجه'}</dd></div>}
+      <div><dt>{m.version}</dt><dd className="technical">{product.processing_version}</dd></div>
+      <div><dt>{m.lastAcquisition}</dt><dd>{product.last_acquisition ?? (en ? 'Exact date not provided' : 'تاریخ دقیق ارائه نشده')}</dd></div>
+    </dl><Button className="metadata-button" onClick={onMetadata}><FileText size={17} />{m.metadata}</Button>
+      <p className="scientific-note">{product.measurement_method === 'descending_los_projection' ? (en ? 'Vertical estimate from descending line of sight, assuming negligible horizontal motion. These historical data do not show current ground conditions.' : 'برآورد قائم از راستای دید نزولی، با فرض ناچیزبودن حرکت افقی. این دادهٔ تاریخی وضعیت کنونی زمین را نشان نمی‌دهد.') : m.scientificNote}</p></>}
   </div>
 }

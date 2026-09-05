@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()], envDir: '../..',
     server: { port: Number(env.WEB_PORT || 5173), strictPort: true,
-      proxy: { '/api': target, '/tiles': target, '/health': target } },
+      proxy: { '/api': target, '/tiles': target, '/health': target,
+        '/vector': { target: env.VITE_VECTOR_PROXY_TARGET || 'http://127.0.0.1:58300',
+          changeOrigin: false, xfwd: true } } },
   }
 })

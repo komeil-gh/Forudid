@@ -10,6 +10,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     String,
     UniqueConstraint,
@@ -92,6 +93,27 @@ class SourceVersion(Record):
     checksum_sha256: Mapped[str] = mapped_column(String(64))
     size_bytes: Mapped[int] = mapped_column(BigInteger)
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB)
+
+
+class InfrastructureAsset(Record):
+    __tablename__ = "assets"
+    __table_args__ = (
+        UniqueConstraint("source_version_id", "external_id", "asset_type", name="asset_identity"),
+        CheckConstraint("asset_type IN ('railway','road')", name="infrastructure_type"),
+        CheckConstraint("length_m > 0", name="infrastructure_length"),
+        CheckConstraint(
+            "ST_IsValid(geom) AND NOT ST_IsEmpty(geom)", name="infrastructure_geometry"
+        ),
+    )
+    source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"), index=True)
+    external_id: Mapped[str] = mapped_column(index=True)
+    asset_type: Mapped[str] = mapped_column(index=True)
+    asset_class: Mapped[str] = mapped_column(index=True)
+    name: Mapped[str | None]
+    geom = mapped_column(Geometry("LINESTRING", srid=4326), nullable=False)
+    length_m: Mapped[float] = mapped_column(Float)
+    properties: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    data_quality: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
 class Run(Record):
