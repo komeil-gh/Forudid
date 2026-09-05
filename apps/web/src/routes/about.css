@@ -1,26 +1,31 @@
-.scientific-page.about-page { max-width: 700px; padding: 1px 32px 88px; color: #202020;
-  font-family: 'Noto Naskh Arabic Variable', serif; }
-.about-page .about-heading { margin: 58px 0 34px; }
-.letter-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 24px; margin-bottom: 28px;
-  border-bottom: 1px solid #dededb; }
-.letter-heading img { width: 36px; height: 36px; object-fit: contain; }
-.letter-heading > span { font: 600 16px/1.5 'Noto Naskh Arabic Variable', serif; }
-.letter-heading > span > span { display: block; font: 400 10px/1.8 'Vazirmatn Variable', sans-serif; color: #777; }
-.about-page .about-heading h1 { font-size: clamp(23px, 3vw, 29px); line-height: 1.7; font-weight: 600; }
-.about-page .biruni-quote { margin-bottom: 32px; padding-bottom: 25px; border-bottom-color: #dededb; }
-.about-page .biruni-quote blockquote { font-size: 19px; line-height: 1.95; font-weight: 400; }
-.about-page .biruni-quote figcaption { max-width: 560px; font-size: 10px; line-height: 1.95; color: #737373; }
-.about-page .about-letter p { font-size: 18px; line-height: 2; margin-bottom: 20px; text-align: start; }
-.about-page .about-letter .about-opening { font-size: 19px; margin-bottom: 25px; }
-.about-page .about-letter .dedication { margin: 30px 0; font-size: 19px; }
-.about-page .signature { padding-top: 23px; margin-top: 32px; border-top: 1px solid #dededb; }
-.about-page .signature p { margin-bottom: 4px; font-size: 16px; }
-.about-page .signature strong { font: 500 29px/1.7 'Noto Naskh Arabic Variable', serif; }
-.about-page .signature span, .about-page .signature time { font-size: 10px; line-height: 2.1; color: #737373; }
-.about-page .person-trigger { color: inherit; text-decoration-color: #aaa; text-underline-offset: 5px; }
+.scientific-page.about-page { position: relative; isolation: isolate; max-width: 704px;
+  padding: 1px 32px 80px; color: #252525; font-family: 'Estedad Variable', sans-serif; }
+.about-page::before { content: ''; position: absolute; z-index: -1; top: 330px; left: 50%;
+  width: min(72%, 440px); aspect-ratio: 1; transform: translateX(-50%);
+  background: url('/brand/selected/forudid-mark-black.png') center / contain no-repeat;
+  opacity: .045; pointer-events: none; }
+.about-page .about-heading { margin: 64px 0 32px; }
+.about-page .about-heading h1 { margin: 0; font-size: clamp(20px, 2.8vw, 25px); line-height: 1.8; font-weight: 550; }
+.about-page .biruni-quote { margin: 0 0 36px; padding: 0; border: 0; }
+.about-page .biruni-quote blockquote { margin: 0 0 16px; font-size: 16px; line-height: 2.05; font-weight: 400; }
+.about-page .biruni-quote figcaption { max-width: none; font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
+.about-page .about-letter p { margin: 0 0 22px; font-size: 15px; line-height: 2.1; text-align: start; }
+.about-page .about-letter .about-opening { margin-bottom: 22px; font-size: 15px; }
+.about-page .about-letter .dedication { margin: 28px 0 0; font-size: 15px; }
+.about-page .signature { gap: 6px; margin: 32px 0 0; padding: 0; border: 0; }
+.about-page .signature p { margin: 0; font-size: 14px; }
+.about-page .signature strong { font: 550 20px/1.8 'Estedad Variable', sans-serif; }
+.about-page .signature span, .about-page .signature time { font: 400 11px/1.9 'Estedad Variable', sans-serif; color: #727272; }
+.about-page .signature time { margin-top: 8px; }
+.about-page .person-trigger { padding: 0; border-bottom: 0; color: inherit; text-decoration: underline;
+  text-decoration-color: #b7b7b7; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.about-page .person-trigger:hover { color: #111; text-decoration-color: #333; }
+.about-page .person-trigger:focus-visible { outline: 2px solid #555; outline-offset: 3px; }
 @media (max-width: 760px) {
-  .scientific-page.about-page { padding-inline: 24px; }
-  .about-page .about-heading { margin-top: 32px; }
-  .about-page .about-letter p { font-size: 17px; line-height: 1.95; }
-  .about-page .biruni-quote blockquote { font-size: 18px; }
+  .scientific-page.about-page { padding: 1px 24px 56px; }
+  .about-page .about-heading { margin: 36px 0 24px; }
+  .about-page .biruni-quote { margin-bottom: 28px; }
+  .about-page .about-letter p { font-size: 14px; line-height: 2.05; }
+  .about-page .biruni-quote blockquote { font-size: 15px; }
+  .about-page::before { top: 440px; width: 80%; }
 }
