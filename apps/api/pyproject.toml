@@ -14,6 +14,8 @@ dependencies = [
   "pystac[validation]>=1.13,<2",
   "titiler.core>=0.24,<1",
   "zarr>=3.0,<4",
+  "numpy>=2.2,<3",
+  "rasterio>=1.4,<2",
 ]
 
 [dependency-groups]
