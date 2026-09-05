@@ -4,7 +4,7 @@ export default function MethodologyPage() {
   return <main className="scientific-page methodology-page">
     <header className="method-hero">
       <div className="method-heading">
-        <p className="scientific-kicker"><span dir="ltr">METHOD NOTE · 0.1</span> / دفتر روش</p>
+        <p className="scientific-kicker">یادداشت روش‌شناسی فرودید — نسخهٔ ۰.۱</p>
         <h1>از فاز رادار تا جابه‌جایی نسبی زمین</h1>
         <p className="method-lead">فرودید نتیجه را از زمینهٔ اندازه‌گیری جدا نمی‌کند. هر مقدار باید همراه هندسهٔ دید، مرجع، عدم قطعیت و سابقهٔ پردازش خوانده شود.</p>
       </div>
@@ -23,7 +23,7 @@ export default function MethodologyPage() {
 
     <section className="method-intro" aria-labelledby="method-principle">
       <div>
-        <p className="section-label">اصل اندازه‌گیری</p>
+        <p className="section-label">۱. اصل اندازه‌گیری</p>
         <h2 id="method-principle">آنچه اندازه می‌گیریم، فاصله در راستای دید است</h2>
       </div>
       <div>
@@ -35,7 +35,7 @@ export default function MethodologyPage() {
 
     <section className="method-sequence" aria-labelledby="method-sequence-title">
       <header className="section-heading">
-        <p className="section-label">زنجیرهٔ هدف</p>
+        <p className="section-label">۲. زنجیرهٔ پردازش</p>
         <h2 id="method-sequence-title">پنج ایستگاه تا محصول قابل بررسی</h2>
         <p>این مراحل مسیر علمی هدف‌اند. نسخهٔ فعلی هنوز پردازش واقعی HyP3/MintPy را منتشر نمی‌کند.</p>
       </header>
@@ -54,7 +54,7 @@ export default function MethodologyPage() {
     </figure>
 
     <section className="method-limit" aria-labelledby="los-limit-title">
-      <p className="section-label">حد تفسیر</p>
+      <p className="section-label">۳. حدود تفسیر</p>
       <div>
         <h2 id="los-limit-title">LOS همان فرونشست قائم نیست</h2>
         <p>{fa.scientificNote} جداسازی مؤلفهٔ قائم به هندسه و دادهٔ کافی—برای نمونه ترکیب مدارهای صعودی و نزولی با فرض‌های روشن—نیاز دارد.</p>
