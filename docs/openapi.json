@@ -660,6 +660,132 @@
         "title": "RunInfo",
         "type": "object"
       },
+      "SourceFileInfo": {
+        "properties": {
+          "checksum_sha256": {
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "role",
+          "name",
+          "size_bytes",
+          "checksum_sha256"
+        ],
+        "title": "SourceFileInfo",
+        "type": "object"
+      },
+      "SourceInfo": {
+        "properties": {
+          "access_method": {
+            "title": "Access Method",
+            "type": "string"
+          },
+          "attribution": {
+            "title": "Attribution",
+            "type": "string"
+          },
+          "citation": {
+            "title": "Citation",
+            "type": "string"
+          },
+          "homepage": {
+            "title": "Homepage",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "license_name": {
+            "title": "License Name",
+            "type": "string"
+          },
+          "license_url": {
+            "title": "License Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "scientific_status": {
+            "title": "Scientific Status",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "source_type": {
+            "title": "Source Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "provider",
+          "source_type",
+          "homepage",
+          "citation",
+          "license_name",
+          "license_url",
+          "attribution",
+          "access_method",
+          "scientific_status"
+        ],
+        "title": "SourceInfo",
+        "type": "object"
+      },
+      "SourcePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SourceInfo"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "SourcePage",
+        "type": "object"
+      },
       "TimeSeries": {
         "properties": {
           "coordinate": {
@@ -717,12 +843,166 @@
         ],
         "title": "TimeSeries",
         "type": "object"
+      },
+      "VersionInfo": {
+        "properties": {
+          "checksum_sha256": {
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component"
+          },
+          "data_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Date"
+          },
+          "downloaded_at": {
+            "format": "date-time",
+            "title": "Downloaded At",
+            "type": "string"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/SourceFileInfo"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "observation_years": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Observation Years",
+            "type": "array"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          },
+          "validation_status": {
+            "title": "Validation Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "version",
+          "data_date",
+          "valid_from",
+          "valid_to",
+          "downloaded_at",
+          "checksum_sha256",
+          "size_bytes",
+          "observation_years",
+          "component",
+          "method",
+          "validation_status",
+          "files"
+        ],
+        "title": "VersionInfo",
+        "type": "object"
+      },
+      "VersionPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VersionInfo"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "VersionPage",
+        "type": "object"
       }
     }
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.1.0"
+    "version": "0.2.0-alpha.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -1619,6 +1899,273 @@
           }
         },
         "summary": "Get Run"
+      }
+    },
+    "/api/v1/sources": {
+      "get": {
+        "operationId": "listSources",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Sources",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/api/v1/sources/{source_id}": {
+      "get": {
+        "operationId": "getSource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceInfo"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/api/v1/sources/{source_id}/versions": {
+      "get": {
+        "operationId": "listSourceVersions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Versions",
+        "tags": [
+          "sources"
+        ]
       }
     },
     "/health/live": {

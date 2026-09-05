@@ -193,6 +193,33 @@ export interface RunInfo {
   status: string;
 }
 
+export interface SourceFileInfo {
+  checksum_sha256: string;
+  name: string;
+  role: string;
+  size_bytes: number;
+}
+
+export interface SourceInfo {
+  access_method: string;
+  attribution: string;
+  citation: string;
+  homepage: string;
+  id: string;
+  license_name: string;
+  license_url: string;
+  name: string;
+  provider: string;
+  scientific_status: string;
+  slug: string;
+  source_type: string;
+}
+
+export interface SourcePage {
+  items: SourceInfo[];
+  next_cursor: string | null;
+}
+
 export interface TimeSeries {
   coordinate: Coordinate;
   is_fixture: boolean;
@@ -203,6 +230,28 @@ export interface TimeSeries {
   run_id: string;
   series: Epoch[];
   unit: 'm';
+}
+
+export interface VersionInfo {
+  checksum_sha256: string;
+  component: string | null;
+  data_date: string | null;
+  downloaded_at: string;
+  files: SourceFileInfo[];
+  id: string;
+  method: string | null;
+  observation_years: number[];
+  size_bytes: number;
+  source_id: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  validation_status: string;
+  version: string;
+}
+
+export interface VersionPage {
+  items: VersionInfo[];
+  next_cursor: string | null;
 }
 
 export type GetPointSummaryParams = {
@@ -253,6 +302,24 @@ export const ListProductsOrbit = {
 export type GetMetadata200 = { [key: string]: unknown };
 
 export type GetProvenance200 = { [key: string]: unknown };
+
+export type ListSourcesParams = {
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+cursor?: string | null;
+};
+
+export type ListSourceVersionsParams = {
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+cursor?: string | null;
+};
 
 export type GetLiveness200 = {[key: string]: string};
 
@@ -1401,6 +1468,331 @@ export function useGetRun<TData = Awaited<ReturnType<typeof getRun>>, TError = E
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetRunQueryOptions(runId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListSourcesUrl = (params?: ListSourcesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/sources?${stringifiedParams}` : `/api/v1/sources`
+}
+
+/**
+ * @summary Sources
+ */
+export const listSources = async (params?: ListSourcesParams, options?: Parameters<typeof apiFetch>[1]): Promise<SourcePage> => {
+
+  return apiFetch<SourcePage>(getListSourcesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSourcesQueryKey = (params?: ListSourcesParams,) => {
+    return [
+    `/api/v1/sources`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListSourcesQueryOptions = <TData = Awaited<ReturnType<typeof listSources>>, TError = ErrorResponse>(params?: ListSourcesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSourcesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSources>>> = ({ signal }) => listSources(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListSourcesQueryResult = NonNullable<Awaited<ReturnType<typeof listSources>>>
+export type ListSourcesQueryError = ErrorResponse
+
+
+export function useListSources<TData = Awaited<ReturnType<typeof listSources>>, TError = ErrorResponse>(
+ params: undefined |  ListSourcesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSources>>,
+          TError,
+          Awaited<ReturnType<typeof listSources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSources<TData = Awaited<ReturnType<typeof listSources>>, TError = ErrorResponse>(
+ params?: ListSourcesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSources>>,
+          TError,
+          Awaited<ReturnType<typeof listSources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSources<TData = Awaited<ReturnType<typeof listSources>>, TError = ErrorResponse>(
+ params?: ListSourcesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Sources
+ */
+
+export function useListSources<TData = Awaited<ReturnType<typeof listSources>>, TError = ErrorResponse>(
+ params?: ListSourcesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListSourcesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSourceUrl = (sourceId: string,) => {
+
+
+
+
+  return `/api/v1/sources/${sourceId}`
+}
+
+/**
+ * @summary Source
+ */
+export const getSource = async (sourceId: string, options?: Parameters<typeof apiFetch>[1]): Promise<SourceInfo> => {
+
+  return apiFetch<SourceInfo>(getGetSourceUrl(sourceId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSourceQueryKey = (sourceId: string,) => {
+    return [
+    `/api/v1/sources/${sourceId}`
+    ] as const;
+    }
+
+
+export const getGetSourceQueryOptions = <TData = Awaited<ReturnType<typeof getSource>>, TError = ErrorResponse>(sourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSourceQueryKey(sourceId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSource>>> = ({ signal }) => getSource(sourceId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sourceId !== null && sourceId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSourceQueryResult = NonNullable<Awaited<ReturnType<typeof getSource>>>
+export type GetSourceQueryError = ErrorResponse
+
+
+export function useGetSource<TData = Awaited<ReturnType<typeof getSource>>, TError = ErrorResponse>(
+ sourceId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSource>>,
+          TError,
+          Awaited<ReturnType<typeof getSource>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSource<TData = Awaited<ReturnType<typeof getSource>>, TError = ErrorResponse>(
+ sourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSource>>,
+          TError,
+          Awaited<ReturnType<typeof getSource>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSource<TData = Awaited<ReturnType<typeof getSource>>, TError = ErrorResponse>(
+ sourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Source
+ */
+
+export function useGetSource<TData = Awaited<ReturnType<typeof getSource>>, TError = ErrorResponse>(
+ sourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSource>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSourceQueryOptions(sourceId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListSourceVersionsUrl = (sourceId: string,
+    params?: ListSourceVersionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/sources/${sourceId}/versions?${stringifiedParams}` : `/api/v1/sources/${sourceId}/versions`
+}
+
+/**
+ * @summary Versions
+ */
+export const listSourceVersions = async (sourceId: string,
+    params?: ListSourceVersionsParams, options?: Parameters<typeof apiFetch>[1]): Promise<VersionPage> => {
+
+  return apiFetch<VersionPage>(getListSourceVersionsUrl(sourceId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSourceVersionsQueryKey = (sourceId: string,
+    params?: ListSourceVersionsParams,) => {
+    return [
+    `/api/v1/sources/${sourceId}/versions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListSourceVersionsQueryOptions = <TData = Awaited<ReturnType<typeof listSourceVersions>>, TError = ErrorResponse>(sourceId: string,
+    params?: ListSourceVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSourceVersionsQueryKey(sourceId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSourceVersions>>> = ({ signal }) => listSourceVersions(sourceId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sourceId !== null && sourceId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListSourceVersionsQueryResult = NonNullable<Awaited<ReturnType<typeof listSourceVersions>>>
+export type ListSourceVersionsQueryError = ErrorResponse
+
+
+export function useListSourceVersions<TData = Awaited<ReturnType<typeof listSourceVersions>>, TError = ErrorResponse>(
+ sourceId: string,
+    params: undefined |  ListSourceVersionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSourceVersions>>,
+          TError,
+          Awaited<ReturnType<typeof listSourceVersions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSourceVersions<TData = Awaited<ReturnType<typeof listSourceVersions>>, TError = ErrorResponse>(
+ sourceId: string,
+    params?: ListSourceVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSourceVersions>>,
+          TError,
+          Awaited<ReturnType<typeof listSourceVersions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSourceVersions<TData = Awaited<ReturnType<typeof listSourceVersions>>, TError = ErrorResponse>(
+ sourceId: string,
+    params?: ListSourceVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Versions
+ */
+
+export function useListSourceVersions<TData = Awaited<ReturnType<typeof listSourceVersions>>, TError = ErrorResponse>(
+ sourceId: string,
+    params?: ListSourceVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSourceVersions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListSourceVersionsQueryOptions(sourceId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

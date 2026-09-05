@@ -1,0 +1,10 @@
+.mobile-navigation { display: none; }
+@media (max-width: 760px) {
+  .header > .search { display: none; }
+  .header .mobile-navigation { display: block; position: relative; margin-inline-start: auto; }
+  .mobile-navigation summary { cursor: pointer; padding: 10px; min-height: 44px; }
+  .header .mobile-navigation nav { display: flex; flex-direction: column; position: absolute;
+    inset-inline-end: 0; top: 100%; z-index: 50; width: 190px; padding: 12px;
+    background: white; border: 1px solid #d2dddd; border-radius: 8px; height: auto; gap: 4px; }
+  .header .mobile-navigation a { padding: 8px; min-height: 44px; }
+}

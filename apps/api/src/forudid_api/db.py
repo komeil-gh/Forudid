@@ -1,11 +1,20 @@
 from collections.abc import Generator
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from functools import lru_cache
 from typing import Any
 from uuid import UUID, uuid4
 
 from geoalchemy2 import Geometry
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, String, create_engine
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    String,
+    UniqueConstraint,
+    create_engine,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
@@ -35,6 +44,54 @@ class AOI(Record):
     bbox: Mapped[list[float]] = mapped_column(JSONB)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class DataSource(Record):
+    __tablename__ = "data_sources"
+    __table_args__ = (
+        CheckConstraint(
+            "source_type IN ('deformation','infrastructure','population',"
+            "'building','boundary','hydrogeology','other')",
+            name="source_type",
+        ),
+        CheckConstraint(
+            "scientific_status IN ('published_peer_reviewed','published_dataset',"
+            "'provider_operational','experimental','unknown')",
+            name="source_science",
+        ),
+    )
+    slug: Mapped[str] = mapped_column(unique=True)
+    name: Mapped[str]
+    provider: Mapped[str]
+    source_type: Mapped[str]
+    homepage: Mapped[str]
+    citation: Mapped[str]
+    license_name: Mapped[str]
+    license_url: Mapped[str]
+    attribution: Mapped[str]
+    access_method: Mapped[str]
+    scientific_status: Mapped[str]
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class SourceVersion(Record):
+    __tablename__ = "source_versions"
+    __table_args__ = (
+        UniqueConstraint("source_id", "version", name="source_version_unique"),
+        CheckConstraint("size_bytes >= 0", name="source_size_nonnegative"),
+        CheckConstraint("checksum_sha256 ~ '^[0-9a-f]{64}$'", name="source_sha256"),
+    )
+    source_id: Mapped[UUID] = mapped_column(ForeignKey("data_sources.id"), index=True)
+    version: Mapped[str]
+    data_date: Mapped[date | None]
+    valid_from: Mapped[date | None]
+    valid_to: Mapped[date | None]
+    downloaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    original_uri: Mapped[str]
+    object_uri: Mapped[str]
+    checksum_sha256: Mapped[str] = mapped_column(String(64))
+    size_bytes: Mapped[int] = mapped_column(BigInteger)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB)
 
 
 class Run(Record):

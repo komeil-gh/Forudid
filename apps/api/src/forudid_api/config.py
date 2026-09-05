@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     s3_path_style: bool = True
     s3_prefix: str = "aoi"
     cors_origins: list[str] = []
-    application_version: str = "0.1.0"
+    application_version: str = "0.2.0-alpha.1"
     tile_cache_seconds: int = Field(default=3600, ge=0)
 
 

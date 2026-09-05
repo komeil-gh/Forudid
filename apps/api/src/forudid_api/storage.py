@@ -1,6 +1,9 @@
 import hashlib
 import json
 from functools import lru_cache
+from io import BytesIO
+from pathlib import Path
+from typing import BinaryIO
 
 import boto3
 from botocore.config import Config
@@ -42,7 +45,21 @@ def read_json(key: str):
 
 def put_immutable(key: str, body: bytes, media_type: str) -> tuple[str, str]:
     """Never replace objects; compare stored bytes after upload or conflict."""
-    checksum = hashlib.sha256(body).hexdigest()
+    return _put_stream(key, BytesIO(body), media_type)
+
+
+def put_file(key: str, path: Path, media_type: str) -> tuple[str, str]:
+    """Archive large source files without materializing their contents in memory."""
+    with path.open("rb") as stream:
+        return _put_stream(key, stream, media_type)
+
+
+def _put_stream(key: str, body: BinaryIO, media_type: str) -> tuple[str, str]:
+    hasher = hashlib.sha256()
+    while chunk := body.read(1024 * 1024):
+        hasher.update(chunk)
+    checksum = hasher.hexdigest()
+    body.seek(0)
     try:
         s3().put_object(
             Bucket=settings().s3_bucket,
@@ -57,7 +74,9 @@ def put_immutable(key: str, body: bytes, media_type: str) -> tuple[str, str]:
             raise
     stored = s3().get_object(Bucket=settings().s3_bucket, Key=key)
     with stored["Body"] as stream:
-        actual = hashlib.sha256(stream.read()).hexdigest()
-    if actual != checksum:
+        actual = hashlib.sha256()
+        while chunk := stream.read(1024 * 1024):
+            actual.update(chunk)
+    if actual.hexdigest() != checksum:
         raise ValueError("Immutable object checksum mismatch; create a new run")
     return checksum, stored["ETag"].strip('"')
