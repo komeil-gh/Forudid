@@ -152,13 +152,16 @@
 .about-source-strip nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; direction: ltr; }
 .source-mark { display: grid; min-width: 0; gap: 8px; color: #777772; text-align: center; transition: color 160ms ease-out; }
 .source-mark > span { display: flex; height: 34px; align-items: center; justify-content: center; }
-.source-mark img { display: block; max-width: 100%; max-height: 30px; width: auto; filter: grayscale(1) brightness(0); opacity: .55; transition: opacity 160ms ease-out; }
+.source-mark img { display: block; max-width: 100%; max-height: 30px; width: auto; opacity: .68; transition: opacity 160ms ease-out; }
 .source-mark:hover, .source-mark:focus-visible { color: #30302e; }
 .source-mark:hover img, .source-mark:focus-visible img { opacity: .86; }
 .source-mark > small { font: 450 7.5px/1.3 'Vazirmatn Variable', sans-serif; letter-spacing: .01em; }
 .source-mark-sentinel img { max-height: 25px; }
-.source-mark-science img { max-height: 20px; }
-.source-mark-osm img { max-height: 32px; }
+.source-mark-sentinel img,
+.source-mark-osm img { filter: grayscale(1); }
+.source-mark-zenodo img { filter: brightness(0); opacity: .58; }
+.source-mark-science img { max-height: 20px; filter: none; opacity: .62; }
+.source-mark-osm img { max-height: 32px; opacity: .64; }
 .about-source-strip p { margin: 0; color: #989892; font-size: 8px; line-height: 1.7; }
 .about-source-strip p a { color: #686864; text-decoration: underline; text-decoration-color: #bdbdb7; text-underline-offset: 2px; }
 @keyframes footer-signal {
