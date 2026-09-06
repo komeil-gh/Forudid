@@ -454,6 +454,14 @@ export interface RegionalInfrastructureSummary {
   upstream_run_id: string;
 }
 
+export type ReportInfoScope = typeof ReportInfoScope[keyof typeof ReportInfoScope];
+
+
+export const ReportInfoScope = {
+  asset: 'asset',
+  region: 'region',
+} as const;
+
 export type ReportInfoStatus = typeof ReportInfoStatus[keyof typeof ReportInfoStatus];
 
 
@@ -466,7 +474,7 @@ export const ReportInfoStatus = {
 
 export interface ReportInfo {
   analysis_run_id: string;
-  asset_id: string;
+  asset_id: string | null;
   checksum_sha256: string | null;
   created_at: string;
   error_code: string | null;
@@ -474,13 +482,25 @@ export interface ReportInfo {
   html_sha256: string | null;
   id: string;
   language: 'fa';
+  region_id: string | null;
+  scope: ReportInfoScope;
   status: ReportInfoStatus;
 }
 
+export type ReportRequestScope = typeof ReportRequestScope[keyof typeof ReportRequestScope];
+
+
+export const ReportRequestScope = {
+  asset: 'asset',
+  region: 'region',
+} as const;
+
 export interface ReportRequest {
   analysis_run_id: string;
-  asset_id: string;
+  asset_id?: string | null;
   language?: 'fa';
+  region_id?: string | null;
+  scope?: ReportRequestScope;
 }
 
 export type RunInfoConfig = { [key: string]: unknown };

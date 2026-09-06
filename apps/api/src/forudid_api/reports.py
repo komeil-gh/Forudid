@@ -8,7 +8,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
@@ -17,16 +17,18 @@ from starlette.background import BackgroundTask
 from forudid_api import catalog
 from forudid_api.config import settings
 from forudid_api.db import (
+    AnalysisRun,
     DataSource,
     InfrastructureAsset,
+    Region,
     ScreeningReport,
     SourceVersion,
     now,
     session,
 )
-from forudid_api.exposure import published_summary
+from forudid_api.exposure import population_summary, published_summary, regional_infrastructure
 from forudid_api.publish_historical import json_bytes
-from forudid_api.report_worker import renderer_identity
+from forudid_api.report_worker import renderer_identity, report_artifacts
 from forudid_api.storage import s3
 
 router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
@@ -36,15 +38,27 @@ DB = Annotated[Session, Depends(session)]
 class ReportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     analysis_run_id: UUID
-    asset_id: UUID
+    scope: Literal["asset", "region"] = "asset"
+    asset_id: UUID | None = None
+    region_id: UUID | None = None
     language: Literal["fa"] = "fa"
+
+    @model_validator(mode="after")
+    def valid_scope(self):
+        if self.scope == "asset" and (self.asset_id is None or self.region_id is not None):
+            raise ValueError("Asset reports require only an asset ID")
+        if self.scope == "region" and self.asset_id is not None:
+            raise ValueError("Region reports cannot select an asset")
+        return self
 
 
 class ReportInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
     analysis_run_id: UUID
-    asset_id: UUID
+    asset_id: UUID | None
+    region_id: UUID | None
+    scope: Literal["asset", "region"]
     language: Literal["fa"]
     status: Literal["queued", "processing", "completed", "failed"]
     created_at: datetime
@@ -58,22 +72,13 @@ def available_report(db: Session, report_id: UUID):
     report = db.get(ScreeningReport, report_id)
     if report is None:
         raise catalog.missing("REPORT_NOT_FOUND")
-    _, run, _ = published_summary(db, report.asset_id, report.analysis_run_id)
-    catalog.product(db, run.product_id)
+    report_artifacts(db, report)
     return report
 
 
-@router.post("", status_code=202, response_model=ReportInfo, operation_id="createScreeningReport")
-def create_report(request: ReportRequest, db: DB):
-    summary, run, method = published_summary(db, request.asset_id, request.analysis_run_id)
-    product = catalog.product(db, run.product_id)
-    if product.stats.get("is_fixture"):
-        raise catalog.missing("REAL_ANALYSIS_REQUIRED")
-    asset = db.get(InfrastructureAsset, request.asset_id)
-    if asset is None:
-        raise catalog.missing("ASSET_NOT_FOUND")
+def source_info(db, source_ids):
     sources = []
-    for source_id in (run.source_version_id, product.source_version_id):
+    for source_id in dict.fromkeys(source_ids):
         version = db.get(SourceVersion, source_id)
         source = db.get(DataSource, version.source_id) if version else None
         if version is None or source is None:
@@ -92,6 +97,17 @@ def create_report(request: ReportRequest, db: DB):
                 "sha256": version.checksum_sha256,
             }
         )
+    return sources
+
+
+def asset_inputs(request, db):
+    summary, run, method = published_summary(db, request.asset_id, request.analysis_run_id)
+    product = catalog.product(db, run.product_id)
+    if product.stats.get("is_fixture"):
+        raise catalog.missing("REAL_ANALYSIS_REQUIRED")
+    asset = db.get(InfrastructureAsset, request.asset_id)
+    if asset is None:
+        raise catalog.missing("ASSET_NOT_FOUND")
     geometry = db.scalar(
         select(func.ST_AsGeoJSON(InfrastructureAsset.geom)).where(
             InfrastructureAsset.id == asset.id
@@ -99,7 +115,7 @@ def create_report(request: ReportRequest, db: DB):
     )
     if geometry is None:
         raise catalog.missing("ASSET_GEOMETRY_NOT_FOUND")
-    inputs = {
+    return {
         "renderer": renderer_identity(),
         "application_version": settings().application_version,
         "language": request.language,
@@ -110,7 +126,7 @@ def create_report(request: ReportRequest, db: DB):
         "method_version": method.version,
         "method_status": method.status,
         "product_quality": product.stats.get("quality", {}),
-        "sources": sources,
+        "sources": source_info(db, [run.source_version_id, product.source_version_id]),
         "asset": {
             "name": asset.name,
             "external_id": asset.external_id,
@@ -120,6 +136,72 @@ def create_report(request: ReportRequest, db: DB):
             "data_quality": asset.data_quality,
         },
     }
+
+
+def region_inputs(request, db):
+    run = db.get(AnalysisRun, request.analysis_run_id)
+    if run is None:
+        raise catalog.missing("ANALYSIS_NOT_FOUND")
+    product = catalog.product(db, run.product_id)
+    if product.stats.get("is_fixture"):
+        raise catalog.missing("REAL_ANALYSIS_REQUIRED")
+    population = population_summary(product.id, db, run_id=run.id, region_id=request.region_id)
+    infrastructure = [
+        regional_infrastructure(product.id, kind, db, region_id=request.region_id)
+        for kind in ("railway", "road")
+    ]
+    source_ids = [product.source_version_id, population.population_source_version_id]
+    source_ids.extend(
+        UUID(row.inputs["upstream_inputs"]["infrastructure_source_version_id"])
+        for row in infrastructure
+    )
+    region = db.get(Region, request.region_id) if request.region_id else None
+    if request.region_id and region is None:
+        raise catalog.missing("REGION_NOT_FOUND")
+    if region:
+        source_ids.append(region.source_version_id)
+        geometry = db.scalar(select(func.ST_AsGeoJSON(Region.geom)).where(Region.id == region.id))
+        if geometry is None:
+            raise catalog.missing("REGION_GEOMETRY_NOT_FOUND")
+        if (
+            hashlib.sha256(geometry.encode()).hexdigest()
+            != population.inputs["region"]["geometry_sha256"]
+        ):
+            raise ValueError("Region geometry differs from the pinned population analysis")
+        geometry = json.loads(geometry)
+    else:
+        west, south, east, north = population.inputs["population_grid"]["bounds"]
+        geometry = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[west, south], [east, south], [east, north], [west, north], [west, south]]]
+            ],
+        }
+    return {
+        "renderer": renderer_identity(),
+        "application_version": settings().application_version,
+        "language": request.language,
+        "scope": "region",
+        "analysis_run_id": str(run.id),
+        "region_id": str(region.id) if region else None,
+        "boundary_year": population.inputs["region"]["quality"]["historical_year"]
+        if region
+        else None,
+        "name": region.name_fa if region else "محدودهٔ دادهٔ جمعیت ایران",
+        "geometry": geometry,
+        "analysis_json_sha256": population.checksum_sha256,
+        "analysis_inputs": population.inputs,
+        "method_version": population.method_version,
+        "method_status": population.method_status,
+        "product_quality": product.stats.get("quality", {}),
+        "sources": source_info(db, source_ids),
+        "infrastructure": [row.model_dump(mode="json") for row in infrastructure],
+    }
+
+
+@router.post("", status_code=202, response_model=ReportInfo, operation_id="createScreeningReport")
+def create_report(request: ReportRequest, db: DB):
+    inputs = asset_inputs(request, db) if request.scope == "asset" else region_inputs(request, db)
     identity = uuid5(
         NAMESPACE_URL, "forudid:report:" + hashlib.sha256(json_bytes(inputs)).hexdigest()
     )
@@ -128,8 +210,10 @@ def create_report(request: ReportRequest, db: DB):
         .values(
             id=identity,
             created_at=now(),
-            analysis_run_id=run.id,
-            asset_id=asset.id,
+            analysis_run_id=request.analysis_run_id,
+            asset_id=request.asset_id,
+            region_id=request.region_id,
+            scope=request.scope,
             language=request.language,
             status="queued",
             inputs=inputs,

@@ -3,6 +3,7 @@ import { useListProducts, useListRegions, useGetPopulationExposure, useGetRegion
 import { Status } from '../components/Status'
 import { useLanguage } from '../i18n'
 import { apiBase } from '../lib/api'
+import { ReportAction } from '../features/assets/ReportAction'
 import './sources.css'
 import './regions.css'
 
@@ -41,6 +42,7 @@ function PopulationResult({ result }: { result: PopulationSummary }) {
       <Link to="/sources">{fa ? 'مشاهدهٔ نسخه‌های منابع' : 'View source versions'}</Link>
     </details>
     <p className="region-disclaimer">{fa ? result.disclaimer : 'FORUDID is a spatial monitoring and screening tool. It does not replace geotechnical or structural assessment, ground surveying, or field inspection.'}</p>
+    <ReportAction key={result.analysis_run_id} request={{ scope: 'region', analysis_run_id: result.analysis_run_id, region_id: result.region_id, language: 'fa' }} />
   </section>
 }
 

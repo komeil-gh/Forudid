@@ -81,5 +81,36 @@ The real Tehran–Mashhad OSM pilot was rendered from full railway analysis
 - TypeScript, ESLint, Ruff, Pyright and frontend build passed. Alembic check found
   no drift. This is local acceptance; a full container stack is still unverified.
 
-Regional reports and remaining V2 acceptance are separate work. Scientific
+## Regional reports, alpha.11
+
+Migration `b2a951ce8d03` adds an explicit `asset`/`region` scope while preserving
+existing asset reports. For a region, submit `scope: "region"`, the exact
+population `analysis_run_id`, and `region_id`; omit the region for the country
+population footprint. The selected population analysis and both published
+regional railway/road analyses are pinned, including upstream runs and JSON
+checksums. Download guards recheck all three dependencies. Invalid combinations
+of scope and asset/region are rejected before queueing.
+
+The regional PDF shows the historical boundary, population totals and bands,
+area-weighted deformation statistics where available, clipped infrastructure
+lengths, coverage, methods, licenses and limitations. The country figure is
+explicitly the population raster extent, not a national boundary or valid-data
+mask. Country OSM totals have their own extent. Source years are preserved;
+neither population nor historical boundaries are presented as current observations.
+The shared HTML template is separately hashed. Each infrastructure table and its
+analysis identities stay on one page; source blocks remain together.
+
+Three real API/PDF tests passed for the asset, Tehran and country reports after
+the final version bump. Four desktop/390 px browser tests passed for asset and
+Tehran requests/downloads, exact SHA-256 and no document overflow. Regional PDF
+pages were rendered for visual review, including Persian shaping, boundary and
+country extent captions, numerical tables and identifiers. Ruff, Pyright,
+TypeScript and ESLint passed; Alembic reported no schema drift.
+
+Tehran report `075f5e7f-fcac-5056-bdd9-8f1ac3b5fa47`:
+`255c7cefb3b78009e4ae62e7b3d7459ff4727007b64011f2ff5e9de1673f0d8f`.
+Country report `f05d92bd-6245-5594-b71a-4b681640e45c`:
+`1122472580300eb61d04a34c83de8f51a53f410cf08480bab79f209bd864cec8`.
+
+Remaining V2 acceptance and containerized rendering are separate work. Scientific
 angular-distortion validation remains open; these PDFs do not enable it.

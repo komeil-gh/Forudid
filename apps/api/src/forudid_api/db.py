@@ -152,9 +152,16 @@ class ScreeningReport(Record):
             "status IN ('queued','processing','completed','failed')", name="report_status"
         ),
         CheckConstraint("language = 'fa'", name="report_language"),
+        CheckConstraint(
+            "(scope = 'asset' AND asset_id IS NOT NULL AND region_id IS NULL) OR "
+            "(scope = 'region' AND asset_id IS NULL)",
+            name="report_scope",
+        ),
     )
     analysis_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), index=True)
-    asset_id: Mapped[UUID] = mapped_column(ForeignKey("assets.id"), index=True)
+    asset_id: Mapped[UUID | None] = mapped_column(ForeignKey("assets.id"), index=True)
+    region_id: Mapped[UUID | None] = mapped_column(ForeignKey("regions.id"), index=True)
+    scope: Mapped[str] = mapped_column(default="asset")
     language: Mapped[str]
     status: Mapped[str] = mapped_column(index=True)
     inputs: Mapped[dict[str, Any]] = mapped_column(JSONB)
