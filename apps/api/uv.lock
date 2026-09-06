@@ -247,7 +247,7 @@ wheels = [
 
 [[package]]
 name = "forudid-analysis"
-version = "0.2.0"
+version = "0.3.0a2"
 source = { editable = "../../packages/python/forudid_analysis" }
 dependencies = [
     { name = "numpy" },
@@ -266,7 +266,7 @@ requires-dist = [
 
 [[package]]
 name = "forudid-api"
-version = "0.3.0a1"
+version = "0.3.0a2"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
