@@ -14,9 +14,10 @@ test('real source registry exposes versions without private storage locations', 
   }
   await expect(page.getByRole('heading', { name: /فرونشست ایران، مشاهدات/ })).toBeVisible()
   await expect(page.getByText('checksum فایل‌های اصلی بررسی شده است.', { exact: true })).toBeVisible()
-  await page.getByText('فایل‌ها و شناسهٔ یکپارچگی', { exact: true }).click()
-  await expect(page.locator('.source-version li')).toHaveCount(3)
-  await expect(page.locator('.source-version code')).toHaveCount(4)
+  const historical = page.getByRole('article').filter({ has: page.getByRole('heading', { name: /فرونشست ایران، مشاهدات/ }) })
+  await historical.getByText('فایل‌ها و شناسهٔ یکپارچگی', { exact: true }).click()
+  await expect(historical.locator('.source-version li')).toHaveCount(3)
+  await expect(historical.locator('.source-version code')).toHaveCount(4)
   expect(await page.locator('body').innerText()).not.toContain('s3://')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   expect(errors).toEqual([])

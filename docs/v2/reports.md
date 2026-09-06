@@ -112,5 +112,7 @@ Tehran report `075f5e7f-fcac-5056-bdd9-8f1ac3b5fa47`:
 Country report `f05d92bd-6245-5594-b71a-4b681640e45c`:
 `1122472580300eb61d04a34c83de8f51a53f410cf08480bab79f209bd864cec8`.
 
-Remaining V2 acceptance and containerized rendering are separate work. Scientific
-angular-distortion validation remains open; these PDFs do not enable it.
+The [V2 MVP acceptance](acceptance.md) now includes report requests/downloads
+through the built Compose API and web with the existing host renderer.
+Containerized rendering remains separate work. Scientific angular-distortion
+validation remains open; these PDFs do not enable it.

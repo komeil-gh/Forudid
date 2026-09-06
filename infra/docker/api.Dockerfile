@@ -1,4 +1,6 @@
 FROM python:3.13.7-slim
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:0.12.10 /uv /usr/local/bin/uv
 WORKDIR /app/apps/api
 COPY apps/api/pyproject.toml apps/api/uv.lock ./

@@ -10,7 +10,7 @@ test('map worker loads while the catalog is unavailable', async ({ page }, testI
   await expect(page.locator('.map-message').getByRole('alert')).toBeVisible()
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await expect(page.getByRole('button', { name: 'کپی نمای فعلی' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'بازگشت به نمای ایران' })).toBeVisible()
   await mkdir('/tmp/forudid-qa', { recursive: true })
   await page.screenshot({ path: `/tmp/forudid-qa/${testInfo.project.name}-offline.png` })
 })
