@@ -1,6 +1,6 @@
 [project]
 name = "forudid-api"
-version = "0.2.0a11"
+version = "0.2.0rc1"
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "fastapi>=0.115,<1",
@@ -22,6 +22,9 @@ dependencies = [
 
 [tool.uv.sources]
 forudid-analysis = { path = "../../packages/python/forudid_analysis", editable = true }
+
+[project.scripts]
+forudid = "forudid_api.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.3,<10", "httpx>=0.28,<1", "ruff>=0.11,<1", "pyright>=1.1.400", "rio-cogeo>=5.4,<8"]
