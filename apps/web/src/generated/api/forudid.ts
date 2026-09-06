@@ -92,6 +92,110 @@ export interface ErrorResponse {
   error: ErrorDetail;
 }
 
+export type EventInfoConfidenceGrade = typeof EventInfoConfidenceGrade[keyof typeof EventInfoConfidenceGrade];
+
+
+export const EventInfoConfidenceGrade = {
+  A: 'A',
+  B: 'B',
+  C: 'C',
+  D: 'D',
+  U: 'U',
+} as const;
+
+export type EventInfoDominantComponent = typeof EventInfoDominantComponent[keyof typeof EventInfoDominantComponent];
+
+
+export const EventInfoDominantComponent = {
+  los: 'los',
+  vertical: 'vertical',
+  east_west: 'east_west',
+  north_south: 'north_south',
+  three_dimensional: 'three_dimensional',
+} as const;
+
+export type EventInfoStatus = typeof EventInfoStatus[keyof typeof EventInfoStatus];
+
+
+export const EventInfoStatus = {
+  candidate: 'candidate',
+  under_review: 'under_review',
+  corroborated: 'corroborated',
+  monitoring: 'monitoring',
+  escalated: 'escalated',
+  stable: 'stable',
+  resolved: 'resolved',
+  seasonal: 'seasonal',
+  artifact: 'artifact',
+  rejected: 'rejected',
+} as const;
+
+export interface EventInfo {
+  acceleration_metric: number | null;
+  area_current: number;
+  area_max: number;
+  area_unit?: 'm2';
+  confidence_grade: EventInfoConfidenceGrade;
+  current_velocity: number | null;
+  dominant_component: EventInfoDominantComponent;
+  estimated_onset_at: string | null;
+  event_key: string;
+  event_type: string;
+  first_detected_at: string;
+  growth_rate: number | null;
+  id: string;
+  last_observed_at: string;
+  previous_velocity: number | null;
+  revision_number: number;
+  scientific_status: string;
+  severity_screening_class: string | null;
+  status: EventInfoStatus;
+  updated_at: string;
+  velocity_unit?: 'mm/year';
+}
+
+export interface MultiPolygonGeometry {
+  /**
+     * @items.items.items.minItems 2
+     * @items.items.items.maxItems 2
+     */
+  coordinates: [number, number][][][];
+  type?: 'MultiPolygon';
+}
+
+export interface EventDetail {
+  disclaimer?: string;
+  event: EventInfo;
+  geometry: MultiPolygonGeometry;
+}
+
+export interface EventPage {
+  disclaimer?: string;
+  items: EventInfo[];
+  next_cursor: string | null;
+}
+
+export type EvidenceInfoQuality = { [key: string]: unknown };
+
+export interface EvidenceInfo {
+  contradicts_event: boolean;
+  created_at: string;
+  evidence_type: string;
+  id: string;
+  independence_group: string;
+  observation_id: string | null;
+  quality: EvidenceInfoQuality;
+  source_version_id: string;
+  summary: string;
+  supersedes_id: string | null;
+  supports_event: boolean;
+}
+
+export interface EvidencePage {
+  items: EvidenceInfo[];
+  next_cursor: string | null;
+}
+
 export type ExposureSummaryInputs = { [key: string]: unknown };
 
 export type ExposureSummaryMetrics = { [key: string]: unknown };
@@ -199,13 +303,56 @@ export interface Legend {
   unit: string;
 }
 
-export interface MultiPolygonGeometry {
-  /**
-     * @items.items.items.minItems 2
-     * @items.items.items.maxItems 2
-     */
-  coordinates: [number, number][][][];
-  type?: 'MultiPolygon';
+export type ObservationInfoComponent = typeof ObservationInfoComponent[keyof typeof ObservationInfoComponent];
+
+
+export const ObservationInfoComponent = {
+  los: 'los',
+  vertical: 'vertical',
+  east_west: 'east_west',
+  north_south: 'north_south',
+  three_dimensional: 'three_dimensional',
+} as const;
+
+export type ObservationInfoMaturity = typeof ObservationInfoMaturity[keyof typeof ObservationInfoMaturity];
+
+
+export const ObservationInfoMaturity = {
+  beta: 'beta',
+  provisional: 'provisional',
+  validated: 'validated',
+  unknown: 'unknown',
+} as const;
+
+export type ObservationInfoMetrics = { [key: string]: unknown };
+
+export type ObservationInfoQuality = { [key: string]: unknown };
+
+export interface ObservationInfo {
+  acceleration: number | null;
+  area: number | null;
+  available_at: string;
+  component: ObservationInfoComponent;
+  coverage: number | null;
+  displacement: number | null;
+  id: string;
+  interval_end: string;
+  interval_start: string;
+  maturity: ObservationInfoMaturity;
+  measurement_method: string;
+  metrics: ObservationInfoMetrics;
+  product_id: string;
+  quality: ObservationInfoQuality;
+  raw_acquisition_ids: string[];
+  sensor_family: string;
+  source_version_id: string;
+  uncertainty: number | null;
+  velocity: number | null;
+}
+
+export interface ObservationPage {
+  items: ObservationInfo[];
+  next_cursor: string | null;
 }
 
 export type PointSummaryQuality = typeof PointSummaryQuality[keyof typeof PointSummaryQuality];
@@ -503,6 +650,26 @@ export interface ReportRequest {
   scope?: ReportRequestScope;
 }
 
+export type RevisionInfoMetrics = { [key: string]: unknown };
+
+export type RevisionInfoProvenance = { [key: string]: unknown };
+
+export interface RevisionInfo {
+  created_at: string;
+  id: string;
+  input_sha256: string;
+  metrics: RevisionInfoMetrics;
+  provenance: RevisionInfoProvenance;
+  reason: string;
+  revision_number: number;
+  source_processing_run_id: string;
+}
+
+export interface RevisionPage {
+  items: RevisionInfo[];
+  next_revision: number | null;
+}
+
 export type RunInfoConfig = { [key: string]: unknown };
 
 export interface RunInfo {
@@ -649,6 +816,62 @@ export const ListInfrastructureAssetsAssetType = {
 export type GetAssetExposureParams = {
 run_id?: string | null;
 product_id?: string | null;
+};
+
+export type ListEventsParams = {
+cursor?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+status?: ListEventsStatus;
+};
+
+export type ListEventsStatus = typeof ListEventsStatus[keyof typeof ListEventsStatus] | null;
+
+
+export const ListEventsStatus = {
+  candidate: 'candidate',
+  under_review: 'under_review',
+  corroborated: 'corroborated',
+  monitoring: 'monitoring',
+  escalated: 'escalated',
+  stable: 'stable',
+  resolved: 'resolved',
+  seasonal: 'seasonal',
+  artifact: 'artifact',
+  rejected: 'rejected',
+} as const;
+
+export type GetEventEvidenceParams = {
+cursor?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type GetEventObservationsParams = {
+cursor?: string | null;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type GetEventTimelineParams = {
+/**
+ * @minimum 0
+ */
+after?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
 };
 
 export type GetExposureRankingParams = {
@@ -1930,6 +2153,563 @@ export function useGetAssetExposure<TData = Awaited<ReturnType<typeof getAssetEx
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAssetExposureQueryOptions(assetId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListEventsUrl = (params?: ListEventsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/events?${stringifiedParams}` : `/api/v1/events`
+}
+
+/**
+ * @summary List Events
+ */
+export const listEvents = async (params?: ListEventsParams, options?: Parameters<typeof apiFetch>[1]): Promise<EventPage> => {
+
+  return apiFetch<EventPage>(getListEventsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEventsQueryKey = (params?: ListEventsParams,) => {
+    return [
+    `/api/v1/events`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListEventsQueryOptions = <TData = Awaited<ReturnType<typeof listEvents>>, TError = ErrorResponse>(params?: ListEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEventsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEvents>>> = ({ signal }) => listEvents(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListEventsQueryResult = NonNullable<Awaited<ReturnType<typeof listEvents>>>
+export type ListEventsQueryError = ErrorResponse
+
+
+export function useListEvents<TData = Awaited<ReturnType<typeof listEvents>>, TError = ErrorResponse>(
+ params: undefined |  ListEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEvents>>,
+          TError,
+          Awaited<ReturnType<typeof listEvents>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEvents<TData = Awaited<ReturnType<typeof listEvents>>, TError = ErrorResponse>(
+ params?: ListEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listEvents>>,
+          TError,
+          Awaited<ReturnType<typeof listEvents>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListEvents<TData = Awaited<ReturnType<typeof listEvents>>, TError = ErrorResponse>(
+ params?: ListEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Events
+ */
+
+export function useListEvents<TData = Awaited<ReturnType<typeof listEvents>>, TError = ErrorResponse>(
+ params?: ListEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listEvents>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListEventsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEventUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/v1/events/${eventId}`
+}
+
+/**
+ * @summary Get Event
+ */
+export const getEvent = async (eventId: string, options?: Parameters<typeof apiFetch>[1]): Promise<EventDetail> => {
+
+  return apiFetch<EventDetail>(getGetEventUrl(eventId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventQueryKey = (eventId: string,) => {
+    return [
+    `/api/v1/events/${eventId}`
+    ] as const;
+    }
+
+
+export const getGetEventQueryOptions = <TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorResponse>(eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventQueryKey(eventId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvent>>> = ({ signal }) => getEvent(eventId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventQueryResult = NonNullable<Awaited<ReturnType<typeof getEvent>>>
+export type GetEventQueryError = ErrorResponse
+
+
+export function useGetEvent<TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorResponse>(
+ eventId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEvent>>,
+          TError,
+          Awaited<ReturnType<typeof getEvent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEvent<TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorResponse>(
+ eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEvent>>,
+          TError,
+          Awaited<ReturnType<typeof getEvent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEvent<TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorResponse>(
+ eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Event
+ */
+
+export function useGetEvent<TData = Awaited<ReturnType<typeof getEvent>>, TError = ErrorResponse>(
+ eventId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEvent>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventQueryOptions(eventId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEventEvidenceUrl = (eventId: string,
+    params?: GetEventEvidenceParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/events/${eventId}/evidence?${stringifiedParams}` : `/api/v1/events/${eventId}/evidence`
+}
+
+/**
+ * @summary Evidence
+ */
+export const getEventEvidence = async (eventId: string,
+    params?: GetEventEvidenceParams, options?: Parameters<typeof apiFetch>[1]): Promise<EvidencePage> => {
+
+  return apiFetch<EvidencePage>(getGetEventEvidenceUrl(eventId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventEvidenceQueryKey = (eventId: string,
+    params?: GetEventEvidenceParams,) => {
+    return [
+    `/api/v1/events/${eventId}/evidence`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEventEvidenceQueryOptions = <TData = Awaited<ReturnType<typeof getEventEvidence>>, TError = ErrorResponse>(eventId: string,
+    params?: GetEventEvidenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventEvidenceQueryKey(eventId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventEvidence>>> = ({ signal }) => getEventEvidence(eventId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventEvidenceQueryResult = NonNullable<Awaited<ReturnType<typeof getEventEvidence>>>
+export type GetEventEvidenceQueryError = ErrorResponse
+
+
+export function useGetEventEvidence<TData = Awaited<ReturnType<typeof getEventEvidence>>, TError = ErrorResponse>(
+ eventId: string,
+    params: undefined |  GetEventEvidenceParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventEvidence>>,
+          TError,
+          Awaited<ReturnType<typeof getEventEvidence>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventEvidence<TData = Awaited<ReturnType<typeof getEventEvidence>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventEvidenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventEvidence>>,
+          TError,
+          Awaited<ReturnType<typeof getEventEvidence>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventEvidence<TData = Awaited<ReturnType<typeof getEventEvidence>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventEvidenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Evidence
+ */
+
+export function useGetEventEvidence<TData = Awaited<ReturnType<typeof getEventEvidence>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventEvidenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventEvidence>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventEvidenceQueryOptions(eventId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEventObservationsUrl = (eventId: string,
+    params?: GetEventObservationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/events/${eventId}/observations?${stringifiedParams}` : `/api/v1/events/${eventId}/observations`
+}
+
+/**
+ * @summary Observations
+ */
+export const getEventObservations = async (eventId: string,
+    params?: GetEventObservationsParams, options?: Parameters<typeof apiFetch>[1]): Promise<ObservationPage> => {
+
+  return apiFetch<ObservationPage>(getGetEventObservationsUrl(eventId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventObservationsQueryKey = (eventId: string,
+    params?: GetEventObservationsParams,) => {
+    return [
+    `/api/v1/events/${eventId}/observations`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEventObservationsQueryOptions = <TData = Awaited<ReturnType<typeof getEventObservations>>, TError = ErrorResponse>(eventId: string,
+    params?: GetEventObservationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventObservationsQueryKey(eventId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventObservations>>> = ({ signal }) => getEventObservations(eventId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventObservationsQueryResult = NonNullable<Awaited<ReturnType<typeof getEventObservations>>>
+export type GetEventObservationsQueryError = ErrorResponse
+
+
+export function useGetEventObservations<TData = Awaited<ReturnType<typeof getEventObservations>>, TError = ErrorResponse>(
+ eventId: string,
+    params: undefined |  GetEventObservationsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventObservations>>,
+          TError,
+          Awaited<ReturnType<typeof getEventObservations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventObservations<TData = Awaited<ReturnType<typeof getEventObservations>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventObservationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventObservations>>,
+          TError,
+          Awaited<ReturnType<typeof getEventObservations>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventObservations<TData = Awaited<ReturnType<typeof getEventObservations>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventObservationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Observations
+ */
+
+export function useGetEventObservations<TData = Awaited<ReturnType<typeof getEventObservations>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventObservationsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventObservations>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventObservationsQueryOptions(eventId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetEventTimelineUrl = (eventId: string,
+    params?: GetEventTimelineParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/events/${eventId}/timeline?${stringifiedParams}` : `/api/v1/events/${eventId}/timeline`
+}
+
+/**
+ * @summary Timeline
+ */
+export const getEventTimeline = async (eventId: string,
+    params?: GetEventTimelineParams, options?: Parameters<typeof apiFetch>[1]): Promise<RevisionPage> => {
+
+  return apiFetch<RevisionPage>(getGetEventTimelineUrl(eventId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEventTimelineQueryKey = (eventId: string,
+    params?: GetEventTimelineParams,) => {
+    return [
+    `/api/v1/events/${eventId}/timeline`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEventTimelineQueryOptions = <TData = Awaited<ReturnType<typeof getEventTimeline>>, TError = ErrorResponse>(eventId: string,
+    params?: GetEventTimelineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEventTimelineQueryKey(eventId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEventTimeline>>> = ({ signal }) => getEventTimeline(eventId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: eventId !== null && eventId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEventTimelineQueryResult = NonNullable<Awaited<ReturnType<typeof getEventTimeline>>>
+export type GetEventTimelineQueryError = ErrorResponse
+
+
+export function useGetEventTimeline<TData = Awaited<ReturnType<typeof getEventTimeline>>, TError = ErrorResponse>(
+ eventId: string,
+    params: undefined |  GetEventTimelineParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventTimeline>>,
+          TError,
+          Awaited<ReturnType<typeof getEventTimeline>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventTimeline<TData = Awaited<ReturnType<typeof getEventTimeline>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventTimelineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEventTimeline>>,
+          TError,
+          Awaited<ReturnType<typeof getEventTimeline>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEventTimeline<TData = Awaited<ReturnType<typeof getEventTimeline>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventTimelineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Timeline
+ */
+
+export function useGetEventTimeline<TData = Awaited<ReturnType<typeof getEventTimeline>>, TError = ErrorResponse>(
+ eventId: string,
+    params?: GetEventTimelineParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEventTimeline>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEventTimelineQueryOptions(eventId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

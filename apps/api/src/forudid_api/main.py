@@ -11,7 +11,17 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from forudid_api import catalog, exposure, infrastructure, points, regions, reports, sources, styles
+from forudid_api import (
+    catalog,
+    events,
+    exposure,
+    infrastructure,
+    points,
+    regions,
+    reports,
+    sources,
+    styles,
+)
 from forudid_api.config import settings
 from forudid_api.db import AOI, Asset, Product, Run, session
 from forudid_api.schemas import (
@@ -46,6 +56,7 @@ app.include_router(infrastructure.router)
 app.include_router(exposure.router)
 app.include_router(regions.router)
 app.include_router(reports.router)
+app.include_router(events.router)
 DB = Annotated[Session, Depends(session)]
 Lon = Annotated[float, Query(ge=-180, le=180, allow_inf_nan=False)]
 Lat = Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)]

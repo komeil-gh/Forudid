@@ -12,6 +12,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     String,
     UniqueConstraint,
     create_engine,
@@ -343,6 +344,156 @@ class QCMetric(Record):
     value_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     threshold: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     passed: Mapped[bool | None]
+
+
+class DeformationEvent(Record):
+    __tablename__ = "deformation_events"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('candidate','under_review','corroborated','monitoring','escalated',"
+            "'stable','resolved','seasonal','artifact','rejected')",
+            name="event_lifecycle",
+        ),
+        CheckConstraint(
+            "publication IN ('draft','published','withdrawn')", name="event_publication"
+        ),
+        CheckConstraint(
+            "scientific_status IN ('experimental','review','validated')", name="event_science"
+        ),
+        CheckConstraint("confidence_grade IN ('A','B','C','D','U')", name="event_grade"),
+        CheckConstraint("revision_number >= 1", name="event_revision_positive"),
+        CheckConstraint(
+            "estimated_onset_at IS NULL OR estimated_onset_at <= last_observed_at",
+            name="event_time_order",
+        ),
+        CheckConstraint("area_current >= 0 AND area_max >= area_current", name="event_area"),
+        CheckConstraint("ST_IsValid(geom) AND NOT ST_IsEmpty(geom)", name="event_geometry"),
+        ForeignKeyConstraint(
+            ["id", "revision_number"],
+            ["event_revisions.event_id", "event_revisions.revision_number"],
+            name="event_current_revision",
+            deferrable=True,
+            initially="DEFERRED",
+            use_alter=True,
+        ),
+    )
+    event_key: Mapped[str] = mapped_column(unique=True)
+    geom = mapped_column(Geometry("MULTIPOLYGON", srid=4326), nullable=False)
+    event_type: Mapped[str]
+    status: Mapped[str] = mapped_column(index=True)
+    publication: Mapped[str] = mapped_column(default="draft", index=True)
+    is_fixture: Mapped[bool] = mapped_column(default=False)
+    revision_number: Mapped[int]
+    first_detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    estimated_onset_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    current_velocity: Mapped[float | None]
+    previous_velocity: Mapped[float | None]
+    acceleration_metric: Mapped[float | None]
+    area_current: Mapped[float]
+    area_max: Mapped[float]
+    growth_rate: Mapped[float | None]
+    dominant_component: Mapped[str]
+    confidence_grade: Mapped[str] = mapped_column(default="U")
+    severity_screening_class: Mapped[str | None]
+    scientific_status: Mapped[str] = mapped_column(default="experimental")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class EventRevision(Record):
+    __tablename__ = "event_revisions"
+    __table_args__ = (
+        UniqueConstraint("event_id", "revision_number", name="event_revision_identity"),
+        CheckConstraint("revision_number >= 1", name="revision_number_positive"),
+        CheckConstraint("ST_IsValid(geom) AND NOT ST_IsEmpty(geom)", name="revision_geometry"),
+        CheckConstraint("input_sha256 ~ '^[0-9a-f]{64}$'", name="revision_input_sha256"),
+    )
+    event_id: Mapped[UUID] = mapped_column(ForeignKey("deformation_events.id"), index=True)
+    revision_number: Mapped[int]
+    geom = mapped_column(Geometry("MULTIPOLYGON", srid=4326), nullable=False)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    reason: Mapped[str]
+    actor: Mapped[str]
+    source_processing_run_id: Mapped[UUID] = mapped_column(ForeignKey("processing_runs.id"))
+    provenance: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    input_sha256: Mapped[str] = mapped_column(String(64))
+
+
+class EventObservation(Record):
+    __tablename__ = "event_observations"
+    __table_args__ = (
+        UniqueConstraint("event_id", "observation_key", name="event_observation_identity"),
+        UniqueConstraint("event_id", "id", name="observation_event_identity"),
+        CheckConstraint("interval_end >= interval_start", name="observation_interval"),
+        CheckConstraint("available_at >= interval_end", name="observation_availability"),
+        CheckConstraint(
+            "coverage IS NULL OR (coverage >= 0 AND coverage <= 1)", name="observation_coverage"
+        ),
+        CheckConstraint("area IS NULL OR area >= 0", name="observation_area"),
+        CheckConstraint("uncertainty IS NULL OR uncertainty >= 0", name="observation_uncertainty"),
+        CheckConstraint(
+            "component IN ('los','vertical','east_west','north_south','three_dimensional')",
+            name="observation_component",
+        ),
+        CheckConstraint(
+            "maturity IN ('beta','provisional','validated','unknown')", name="observation_maturity"
+        ),
+        CheckConstraint(
+            "jsonb_array_length(raw_acquisition_ids) > 0", name="observation_raw_lineage"
+        ),
+    )
+    event_id: Mapped[UUID] = mapped_column(ForeignKey("deformation_events.id"), index=True)
+    observation_key: Mapped[str]
+    product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"), index=True)
+    source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"))
+    interval_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    interval_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    sensor_family: Mapped[str]
+    component: Mapped[str]
+    measurement_method: Mapped[str]
+    maturity: Mapped[str]
+    raw_acquisition_ids: Mapped[list[str]] = mapped_column(JSONB)
+    velocity: Mapped[float | None]
+    displacement: Mapped[float | None]
+    acceleration: Mapped[float | None]
+    area: Mapped[float | None]
+    coverage: Mapped[float | None]
+    uncertainty: Mapped[float | None]
+    quality: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class EventEvidence(Record):
+    __tablename__ = "event_evidence"
+    __table_args__ = (
+        UniqueConstraint("event_id", "evidence_key", name="event_evidence_identity"),
+        UniqueConstraint("event_id", "id", name="evidence_event_identity"),
+        ForeignKeyConstraint(
+            ["event_id", "observation_id"],
+            ["event_observations.event_id", "event_observations.id"],
+            name="evidence_observation_event",
+        ),
+        ForeignKeyConstraint(
+            ["event_id", "supersedes_id"],
+            ["event_evidence.event_id", "event_evidence.id"],
+            name="evidence_supersedes_event",
+        ),
+        CheckConstraint("NOT (supports_event AND contradicts_event)", name="evidence_position"),
+        CheckConstraint("length(independence_group) > 0", name="evidence_independence_group"),
+    )
+    event_id: Mapped[UUID] = mapped_column(ForeignKey("deformation_events.id"), index=True)
+    evidence_key: Mapped[str]
+    evidence_type: Mapped[str]
+    source_version_id: Mapped[UUID] = mapped_column(ForeignKey("source_versions.id"))
+    observation_id: Mapped[UUID | None]
+    supersedes_id: Mapped[UUID | None]
+    supports_event: Mapped[bool]
+    contradicts_event: Mapped[bool]
+    independence_group: Mapped[str]
+    quality: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    summary: Mapped[str]
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB)
 
 
 @lru_cache
