@@ -18,3 +18,16 @@ Reuse SQLAlchemy, PostGIS, Pydantic, Shapely and PyProj. Do not introduce a grap
 database, workflow engine or ML dependency for four related record types. Evidence
 grading and operational priority require their own reviewed versioned profiles;
 the initial service returns unknown grade and unavailable severity.
+
+## Statistical and UI extensions
+
+The first detector uses the existing NumPy/Rasterio/Shapely stack and explicit
+profiles. No operational default thresholds, ML or evidence grades are inferred.
+Continuity requires one unambiguous spatial/temporal/reference match; ambiguous
+merges remain reviewable. See [method limits](statistical-detector.md).
+
+The event dossier reuses MapCanvas with an optional polygon layer and disabled
+point-inspection actions. Existing raster/infrastructure behavior remains the
+default. Read-only pages have independent timeline, observation and evidence
+queries; partial source failures do not hide the whole dossier. No new dependency
+or organization mutation is introduced.

@@ -14,6 +14,8 @@ const MapPage = lazy(() => import('../routes/map'))
 const SourcesPage = lazy(() => import('../routes/sources'))
 const RegionsPage = lazy(() => import('../routes/regions'))
 const AssetsPage = lazy(() => import('../routes/assets'))
+const EventsPage = lazy(() => import('../routes/events'))
+const EventDetailPage = lazy(() => import('../routes/events').then(module => ({ default: module.EventDetailPage })))
 const AssetDetailPage = lazy(() => import('../routes/assets').then(module => ({ default: module.AssetDetailPage })))
 function Shell() {
   const { language, setLanguage, messages: m } = useLanguage()
@@ -30,10 +32,12 @@ function Shell() {
       <span className="brand-wordmark"><strong>{language === 'fa' ? 'فرودید' : 'Forudid'}</strong>
         <span className="brand-en">{language === 'fa' ? 'پایش زمین ایران' : 'IRAN EARTH OBSERVATION'}</span></span></Link>
     <nav aria-label={language === 'fa' ? 'ناوبری اصلی' : 'Main navigation'}><Link to="/map" search={defaultSearch}>{m.map}</Link>
+      <Link to="/events">{language === 'fa' ? 'رخدادها' : 'Events'}</Link>
       <Link to="/assets" search={defaultAssetSearch}>{language === 'fa' ? 'زیرساخت' : 'Infrastructure'}</Link><Link to="/regions">{language === 'fa' ? 'جمعیت و مناطق' : 'Population & regions'}</Link><Link to="/sources">{m.sources}</Link><Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link></nav>
     <details className="mobile-navigation"><summary>{m.menu}</summary>
       <nav aria-label={language === 'fa' ? 'ناوبری موبایل' : 'Mobile navigation'} onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>
         <Link to="/map" search={defaultSearch}>{m.map}</Link><Link to="/sources">{m.sources}</Link>
+        <Link to="/events">{language === 'fa' ? 'رخدادها' : 'Events'}</Link>
         <Link to="/regions">{language === 'fa' ? 'جمعیت و مناطق' : 'Population & regions'}</Link>
         <Link to="/assets" search={defaultAssetSearch}>{language === 'fa' ? 'زیرساخت' : 'Infrastructure'}</Link>
         <Link to="/methodology">{m.methodology}</Link><Link to="/about">{m.about}</Link>
@@ -63,6 +67,10 @@ const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',
   component: () => <Suspense fallback={<Status />}><SourcesPage /></Suspense> })
+const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events',
+  component: () => <Suspense fallback={<Status />}><EventsPage /></Suspense> })
+const eventDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events/$eventId',
+  component: () => <Suspense fallback={<Status />}><EventDetailPage /></Suspense> })
 const regionsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/regions',
   validateSearch: raw => z.object({ region: z.uuid().optional(), product: z.uuid().optional() }).parse(raw),
   component: () => <Suspense fallback={<Status />}><RegionsPage /></Suspense> })
@@ -73,6 +81,6 @@ const assetDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/
   validateSearch: raw => z.object({ product: z.uuid().optional(), analysis: z.uuid().optional(), segment: z.coerce.number().int().min(0).max(200000).optional().catch(undefined) }).parse(raw),
   component: () => <Suspense fallback={<Status />}><AssetDetailPage /></Suspense> })
 export const router = createRouter({ routeTree: rootRoute.addChildren([
-  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute, assetsRoute, assetDetailRoute,
+  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute, assetsRoute, assetDetailRoute, eventsRoute, eventDetailRoute,
 ]) })
 declare module '@tanstack/react-router' { interface Register { router: typeof router } }

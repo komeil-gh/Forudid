@@ -4,7 +4,7 @@ import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { Crosshair } from 'lucide-react'
 import { defaultSearch, type MapSearch } from '../../lib/search'
-import type { ProductInfo, LineGeometry, RegionFeature } from '../../generated/api/forudid'
+import type { ProductInfo, LineGeometry, RegionFeature, MultiPolygonGeometry } from '../../generated/api/forudid'
 import { apiBase } from '../../lib/api'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
@@ -22,10 +22,11 @@ const localStyle: maplibre.StyleSpecification = {
   version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
     paint: { 'background-color': '#eaf0f3' } }],
 }
-export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint, region }:
+export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint, region, eventGeometry, inspectEnabled = true }:
   { state: MapSearch; product?: ProductInfo; style?: string;
     selectedGeometry?: LineGeometry;
     region?: RegionFeature;
+    eventGeometry?: MultiPolygonGeometry; inspectEnabled?: boolean;
     profilePoint?: { lon: number; lat: number };
     update: (values: Partial<MapSearch>) => void; selectPoint: (lon: number, lat: number) => void }) {
   const { language, messages: m } = useLanguage()
@@ -43,12 +44,12 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   const attribution = product?.attribution.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   const infrastructureKinds = (['railway', 'road'] as const).filter(kind => state.infrastructure === 'all' || state.infrastructure === kind)
   const fitSelection = useCallback(() => {
-    const coordinates = selectedGeometry?.coordinates ?? region?.geometry.coordinates.flat(2)
+    const coordinates = selectedGeometry?.coordinates ?? eventGeometry?.coordinates.flat(2) ?? region?.geometry.coordinates.flat(2)
     if (!ref.current || !coordinates?.length) return
     const bounds = new maplibre.LngLatBounds()
     coordinates.forEach(coordinate => bounds.extend(coordinate))
     ref.current.fitBounds(bounds, { padding: 45, maxZoom: 12, duration: 0 })
-  }, [selectedGeometry, region])
+  }, [selectedGeometry, region, eventGeometry])
   useEffect(fitSelection, [fitSelection])
   useEffect(() => {
     if (profilePoint && ref.current && !ref.current.getBounds().contains([profilePoint.lon, profilePoint.lat]))
@@ -88,7 +89,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       onClick={e => {
         const id = e.features?.[0]?.properties?.asset_id
         if (typeof id === 'string') update({ asset: id, analysis: undefined, segment: undefined, panel: 'asset', pointLon: undefined, pointLat: undefined })
-        else selectPoint(e.lngLat.lng, e.lngLat.lat)
+        else if (inspectEnabled) selectPoint(e.lngLat.lng, e.lngLat.lat)
       }}
       onError={e => { if (('sourceId' in e && String(e.sourceId).startsWith('infra-')) || e.error.message.includes('/vector/')) {
         setVectorError(true); return
@@ -117,6 +118,10 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
         <Layer id="selected-infrastructure-line" type="line" paint={{ 'line-color': '#087f8c',
           'line-width': 5, 'line-opacity': 0.95 }} />
       </Source>}
+      {eventGeometry && <Source id="event-geometry" type="geojson" data={{ type: 'Feature', properties: {}, geometry: { type: 'MultiPolygon', coordinates: eventGeometry.coordinates } }}>
+        <Layer id="event-fill" type="fill" paint={{ 'fill-color': '#176e79', 'fill-opacity': 0.2 }} />
+        <Layer id="event-outline" type="line" paint={{ 'line-color': '#176e79', 'line-width': 2 }} />
+      </Source>}
       {asset && bbox && style && <Source key={asset.id} id="scientific-raster" type="raster"
         attribution={attribution}
         tiles={[`${apiBase}/tiles/${asset.id}/{z}/{x}/{y}.png?style=${style}`]}
@@ -141,6 +146,6 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
     {error && <p className="map-warning" role="alert">{error}</p>}
     {vectorError && state.infrastructure !== 'none' && <p className="map-warning" role="alert">{language === 'fa' ? 'لایهٔ زیرساخت در دسترس نیست؛ دادهٔ تغییرشکل مستقل نمایش داده می‌شود.' : 'The infrastructure layer is unavailable; deformation data remain independently visible.'}</p>}
     <div className="map-tools"><Button aria-label={m.reset} onClick={() => update({ lon: defaultSearch.lon, lat: defaultSearch.lat, z: defaultSearch.z, pitch: 0, bearing: 0 })}><Crosshair size={19} /></Button>
-      <Button onClick={() => selectPoint(state.lon, state.lat)}>{m.inspectCenter}</Button></div>
+      {inspectEnabled && <Button onClick={() => selectPoint(state.lon, state.lat)}>{m.inspectCenter}</Button>}</div>
   </div>
 }
