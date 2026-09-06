@@ -145,6 +145,26 @@ class AnalysisRun(Record):
     error: Mapped[str | None]
 
 
+class ScreeningReport(Record):
+    __tablename__ = "screening_reports"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('queued','processing','completed','failed')", name="report_status"
+        ),
+        CheckConstraint("language = 'fa'", name="report_language"),
+    )
+    analysis_run_id: Mapped[UUID] = mapped_column(ForeignKey("analysis_runs.id"), index=True)
+    asset_id: Mapped[UUID] = mapped_column(ForeignKey("assets.id"), index=True)
+    language: Mapped[str]
+    status: Mapped[str] = mapped_column(index=True)
+    inputs: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    object_key: Mapped[str | None] = mapped_column(unique=True)
+    checksum_sha256: Mapped[str | None] = mapped_column(String(64))
+    html_sha256: Mapped[str | None] = mapped_column(String(64))
+    generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error_code: Mapped[str | None]
+
+
 class AssetExposureSummary(Record):
     __tablename__ = "asset_exposure_summaries"
     __table_args__ = (

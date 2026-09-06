@@ -8,6 +8,7 @@ import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
 import { apiBase } from '../../lib/api'
+import { ReportAction } from './ReportAction'
 
 registerCharts([LineChart, GridComponent, TooltipComponent, DataZoomComponent, AriaComponent, CanvasRenderer])
 
@@ -112,5 +113,6 @@ export function ExposureDetails({ assetId, productId, runId, onInspect, selected
       <a href={`${apiBase}/api/v1/analyses/${data.analysis_run_id}/assets/${assetId}/profile.csv`}>{en ? 'Complete profile (CSV)' : 'پروفایل کامل (CSV)'}</a>
       <a href={`${apiBase}/api/v1/analyses/${data.analysis_run_id}/assets/${assetId}/segments.geojson`}>{en ? 'Exposure segments (GeoJSON)' : 'قطعه‌بندی مواجهه (GeoJSON)'}</a>
     </div>
+    <ReportAction key={`${assetId}:${data.analysis_run_id}`} assetId={assetId} runId={data.analysis_run_id} />
   </section>
 }

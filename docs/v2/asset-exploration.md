@@ -59,3 +59,9 @@ Four real desktop/mobile asset and map-mode checks passed, including segment
 selection, URL restoration, whole-way restoration and profile-marker visibility
 after fitting a short segment. TypeScript, Pyright, ESLint and the real archive/
 CSV/GeoJSON API check passed. These checks do not complete V2 science and reports.
+
+The shared asset/map panel now requests and downloads an immutable Persian
+[screening report](reports.md). POST uses an explicit mutation; polling is limited
+to the returned queued/processing job. A report request error does not hide the
+underlying exposure. The initial report language is explicitly Persian in both
+interface languages.

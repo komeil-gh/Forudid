@@ -15,9 +15,10 @@ class Settings(BaseSettings):
     s3_path_style: bool = True
     s3_prefix: str = "aoi"
     cors_origins: list[str] = []
-    application_version: str = "0.2.0-alpha.9"
+    application_version: str = "0.2.0-alpha.10"
     tile_cache_seconds: int = Field(default=3600, ge=0)
     allow_fixture_products: bool = False
+    report_chrome_binary: str | None = None
 
 
 @lru_cache

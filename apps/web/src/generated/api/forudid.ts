@@ -1,14 +1,18 @@
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -448,6 +452,35 @@ export interface RegionalInfrastructureSummary {
   product_id: string;
   region_id: string | null;
   upstream_run_id: string;
+}
+
+export type ReportInfoStatus = typeof ReportInfoStatus[keyof typeof ReportInfoStatus];
+
+
+export const ReportInfoStatus = {
+  queued: 'queued',
+  processing: 'processing',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export interface ReportInfo {
+  analysis_run_id: string;
+  asset_id: string;
+  checksum_sha256: string | null;
+  created_at: string;
+  error_code: string | null;
+  generated_at: string | null;
+  html_sha256: string | null;
+  id: string;
+  language: 'fa';
+  status: ReportInfoStatus;
+}
+
+export interface ReportRequest {
+  analysis_run_id: string;
+  asset_id: string;
+  language?: 'fa';
 }
 
 export type RunInfoConfig = { [key: string]: unknown };
@@ -3255,6 +3288,288 @@ export function useGetRegion<TData = Awaited<ReturnType<typeof getRegion>>, TErr
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetRegionQueryOptions(regionId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateScreeningReportUrl = () => {
+
+
+
+
+  return `/api/v1/reports`
+}
+
+/**
+ * @summary Create Report
+ */
+export const createScreeningReport = async (reportRequest: ReportRequest, options?: Parameters<typeof apiFetch>[1]): Promise<ReportInfo> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return apiFetch<ReportInfo>(getCreateScreeningReportUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(reportRequest)
+  }
+);}
+
+
+
+
+
+export const getCreateScreeningReportMutationKey = () => ['createScreeningReport'] as const;
+
+export const getCreateScreeningReportMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createScreeningReport>>, TError,CreateScreeningReportMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createScreeningReport>>, TError,CreateScreeningReportMutationVariables, TContext> => {
+
+const mutationKey = getCreateScreeningReportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createScreeningReport>>, CreateScreeningReportMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createScreeningReport(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateScreeningReportMutationResult = NonNullable<Awaited<ReturnType<typeof createScreeningReport>>>
+    export type CreateScreeningReportMutationBody = ReportRequest
+    export type CreateScreeningReportMutationError = ErrorResponse
+    export type CreateScreeningReportMutationVariables = {data: ReportRequest}
+
+    /**
+ * @summary Create Report
+ */
+export const useCreateScreeningReport = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createScreeningReport>>, TError,CreateScreeningReportMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createScreeningReport>>,
+        TError,
+        CreateScreeningReportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateScreeningReportMutationOptions(options), queryClient);
+    }
+
+export const getGetScreeningReportUrl = (reportId: string,) => {
+
+
+
+
+  return `/api/v1/reports/${reportId}`
+}
+
+/**
+ * @summary Get Report
+ */
+export const getScreeningReport = async (reportId: string, options?: Parameters<typeof apiFetch>[1]): Promise<ReportInfo> => {
+
+  return apiFetch<ReportInfo>(getGetScreeningReportUrl(reportId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetScreeningReportQueryKey = (reportId: string,) => {
+    return [
+    `/api/v1/reports/${reportId}`
+    ] as const;
+    }
+
+
+export const getGetScreeningReportQueryOptions = <TData = Awaited<ReturnType<typeof getScreeningReport>>, TError = ErrorResponse>(reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetScreeningReportQueryKey(reportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getScreeningReport>>> = ({ signal }) => getScreeningReport(reportId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: reportId !== null && reportId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetScreeningReportQueryResult = NonNullable<Awaited<ReturnType<typeof getScreeningReport>>>
+export type GetScreeningReportQueryError = ErrorResponse
+
+
+export function useGetScreeningReport<TData = Awaited<ReturnType<typeof getScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScreeningReport>>,
+          TError,
+          Awaited<ReturnType<typeof getScreeningReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScreeningReport<TData = Awaited<ReturnType<typeof getScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScreeningReport>>,
+          TError,
+          Awaited<ReturnType<typeof getScreeningReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScreeningReport<TData = Awaited<ReturnType<typeof getScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Report
+ */
+
+export function useGetScreeningReport<TData = Awaited<ReturnType<typeof getScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetScreeningReportQueryOptions(reportId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDownloadScreeningReportUrl = (reportId: string,) => {
+
+
+
+
+  return `/api/v1/reports/${reportId}/download`
+}
+
+/**
+ * @summary Download Report
+ */
+export const downloadScreeningReport = async (reportId: string, options?: Parameters<typeof apiFetch>[1]): Promise<unknown> => {
+
+  return apiFetch<unknown>(getDownloadScreeningReportUrl(reportId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadScreeningReportQueryKey = (reportId: string,) => {
+    return [
+    `/api/v1/reports/${reportId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadScreeningReportQueryOptions = <TData = Awaited<ReturnType<typeof downloadScreeningReport>>, TError = ErrorResponse>(reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadScreeningReportQueryKey(reportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadScreeningReport>>> = ({ signal }) => downloadScreeningReport(reportId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: reportId !== null && reportId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadScreeningReportQueryResult = NonNullable<Awaited<ReturnType<typeof downloadScreeningReport>>>
+export type DownloadScreeningReportQueryError = ErrorResponse
+
+
+export function useDownloadScreeningReport<TData = Awaited<ReturnType<typeof downloadScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadScreeningReport>>,
+          TError,
+          Awaited<ReturnType<typeof downloadScreeningReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadScreeningReport<TData = Awaited<ReturnType<typeof downloadScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadScreeningReport>>,
+          TError,
+          Awaited<ReturnType<typeof downloadScreeningReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadScreeningReport<TData = Awaited<ReturnType<typeof downloadScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Report
+ */
+
+export function useDownloadScreeningReport<TData = Awaited<ReturnType<typeof downloadScreeningReport>>, TError = ErrorResponse>(
+ reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadScreeningReport>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadScreeningReportQueryOptions(reportId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
