@@ -137,5 +137,10 @@ Country report `f05d92bd-6245-5594-b71a-4b681640e45c`:
 
 The [V2 MVP acceptance](acceptance.md) now includes report requests/downloads
 through the built Compose API and web with the existing host renderer.
-Containerized rendering remains separate work. Scientific angular-distortion
-validation remains open; these PDFs do not enable it.
+That checkpoint used a host renderer. Containerized rendering was accepted
+locally on 2026-09-10 in alpha.6: the dedicated worker rendered real railway
+report `cbc2f104-2837-5cdc-afaf-c99e96d3e59e` without a host renderer, with PDF
+SHA-256 `2fc8c059d7487ec80fdb124c614d2690bad50fa7c5465cd16887aed298bafd52`.
+The enforced limits and exact local-image packaging provenance are recorded in
+[delivery status](../operations/milestones.md#local-unveiling-preparation--2026-09-10).
+Scientific angular-distortion validation remains open; these PDFs do not enable it.

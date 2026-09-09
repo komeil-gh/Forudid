@@ -15,8 +15,8 @@ Published exposure reads now recheck the source product in the shared resolver,
 so withdrawing a product hides its profile, segments and all download formats.
 The report queue reclaims interrupted processing only while holding its exclusive
 session lock. Its metadata session closes before object reads and rendering.
-A dedicated, resource-limited Compose report worker has been added; final
-container acceptance is pending the dependency-image build.
+A dedicated, resource-limited Compose report worker has been added and passed
+the local container acceptance described below.
 
 About and methodology content now load on demand. The production entry JavaScript
 fell from 739.36 kB (228.77 kB gzip) to 404.41 kB (125.43 kB gzip). This is an
@@ -37,9 +37,34 @@ and host report worker. It covers actual source/asset/region navigation, real
 pixels and epochs, date changes, URL reload, unavailable sources, tile failures
 and PDF checksums. The event contract test uses isolated browser responses;
 the real event-catalog test confirms the catalog is empty. Desktop/mobile map,
-methodology, About and PDF pages were visually inspected. This does not replace
-the pending container-worker acceptance. Public release, scientific validation
-and V3 milestone completion remain separate gates in the coverage ledger.
+methodology, About and PDF pages were visually inspected. Public release,
+scientific validation and V3 milestone completion remain separate gates in the
+coverage ledger.
+
+The complete local Compose stack then became healthy and passed 10 further
+desktop/mobile checks through `127.0.0.1:58080`. With no host API or report worker
+running, the container rendered a new report for real OSM way `1459082285`:
+`cbc2f104-2837-5cdc-afaf-c99e96d3e59e`, PDF SHA-256
+`2fc8c059d7487ec80fdb124c614d2690bad50fa7c5465cd16887aed298bafd52`.
+The PDF was downloaded, checked against its API checksum and visually inspected.
+The runtime manifest records Chromium `152.0.7977.82`, Node `v22.22.3` and
+Playwright `1.62.1`. API and worker renderer/template/font hashes match; the API
+image contains no Chromium. The worker runs as UID 10001 with 0.5 CPU and
+768 MiB limits, zero restarts and no OOM kill at this checkpoint.
+
+Packaging provenance: repeated slow Chromium downloads prevented completion of
+the final cold build. The tested images instead reuse existing local dependency
+runtimes with the current source copied in and `uv sync --frozen --no-dev --offline`
+completed successfully. The web image packages the already tested production
+frontend output in Caddy. No dependencies were relaxed. This validates these
+local artifacts and Compose behavior, not a clean-machine rebuild or remote CI.
+The regular source Dockerfiles remain the clean-build path.
+
+| Local image | SHA-256 |
+| --- | --- |
+| API and initializer | `3a760dda6008ef0bd27a6481107ba0bf3358de2506cdff2f280425c1ddc4da0e` |
+| Report worker | `72bd03add111b58b88e7dfe1ee34b791c935e9318d6e44c6d7a9694a99bdf7f5` |
+| Web | `526f27fe1227c9ef4ec0c20073e4d205a6c6c0c2dc47bd9077cafd7b3af7fa2b` |
 
 ## Current data and map update — 2026-09-09
 
