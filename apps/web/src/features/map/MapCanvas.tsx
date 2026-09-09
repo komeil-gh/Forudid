@@ -1,29 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Map, { Layer, Marker, NavigationControl, Source, type MapRef } from 'react-map-gl/maplibre'
+import Map, { Layer, Marker, NavigationControl, ScaleControl, Source, type MapRef } from 'react-map-gl/maplibre'
 import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { Crosshair } from 'lucide-react'
 import { defaultSearch, type MapSearch } from '../../lib/search'
-import type { ProductInfo, LineGeometry, RegionFeature, MultiPolygonGeometry } from '../../generated/api/forudid'
+import type { ProductInfo, LineGeometry, RegionFeature, MultiPolygonGeometry, PopulationSource } from '../../generated/api/forudid'
 import { apiBase } from '../../lib/api'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
+import { MapContext, PlaceSearch } from './MapContext'
+import './modes.css'
 
 maplibre.setWorkerUrl(workerUrl)
+maplibre.setMaxParallelImageRequests(2)
 
-const grid = { type: 'FeatureCollection' as const, features: [
-  ...Array.from({ length: 21 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
-    type: 'LineString' as const, coordinates: [[43 + i, 24], [43 + i, 40]],
-  } })), ...Array.from({ length: 17 }, (_, i) => ({ type: 'Feature' as const, properties: {}, geometry: {
-    type: 'LineString' as const, coordinates: [[43, 24 + i], [63, 24 + i]],
-  } })),
-] }
 const localStyle: maplibre.StyleSpecification = {
   version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
-    paint: { 'background-color': '#eaf0f3' } }],
+    paint: { 'background-color': '#dbe9ed' } }],
 }
-export function MapCanvas({ state, product, style, update, selectPoint, selectedGeometry, profilePoint, region, eventGeometry, inspectEnabled = true }:
+export function MapCanvas({ state, product, population, style, update, selectPoint, selectedGeometry, profilePoint, region, eventGeometry, inspectEnabled = true }:
   { state: MapSearch; product?: ProductInfo; style?: string;
+    population?: PopulationSource;
     selectedGeometry?: LineGeometry;
     region?: RegionFeature;
     eventGeometry?: MultiPolygonGeometry; inspectEnabled?: boolean;
@@ -34,6 +31,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   const [error, setError] = useState('')
   const [basemapFailed, setBasemapFailed] = useState(false)
   const [vectorError, setVectorError] = useState(false)
+  const [tileAttempt, setTileAttempt] = useState(0)
   const [supported] = useState(() => {
     const gl = document.createElement('canvas').getContext('webgl2')
     gl?.getExtension('WEBGL_lose_context')?.loseContext()
@@ -65,6 +63,7 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
   }, [state.lon, state.lat, state.z, state.bearing, state.pitch])
   if (!supported) return <div role="alert" className="status">{m.webgl}</div>
   const bbox = product?.bbox
+  const resetBounds = state.mode === 'population' ? population?.bounds : bbox
   const area = { type: 'FeatureCollection' as const, features: bbox ? [{ type: 'Feature' as const,
     properties: {}, geometry: { type: 'Polygon' as const, coordinates: [[[bbox[0], bbox[1]], [bbox[2], bbox[1]],
       [bbox[2], bbox[3]], [bbox[0], bbox[3]], [bbox[0], bbox[1]]]] } }] : [] }
@@ -72,15 +71,18 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
     <Map ref={ref} mapLib={maplibre} initialViewState={{ longitude: state.lon, latitude: state.lat,
       zoom: state.z, bearing: state.bearing, pitch: state.pitch }}
       mapStyle={sourceUrl && !basemapFailed ? sourceUrl : localStyle}
-      attributionControl={{ compact: true, customAttribution: import.meta.env.VITE_BASEMAP_ATTRIBUTION || m.noBasemap }}
+      attributionControl={{ compact: true, customAttribution: import.meta.env.VITE_BASEMAP_ATTRIBUTION || '© OpenStreetMap contributors · ODbL' }}
       onMoveEnd={e => update({ lon: e.viewState.longitude, lat: e.viewState.latitude,
         z: e.viewState.zoom, bearing: e.viewState.bearing, pitch: e.viewState.pitch })}
       onLoad={({ target }) => {
         fitSelection()
-        const attribution = target.getContainer().querySelector('.maplibregl-ctrl-attrib')
+        const attribution = target.getContainer().querySelector<HTMLDetailsElement>('.maplibregl-ctrl-attrib')
         const region = target.getContainer().closest<HTMLElement>('.map-region')
         if (attribution && region) {
-          const observer = new ResizeObserver(() => region.style.setProperty('--attribution-height', `${attribution.getBoundingClientRect().height}px`))
+          attribution.open = false
+          attribution.classList.remove('maplibregl-compact-show')
+          attribution.dir = 'ltr'
+          const observer = new ResizeObserver(() => region.style.setProperty('--attribution-height', `${Math.min(44, attribution.getBoundingClientRect().height)}px`))
           observer.observe(attribution)
           target.once('remove', () => observer.disconnect())
         }
@@ -94,20 +96,19 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       onError={e => { if (('sourceId' in e && String(e.sourceId).startsWith('infra-')) || e.error.message.includes('/vector/')) {
         setVectorError(true); return
       }
-      console.error(e.error); if (sourceUrl && !basemapFailed) {
+      console.error(e.error); const rasterError = ('sourceId' in e && ['scientific-raster', 'population-raster'].includes(String(e.sourceId))) || e.error.message.includes('/tiles/')
+      if (sourceUrl && !basemapFailed && !rasterError) {
         setBasemapFailed(true); setError(m.basemapError)
       } else setError(m.tileError) }}>
-      <NavigationControl position="top-left" showCompass />
+      <NavigationControl position="top-right" showCompass />
+      <ScaleControl position="bottom-right" unit="metric" />
       <Layer id="raster-top" type="background" paint={{ 'background-opacity': 0 }} />
-      {!sourceUrl && <Source id="coordinate-grid" type="geojson" data={grid}>
-        <Layer id="grid-lines" type="line" paint={{ 'line-color': '#b8cbd5', 'line-width': 1,
-          'line-dasharray': [3, 4], 'line-opacity': 0.6 }} />
-      </Source>}
+      {(!sourceUrl || basemapFailed) && <MapContext state={state} />}
       {infrastructureKinds.map(kind => {
         const source = kind === 'railway' ? 'railways' : 'major_roads'
-        return <Source key={kind} id={`infra-${kind}-source`} type="vector"
+        return <Source key={`${kind}-${tileAttempt}`} id={`infra-${kind}-source`} type="vector"
           url={new URL(`/vector/${source}`, window.location.origin).href}>
-          <Layer id={`infra-${kind}`} type="line" source-layer={source}
+          <Layer id={`infra-${kind}`} type="line" source-layer={source} minzoom={6}
             paint={{ 'line-color': kind === 'railway' ? '#244953' : '#75694e',
               'line-width': ['interpolate', ['linear'], ['zoom'], 6, 1, 13, 3],
               'line-opacity': 0.7 }} />
@@ -122,12 +123,18 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
         <Layer id="event-fill" type="fill" paint={{ 'fill-color': '#176e79', 'fill-opacity': 0.2 }} />
         <Layer id="event-outline" type="line" paint={{ 'line-color': '#176e79', 'line-width': 2 }} />
       </Source>}
-      {asset && bbox && style && <Source key={asset.id} id="scientific-raster" type="raster"
+      {state.mode !== 'population' && asset && bbox && style && <Source key={`${asset.id}-${tileAttempt}`} id="scientific-raster" type="raster"
         attribution={attribution}
         tiles={[`${apiBase}/tiles/${asset.id}/{z}/{x}/{y}.png?style=${style}`]}
-        tileSize={256} minzoom={0} maxzoom={18} bounds={bbox as [number, number, number, number]}>
+        tileSize={256} minzoom={0} maxzoom={14} bounds={bbox as [number, number, number, number]}>
         <Layer id="scientific-layer" type="raster" beforeId="raster-top" paint={{ 'raster-opacity': state.opacity,
           'raster-resampling': 'nearest', 'raster-fade-duration': 0 }} />
+      </Source>}
+      {state.mode === 'population' && population && <Source key={`${population.source_version_id}-${tileAttempt}`} id="population-raster" type="raster"
+        attribution={`WorldPop ${population.population_year} · CC BY 4.0`}
+        tiles={[`${apiBase}${population.tile_template}`]} tileSize={256} minzoom={0} maxzoom={10}
+        bounds={population.bounds as [number, number, number, number]}>
+        <Layer id="population-layer" type="raster" beforeId="raster-top" paint={{ 'raster-opacity': state.opacity, 'raster-resampling': 'nearest', 'raster-fade-duration': 0 }} />
       </Source>}
       <Source id="aoi" type="geojson" data={area}><Layer id="aoi-outline" type="line"
         paint={{ 'line-color': '#176e79', 'line-width': 1.5 }} /></Source>
@@ -143,9 +150,16 @@ export function MapCanvas({ state, product, style, update, selectPoint, selected
       {profilePoint && <Marker longitude={profilePoint.lon} latitude={profilePoint.lat}>
         <span className="point-marker" data-testid="profile-map-marker"><Crosshair size={26} /></span></Marker>}
     </Map>
-    {error && <p className="map-warning" role="alert">{error}</p>}
-    {vectorError && state.infrastructure !== 'none' && <p className="map-warning" role="alert">{language === 'fa' ? 'لایهٔ زیرساخت در دسترس نیست؛ دادهٔ تغییرشکل مستقل نمایش داده می‌شود.' : 'The infrastructure layer is unavailable; deformation data remain independently visible.'}</p>}
-    <div className="map-tools"><Button aria-label={m.reset} onClick={() => update({ lon: defaultSearch.lon, lat: defaultSearch.lat, z: defaultSearch.z, pitch: 0, bearing: 0 })}><Crosshair size={19} /></Button>
+    <PlaceSearch update={update} />
+    {(error || (vectorError && state.infrastructure !== 'none')) && <div className="map-warning" role="alert">
+      {error && <p>{error}</p>}
+      {vectorError && state.infrastructure !== 'none' && <p>{language === 'fa' ? 'لایهٔ زیرساخت در دسترس نیست؛ دادهٔ تغییرشکل مستقل نمایش داده می‌شود.' : 'The infrastructure layer is unavailable; deformation data remain independently visible.'}</p>}
+      <Button onClick={() => { setError(''); setVectorError(false); setTileAttempt(value => value + 1) }}>{m.retry}</Button>
+    </div>}
+    <div className="map-tools"><Button aria-label={language === 'fa' ? 'نمای کامل منبع' : 'Fit source footprint'} onClick={() => {
+      if (resetBounds && ref.current) ref.current.fitBounds(resetBounds as [number, number, number, number], { padding: 45, maxZoom: 12, duration: 0, pitch: 0, bearing: 0 })
+      else update({ lon: defaultSearch.lon, lat: defaultSearch.lat, z: defaultSearch.z, pitch: 0, bearing: 0 })
+    }}><Crosshair size={19} /></Button>
       {inspectEnabled && <Button onClick={() => selectPoint(state.lon, state.lat)}>{m.inspectCenter}</Button>}</div>
   </div>
 }

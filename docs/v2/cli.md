@@ -10,7 +10,7 @@ forudid data list
 forudid data list --source SOURCE_UUID --limit 20
 forudid data ingest-subsidence SOURCE_DIRECTORY --normalized COG_DIRECTORY
 forudid data ingest-osm SOURCE_DIRECTORY
-forudid data ingest-population SOURCE_DIRECTORY
+forudid data ingest-population SOURCE_DIRECTORY --year 2026
 
 forudid analyze asset --asset ASSET_UUID --deformation-product PRODUCT_UUID \
   --source-version OSM_VERSION_UUID --raster RATE_COG
@@ -25,6 +25,7 @@ forudid report region --analysis-run POPULATION_ANALYSIS_UUID --region REGION_UU
 ```
 
 Use the project runner before `forudid` when its virtual environment is not active.
+Population ingestion defaults to 2026; use `--year 2020` for the retained historical source.
 Source commands acquire the pinned versions documented in the source registry;
 they are not arbitrary dataset importers. Keep the original directories for
 checksum verification and resumability. The subsidence command acquires,

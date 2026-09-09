@@ -1,44 +1,56 @@
-# معماری نسخهٔ محلی
+# Local platform architecture
 
-React 19 / Vite 8 یک SPA ایستا می‌سازند. Router و Zod وضعیت قابل اشتراک را در URL،
-Query دادهٔ remote را در cache و React وضعیت گذرای dialogها را نگه می‌دارند.
-پنل راست لایه و پنل پایین نقطه روی موبایل به sheet تبدیل می‌شوند.
+React 19 and Vite 8 build a static SPA. TanStack Router and Zod keep validated,
+shareable state in the URL; Query caches remote data; React holds transient dialog
+state. Desktop layer and point panels become sheets on mobile.
 
-FastAPI قرارداد typed را صادر می‌کند و Orval 8 کلاینت و hookها را می‌سازد.
-PostGIS مرجع metadata است؛ objectها در S3 خصوصی هستند. TiTiler در API mount شده و
-فقط route محدود به asset منتشرشده دارد. rescale و colormap از همان registry که legend
-را تولید می‌کند می‌آیند. نواحی NoData و ماسک در COG شفاف هستند.
+FastAPI exports the typed contract and Orval 8 generates the client and hooks.
+PostGIS is the metadata authority. Objects are private in S3-compatible storage.
+TiTiler serves only published asset identifiers. Raster rescaling and colour maps
+share the server registry that supplies legends. COG masks keep NoData transparent.
+The verified population-source API separately serves native counts and population
+tiles; a population year does not change the historical deformation period.
 
-## مرز fixture
+The local map uses generalized Natural Earth country context and a place index
+extracted from the pinned OSM snapshot. These display layers are not analysis
+boundaries. National infrastructure remains Martin MVT, rather than browser-side
+national GeoJSON. Population selection is retained across the map and region page.
 
-`forudid_api.seed` تنها مولد دادهٔ ساختگی است؛ پردازشگر علمی نیست. دادهٔ زمانی این مرحله
-یک cube کوچک JSON است، مطابق اجازهٔ مرحلهٔ fixture در سند. برای cube واقعی از Zarr 3
-با خواندن chunk استفاده خواهد شد. آرشیو واقعی MintPy باید HDF5 خود را نگه دارد.
+## Fixture boundary
 
-API وابستگی‌های سنگین MintPy، Conda و محیط HyP3 را ندارد. Rasterio وابستگی TiTiler است.
-worker فعلی فقط فرمان one-shot fixture را اجرا می‌کند و workflow engine ندارد.
+`forudid_api.seed` generates synthetic test data, not scientific processing output.
+Its temporal input is a small JSON cube, as allowed for the fixture stage. A real
+cube requires chunked Zarr 3 access, and a real MintPy archive must retain HDF5.
+The public API hides fixtures by default.
 
-## قراردادهای عملکرد و خطا
+The API environment excludes MintPy, Conda and HyP3 processing dependencies.
+Rasterio supports TiTiler and native sampling. Source ingestion and analysis use
+explicit foreground commands; the original Compose worker is the fixture command.
 
-- camera فقط در پایان حرکت در URL نوشته می‌شود؛ مختصات نقطه مستقل از camera هستند.
-- query نقطه شامل product/run و مختصات است؛ AbortSignal از Query تا fetch عبور می‌کند.
-- ECharts با moduleهای لازم و به‌شکل lazy بارگذاری می‌شود؛ MapLibre هم در route نقشه است.
-- API خطای عمومی فارسی و request ID می‌دهد و stack trace یا URI امضاشده را افشا نمی‌کند.
-- شکست سری زمانی، نقشه را متوقف نمی‌کند. شکست QC/summary مقدار بدون زمینهٔ کیفیت نشان نمی‌دهد.
-- فهرست محصول، AOI و assetها را به‌شکل دسته‌ای می‌خواند تا N+1 ایجاد نشود.
+## Performance and error contracts
 
-## وابستگی‌های اضافه‌شده و دلیل
+- Camera state enters the URL at the end of a move; selected-point coordinates remain independent.
+- Point query keys include product/run and coordinates. AbortSignal passes through Query to fetch.
+- ECharts loads lazily with the required modules. MapLibre loads with map routes.
+- API errors have a public Persian message and request ID; stack traces and signed URLs stay private.
+- A time-series failure does not stop the map. Failed QC/summary requests must not show unqualified values.
+- Product listing batches AOI and asset reads to avoid N+1 queries.
+- Population years select immutable source versions. Default analysis selection orders by population year, then publication time.
 
-| گروه | نقش و دلیل نیاز |
+## Dependencies and purpose
+
+| Group | Purpose |
 | --- | --- |
-| React، Vite، TypeScript، Tailwind | پشتهٔ صریح رابط ایستای سند |
-| TanStack Router/Query، Zod | URL معتبر، cache و لغو درخواست؛ React به‌تنهایی این قراردادها را تأمین نمی‌کند |
-| MapLibre، react-map-gl | نقشهٔ WebGL2 با tile؛ canvas ساده جای آن را نمی‌گیرد |
-| ECharts | نمودار زمانی با zoom، نقاط گمشده و uncertainty band |
-| Radix، shadcn button utilities | dialog دارای focus management و primitive یکدست |
-| Vazirmatn، Lucide | فونت فارسی self-host و آیکون‌های معنایی |
-| FastAPI/Pydantic، SQLAlchemy/Alembic، psycopg/GeoAlchemy | API و migrationهای typed و PostGIS |
-| TiTiler، boto3، PySTAC با validation | COG، S3 استاندارد و اعتبارسنجی رسمی metadata |
-| Orval، Vitest/RTL، Playwright، Ruff/Pyright/pytest | تولید قرارداد و آزمون‌های صریح سند |
+| React, Vite, TypeScript, Tailwind | The specified static frontend stack |
+| TanStack Router/Query, Zod | Validated URLs, caching and cancellation |
+| MapLibre, react-map-gl | WebGL2 tile map and interaction |
+| ECharts | Temporal plots, zoom, missing observations and uncertainty bands |
+| Radix and button utilities | Accessible dialogs, focus management and consistent primitives |
+| Self-hosted Persian fonts, Lucide | Persian typography and semantic icons |
+| FastAPI/Pydantic, SQLAlchemy/Alembic, psycopg/GeoAlchemy | Typed API, migrations and PostGIS |
+| TiTiler, boto3, PySTAC validation | COG, S3 and standard metadata validation |
+| Orval, Vitest, Playwright, Ruff, Pyright, pytest | Contract generation and verification |
 
-هیچ‌یک از workflow engine، احراز هویت، Redis، deck.gl، alert یا دامنهٔ عمومی اضافه نشده است.
+Operational authentication, notifications, automated workflows and public hosting
+are not established by the existing V2/V3 foundation. See the version-specific
+audits for requirements and their actual implementation state.

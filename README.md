@@ -1,92 +1,108 @@
 # فرودید | FORUDID
 
-WebGIS محلی برای مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، با منبع و نسخهٔ قابل ردیابی.
+A local platform for ground-deformation evidence, infrastructure exposure and
+population analysis in Iran, with traceable sources and immutable versions.
+The product interface is Persian-first with English support.
 
-## مسیر V2
+## Implementation and specification coverage
 
-[سند V2](docs/v2/MASTER_SPEC.md) مسیر توسعه را به تحلیل مواجههٔ زیرساخت و جمعیت با
-تغییرشکل گسترش می‌دهد. [ممیزی V1 و ترتیب اجرا](docs/v2/audit.md) و
-[تصمیم‌های معماری V2](docs/v2/adr/) مبنای این گذارند. رجیستری منبع و صفحهٔ `/sources`
-با فایل‌های واقعی Haghighi–Motagh پیاده‌سازی شده است؛ [شواهد این مرحله](docs/v2/source-registry.md)
-را ببینید. دو لایهٔ تاریخی واقعی روی نقشه منتشر شده‌اند؛
-[پذیرش محلی MVP نسخهٔ V2](docs/v2/acceptance.md) با دادهٔ واقعی ثبت شده است.
-V2 به تولید اختصاصی InSAR وابسته نخواهد بود و exposure را ریسک
-سازه معرفی نمی‌کند. وضعیت بررسی مرحلهٔ صفر در [گزارش آزمون](docs/v2/verification.md) است.
+[V2](docs/v2/MASTER_SPEC.md) extends the original WebGIS into infrastructure and
+population exposure analysis. The [V1 audit](docs/v2/audit.md), [V2 architectural
+decisions](docs/v2/adr/) and [local MVP acceptance](docs/v2/acceptance.md) record
+that development. MVP acceptance does not mean every master-specification
+requirement, scientific method or operational workflow has been completed.
+The [coverage ledger](docs/operations/specification-coverage.md) records the
+remaining requirements and the evidence needed to close them.
 
-## وضعیت نسخهٔ اجراشدنی
+The published Haghighi–Motagh data cover 2014–2020: estimated vertical subsidence
+rate and peak-to-peak seasonal amplitude. These are descending-LOS projections
+assuming negligible horizontal motion, not measurements of current conditions.
+The source does not provide pixel time series or uncertainty; the interface does
+not invent them. All three normalized COGs preserve the original base pixels and
+masks. See [normalization](docs/v2/raster-normalization.md). V1 fixtures remain
+available only for explicit software tests and are hidden by the default API.
 
-نسخهٔ `0.2.0` دادهٔ واقعی Haghighi–Motagh (۲۰۱۴–۲۰۲۰) را نمایش می‌دهد:
-نرخ فرونشست قائم برآوردشده و دامنهٔ قله‌تا‌قلهٔ فصلی. این‌ها تصویرکردن راستای دید نزولی
-با فرض ناچیزبودن حرکت افقی‌اند و وضعیت کنونی زمین را نشان نمی‌دهند.
-سری زمانی و عدم‌قطعیت پیکسلی در این منبع ارائه نشده‌اند؛ رابط هم آن‌ها را تولید نمی‌کند.
-هر سه COG با تمام پیکسل‌های فایل اصلی تطبیق داده شده‌اند؛ [شواهد](docs/v2/raster-normalization.md).
-دادهٔ ساختگی V1 فقط برای آزمون باقی مانده و در تنظیم پیش‌فرض API قابل مشاهده نیست.
-۱۳۳٬۱۱۵ قطعهٔ واقعی راه و راه‌آهن OSM وارد شده‌اند و با Martin روی نقشه قابل انتخاب‌اند؛
-[شواهد ورود زیرساخت](docs/v2/osm-infrastructure.md) و [نمایش برداری](docs/v2/vector-tiles.md).
-موتور مواجههٔ خطی و پروفایل متصل به نقشه آزموده شده‌اند و تحلیل هر ۱۲٬۷۲۲ قطعهٔ
-راه‌آهن و هر ۱۲۰٬۳۹۳ قطعهٔ راه اصلی با دادهٔ واقعی منتشر شده است؛ [روش و شواهد](docs/v2/line-exposure.md).
-فهرست `/assets` مرتب‌سازی، جست‌وجو، جزئیات قابل اشتراک و خروجی JSON/CSV/GeoJSON دارد؛
-[دامنه و شواهد خروجی‌ها](docs/v2/asset-exploration.md).
-جمعیت WorldPop سال ۲۰۲۰ در شبکهٔ حدود یک کیلومتر با حفظ شمار افراد وارد شده و
-برآورد کل ایران و مناطق تاریخی در صفحهٔ `/regions` قابل مشاهده است؛
-[روش، محدودیت‌ها و شواهد جمعیت](docs/v2/population-exposure.md) و
-[مرزهای تاریخی و مواجههٔ زیرساخت داخل آن‌ها](docs/v2/regions.md) را ببینید.
-نقشه سه حالت تغییرشکل، زیرساخت و جمعیت دارد؛ انتخاب محدوده و تحلیل با URL حفظ می‌شود.
-جدول قطعه‌بندی به هندسهٔ واقعی نقشه و نشانی قابل بازیابی متصل است؛
-گرادیان آزمایشی کل رستر و مقایسهٔ واقعی نمونهٔ مقاله در محیط پژوهشی اجرا شده‌اند؛
-[گرادیان](docs/v2/gradient-proxy.md)، [مقایسه و اختلاف‌ها](docs/v2/payne-2025-research.md).
-گزارش فارسی زیرساخت با PDF چهارصفحه‌ای واقعی، صف مستقل و دانلود قابل ردیابی آزموده شد؛
-[اجرا و شواهد گزارش](docs/v2/reports.md). گزارش تهران و محدودهٔ سراسری نیز با تحلیل‌های
-نسخه‌دار جمعیت و زیرساخت تولید و دانلود شده‌اند؛ [CLI یکپارچه](docs/v2/cli.md)
-ورود داده، تحلیل و گزارش را با همان موتورهای موجود اجرا می‌کند. پذیرش MVP محلی V2 انجام شد؛
-پذیرش علمی روش تفاضلی باز است و انتشار خطر فعال نیست.
+The separate [COMET Varamin source](docs/v2/comet-varamin.md) provides ascending
+LOS rates and 323 native displacement epochs from 2014-10-19 to 2026-07-31.
+Its real raster, reference pixel, point chart and source selection are connected.
+It covers one frame, remains independently unvalidated, and has no supplied
+pixel uncertainty or temporal coherence. Its redistribution terms remain an
+explicit public-deployment gate.
 
-## آغاز V3
+The imported OSM snapshot contains 12,722 railway ways and 120,393 major-road
+ways. Both complete line analyses are published. Martin serves vector tiles;
+`/assets` provides search, ranking, shareable details, profiles, segment selection
+and JSON/CSV/GeoJSON downloads. See [infrastructure](docs/v2/osm-infrastructure.md),
+[vector tiles](docs/v2/vector-tiles.md), [line analysis](docs/v2/line-exposure.md)
+and [asset exploration](docs/v2/asset-exploration.md).
 
-پس از پذیرش V2، نسخهٔ `0.3.0-alpha.1` مدل رخداد، تاریخچهٔ تغییرات، مشاهدات و شواهد
-را اضافه می‌کند؛ [دامنه و آزمون‌ها](docs/v3/event-foundation.md) و
-[ممیزی پیش‌نیازها](docs/v3/audit.md). فهرست رخداد واقعی فعلاً خالی است؛
-رستر تاریخی به رخداد تازه تبدیل نمی‌شود. در `0.3.0-alpha.3` صفحهٔ `/events`،
-نقشهٔ رخداد، تاریخچه، مشاهدات و شواهد به API متصل‌اند؛
-[پذیرش رابط](docs/v3/event-ui.md). اتصال مشاهدهٔ عملیاتی مرحلهٔ بعدی است.
+WorldPop 2026 R2025A v1 is registered alongside the preserved 2020 source. It is an
+alpha, constrained, UN-adjusted model estimate/projection produced in 2025, not a
+2026 census. Its verified native raster sums to 92,814,664.024 estimated people.
+The population map, native-cell inspection and exposure API select source versions
+explicitly; the default source is the latest registered population year. Country and all 31 historical-region analyses are published. Ten real map/population
+browser cases passed on desktop and mobile. Historical
+2020 country and all 31 regional results remain reproducible. See [population
+methods and evidence](docs/v2/population-exposure.md) and [regions](docs/v2/regions.md).
 
-## اجرای محلی
+Two further WorldPop 2026 analyses use the COMET LOS product independently:
+1,657,239.329 estimated people within valid source coverage across the country,
+and 1,636,661.777 within the historical Tehran boundary. Signed numerical bands
+retain LOS meaning. These counts are not hazard populations. The regional result
+uses the separately versioned `ellipsoid-cell-overlap-2` method; existing
+`ellipsoid-cell-overlap-1` code and results remain unchanged.
 
-پیش‌نیاز: Docker Desktop/Engine با Compose، Python برای ساخت تنظیمات اولیه.
+Experimental full-raster gradients and a real Payne-paper example have been run;
+[gradient](docs/v2/gradient-proxy.md) and [research comparison](docs/v2/payne-2025-research.md)
+record the limitations and unresolved differences. No structural hazard or safety
+classification is enabled. Persian infrastructure, regional and country PDFs pin
+their analysis inputs. The [CLI](docs/v2/cli.md) calls the same source, analysis and
+[report](docs/v2/reports.md) implementations.
+
+The V3 foundation includes append-only event history, observations and evidence,
+read APIs, an experimental statistical detector, and `/events` list/detail/map
+views. See [foundation](docs/v3/event-foundation.md), [detector](docs/v3/statistical-detector.md),
+[interface](docs/v3/event-ui.md) and [audit](docs/v3/audit.md). No real operational
+event has yet been established. Historical deformation is not a current event.
+Real NISAR metadata discovery is documented separately from measurement ingestion.
+
+## Local execution
+
+Prerequisites: Docker Desktop/Engine with Compose and Python for initial settings.
 
 ```sh
 python3 scripts/init_env.py
 docker compose up --build
 ```
 
-اسکریپت اول رمزهای تصادفی محلی می‌سازد و `.env` موجود را دست نمی‌زند. هیچ رمز یا
-فایل `.env` نباید commit شود. `.env.example` فقط نام متغیرها را دارد.
+The initialization script generates random local credentials and preserves an
+existing `.env`. Never commit credentials or `.env`; `.env.example` lists settings.
+The one-shot `initialize` service runs forward migrations and creates the private
+bucket. It does not automatically seed fixtures. The API does not migrate on startup.
 
-یک سرویس موقت `initialize` migrationهای رو به جلو و ساخت bucket خصوصی را اجرا می‌کند؛
-دادهٔ ساختگی به‌صورت خودکار تولید نمی‌شود. برای دادهٔ واقعی، مراحل ورود منبع پایین را اجرا کنید.
-API هنگام startup خود migration انجام نمی‌دهد. مسیرهای محلی بعد از آماده‌شدن stack:
+After the stack is ready:
 
-- [نقشهٔ محلی](http://localhost:58080/map)
-- [منابع داده](http://localhost:58080/sources)
-- [جمعیت و مناطق](http://localhost:58080/regions)
-- [سلامت API](http://localhost:58080/health/ready)
+- [Map](http://localhost:58080/map)
+- [Sources](http://localhost:58080/sources)
+- [Population and regions](http://localhost:58080/regions)
+- [API readiness](http://localhost:58080/health/ready)
 
-`LOCAL_PORT` پورت ورودی، `API_PORT` پورت API، `DB_PORT` پورت PostGIS و `S3_PORT`
-پورت S3 هستند؛ مقادیر لینک‌های بالا پیش‌فرض اسکریپت‌اند و قابل تغییرند.
-همهٔ پورت‌ها به `127.0.0.1` محدودند. frontend فقط مسیرهای همان origin را مصرف می‌کند.
+`LOCAL_PORT`, `API_PORT`, `DB_PORT` and `S3_PORT` configure the proxy, API, PostGIS
+and object-storage ports. These links use initialization defaults. All exposed
+ports bind to `127.0.0.1`; the frontend uses same-origin routes.
 
 ```sh
 docker compose down
 ```
 
-این دستور سرویس‌های همین پروژه را متوقف می‌کند و volumeهای داده را نگه می‌دارد.
-اگر هم‌زمان پروژهٔ دیگری context را تغییر می‌دهد، context مربوط به این stack را در هر
-دستور صریح بنویسید؛ مثلاً `docker --context desktop-linux compose up --build`.
-برای پاک‌کردن volumeها از `-v` استفاده نکنید مگر واقعاً قصد حذف داده را داشته باشید.
+This stops the project's services and preserves data volumes. Use an explicit
+context when other projects may change it, for example
+`docker --context desktop-linux compose up --build`. Do not use `down -v` unless
+permanent data deletion is intended. Stop foreground development servers with Ctrl+C.
 
-## توسعه خارج از کانتینر
+## Development outside containers
 
-Node 22.12+، pnpm 11.24.0، uv و Python 3.13 لازم‌اند.
+Use Node 22.12+, pnpm 11.24.0, uv and Python 3.13.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -96,20 +112,20 @@ uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
 uv run --project apps/api python -m forudid_api.initialize
 ```
 
-در دو ترمینال، از ریشهٔ مخزن اجرا کنید:
+Run these in separate terminals from the repository root:
 
 ```sh
 uv run --project apps/api uvicorn forudid_api.main:app --host 127.0.0.1 --port 58000
 pnpm dev
 ```
 
-پورت CLI مربوط به uvicorn را با `API_PORT` و `VITE_API_PROXY_TARGET` هماهنگ کنید.
-Vite، `WEB_PORT` و proxy target را از `.env` ریشه می‌خواند.
-پیش‌فرض frontend توسعه [نقشه](http://localhost:5173/map) است.
-هر دو سرور با Ctrl+C بسته می‌شوند. برای شبکهٔ زیرساخت، Martin 1.15.0 را طبق
-[راهنمای برداری](docs/v2/vector-tiles.md) در ترمینال سوم اجرا و در پایان با Ctrl+C متوقف کنید.
+Match the uvicorn port to `API_PORT` and `VITE_API_PROXY_TARGET`. Vite reads
+`WEB_PORT` and proxy settings from the root `.env`; its default [map](http://localhost:5173/map)
+is on port 5173. For infrastructure, run Martin 1.15.0 as described in the
+[vector guide](docs/v2/vector-tiles.md). Stop all servers started for development
+when finished, without stopping unrelated user processes.
 
-## بررسی‌ها
+## Verification
 
 ```sh
 uv run --project apps/api ruff check apps/api/src apps/api/tests
@@ -123,44 +139,40 @@ pnpm --filter @forudid/web exec playwright install chromium
 pnpm test:e2e
 ```
 
-آزمون‌های قدیمی API به PostGIS و S3 همین پروژه و اجرای صریح `python -m forudid_api.seed`
-نیاز دارند؛ مجوز دیدن fixture فقط داخل همان آزمون‌ها فعال می‌شود. آزمون مرورگر به دو سرور توسعهٔ بالا
-نیاز دارد. برای آزمون build Compose از `WEB_BASE_URL=http://localhost:58080` استفاده کنید.
-در صورت نبود Chromium تست و وجود Chrome نصب‌شده، `PLAYWRIGHT_CHANNEL=chrome` را تنظیم کنید؛
-Playwright از پروفایل موقت استفاده می‌کند. اسکرین‌شات‌ها در `/tmp/forudid-qa` قرار می‌گیرند.
+Legacy API tests need this project's PostGIS/S3 and explicit
+`python -m forudid_api.seed`; fixture visibility is enabled only inside those tests.
+Browser checks need running servers. Use `WEB_BASE_URL=http://localhost:58080`
+for the built Compose stack. If test Chromium is unavailable, installed Chrome
+can be selected with `PLAYWRIGHT_CHANNEL=chrome`; it uses a temporary profile.
+Screenshots go to `/tmp/forudid-qa`. Real 2026 checks use
+`FORUDID_POPULATION_2026_TESTS=1` after source registration and analysis publication.
 
-## ورود منبع واقعی V2
+## Real source ingestion
 
-پس از migration، از ریشهٔ مخزن اجرا کنید:
+After migration, run from the repository root:
 
 ```sh
 uv run --project apps/api python -m forudid_api.ingest data/sources/haghighi-motagh-2024/1.0.0
 uv run --project apps/api python -m forudid_api.register_source data/sources/haghighi-motagh-2024/1.0.0
 uv run --project apps/api python -m forudid_api.normalize data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
 uv run --project apps/api python -m forudid_api.publish_historical data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
-```
-
-فرمان اول سه رستر نسخهٔ ثابت Zenodo را دریافت و با MD5 منتشرشده تطبیق می‌دهد.
-فرمان دوم SHA-256 را دوباره بررسی، فایل‌ها را به‌صورت streaming در S3 خصوصی آرشیو
-و منبع و نسخه را اتمیک ثبت می‌کند. تکرار با محتوای یکسان همان شناسه را برمی‌گرداند؛
-تعارض checksum خطاست. فرمان سوم COGهای هم‌شبکه با اصل داده می‌سازد؛ فرمان چهارم
-پس از تطبیق پیکسل‌ها، دو لایهٔ واقعی را همراه STAC، کیفیت و provenance محلی منتشر می‌کند.
-برای آزمون‌های واقعی API و مرورگر، `FORUDID_REAL_SOURCE_TESTS=1` را تنظیم کنید.
-تنظیم `ALLOW_FIXTURE_PRODUCTS` در حالت عادی false است و نباید برای نمایش محصول فعال شود.
-فایل‌های حجیم در `data/` و S3 می‌مانند و وارد Git نمی‌شوند.
-صفحهٔ `/sources` فقط اطلاعات عمومی منبع و نسخه را نشان می‌دهد.
-
-## قرارداد API
-
-ورود زیرساخت واقعی پس از migration:
-
-```sh
 uv run --project apps/api python -m forudid_api.ingest_osm data/sources/geofabrik-iran/260904
+uv run --project apps/api forudid data ingest-population data/sources/worldpop-iran/2026-r2025a-77712 --year 2026
 ```
 
-آزمون‌های زیرساخت با `FORUDID_OSM_TESTS=1` و آزمون‌های سرویس برداری با
-`FORUDID_MARTIN_TESTS=1` فعال می‌شوند. دادهٔ OSM مربوط به ۲۰۲۶ است؛ هم‌زمانی آن با
-دادهٔ تغییرشکل تاریخی تأیید نشده و کامل‌بودن شبکه نیز تضمین نمی‌شود.
+Historical acquisition checks the three pinned Zenodo rasters against published
+MD5 values. Registration verifies SHA-256, streams originals into private storage
+and atomically records source/version metadata. Identical input is idempotent;
+a checksum conflict fails. Normalization retains the grid and base values;
+publication adds STAC, quality and provenance. Large originals remain in `data/`
+and S3, outside Git. `/sources` exposes only public source metadata.
+
+Use `FORUDID_REAL_SOURCE_TESTS=1`, `FORUDID_OSM_TESTS=1` and
+`FORUDID_MARTIN_TESTS=1` for their corresponding real-data checks. Keep
+`ALLOW_FIXTURE_PRODUCTS=false` for normal use. The 2026 OSM snapshot is not
+contemporaneous with 2014–2020 deformation and its completeness is unverified.
+
+## API contract
 
 ```sh
 uv run --project apps/api python scripts/export_openapi.py
@@ -168,29 +180,41 @@ pnpm generate:api
 git diff --exit-code -- docs/openapi.json apps/web/src/generated/api
 ```
 
-منبع حقیقت FastAPI است. فایل generated را دستی تغییر ندهید. CI همین همگامی را بررسی می‌کند.
+FastAPI is the contract authority. Regenerate the client instead of editing it.
+CI checks synchronization. Population source listing, native-cell sampling and
+tiles use verified source identifiers; exposure additionally accepts
+`population_version`, `region_id` and `run_id`.
 
-## نقشه و داده
+## Map and data contracts
 
-به‌صورت پیش‌فرض نقشهٔ پایهٔ خارجی وجود ندارد؛ شبکهٔ مختصاتی محلی و COG نمایش داده می‌شوند.
-`VITE_BASEMAP_STYLE_URL` و `VITE_BASEMAP_ATTRIBUTION` فقط پس از انتخاب provider دارای مجوز
-تنظیم شوند. Attribution پنهان نمی‌شود. WebGL2 لازم است.
+The default map has local Natural Earth geographic context and a source-pinned
+OSM place index. These generalized display features are not official boundaries
+or analysis inputs. National road and rail data use MVT. Population mode renders
+the actual population raster and exposes its year, source, logarithmic display
+scale and native approximately 1 km resolution. Zoom does not add data precision.
+`VITE_BASEMAP_STYLE_URL` and `VITE_BASEMAP_ATTRIBUTION` can select a properly
+licensed external provider. Attribution remains accessible. WebGL2 is required.
 
-دادهٔ fixture آزمون شامل ۶۴×۶۴ پیکسل، ۲۶ تاریخ و یک تاریخ گمشده است. نقطهٔ
-`51.6452, 35.3241` باید `-71.2 mm/year`، عدم قطعیت `6.0 mm/year` و coherence برابر `0.89`
-داشته باشد. تعداد مشاهدات معتبر ۲۵ است. کیفیت آن همیشه «نیازمند احتیاط» و ساختگی است.
+The explicit test fixture contains 64 × 64 pixels, 26 dates and one missing epoch.
+At `51.6452, 35.3241`, the expected fixture values are `-71.2 mm/year`, uncertainty
+`6.0 mm/year`, coherence `0.89` and 25 valid observations. Its quality is always
+caution and its data are synthetic.
 
-objectها با run ID ذخیره و پس از upload با SHA-256 بررسی می‌شوند. نوشتن با `If-None-Match`
-انجام می‌شود؛ خروجی موجود overwrite نمی‌شود. fixture اصلاح‌شده run جدید می‌سازد و محصول
-قبلی به `superseded` می‌رود. bucket خصوصی است. فقط asset منتشرشده از مسیر
-`/tiles/{asset_id}/{z}/{x}/{y}.png` قابل خواندن است؛ query تنها `style` را می‌پذیرد.
+Objects are written with `If-None-Match` and verified by SHA-256 after upload.
+Existing objects are never overwritten. A corrected fixture gets a new run and
+supersedes the old product. Buckets remain private. Published deformation tiles
+accept only the `style` query parameter; population tiles accept no query options.
+Arbitrary remote URLs, local paths and raster expressions are not accepted.
 
-## دامنه و ادامهٔ کار
+## Remaining scientific and operational work
 
-[سند اصلی](docs/MASTER_SPEC.md)، [معماری](docs/architecture/overview.md)،
-[وضعیت milestoneها](docs/operations/milestones.md)، [الزامات علمی](docs/science/validation.md)
-و [تصمیم‌ها](docs/adr) مسیر ادامه را مشخص می‌کنند.
+The [original specification](docs/MASTER_SPEC.md), [architecture](docs/architecture/overview.md),
+[milestones](docs/operations/milestones.md), [scientific requirements](docs/science/validation.md)
+and [ADRs](docs/adr/) retain the full requirements and historical decisions.
 
-پردازش واقعی HyP3/MintPy، محیط علمی Conda، آرشیو HDF5، انتشار Zarr و محصول واقعی Varamin LOS v1
-هنوز ارائه نشده‌اند. ترک 071 و اعداد fixture هیچ تأییدی برای انتخاب ترک واقعی نیستند.
-محصول علمی فقط پس از profile تکمیل‌شده، QC و تأیید دستی منتشر خواهد شد.
+Real HyP3/MintPy processing, the isolated scientific environment, HDF5/Zarr
+publication and a real Varamin LOS v1 product are not completed. Fixture track 071
+is not evidence for a real track choice. A scientific product needs a completed
+profile, QC and recorded manual review before publication. Operational V3 source
+measurements, evidence review and action workflows remain distinct requirements;
+the existence of a database schema or a page does not establish their completion.

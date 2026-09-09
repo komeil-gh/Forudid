@@ -1,48 +1,31 @@
-# شواهد مرحلهٔ صفر V2
+# V2 stage-zero verification
 
-تاریخ: ۲۰۲۶-۰۹-۰۵. این تغییر مستندات است و runtime یا migration جدید ندارد.
-worktree حین ممیزی تغییرات مستقل frontend داشت؛ نتایج زیر دربارهٔ زمان اجرای هر فرمان
-هستند و جای پذیرش commit نهایی آن تغییرات را نمی‌گیرند.
+Date: 2026-09-05. This historical checkpoint changed documentation only, with no new runtime or migration. Independent frontend edits were present during the audit. Results describe each command's execution time and do not accept the final commit of those concurrent changes.
 
-| بررسی | نتیجهٔ این نوبت |
+| Check | Result at this checkpoint |
 | --- | --- |
-| `pnpm lint` | موفق |
-| `pnpm typecheck` | موفق |
-| `pnpm test` | ۸ آزمون در ۴ فایل موفق |
-| Ruff | موفق |
-| Pyright | بدون خطا و هشدار |
-| pytest انتخابی | ۱۰ موفق، ۱ ناموفق، ۹ انتخاب‌نشده |
-| build | ناموفق؛ TS2307 برای module صفحهٔ methodology در worktree هم‌زمان |
-| Compose smoke | مسدود؛ Docker Desktop daemon در دسترس نیست |
-| مجموعهٔ کامل API/E2E | به‌دلیل نبود PostGIS/S3 اجرا نشده |
+| `pnpm lint` | Passed |
+| `pnpm typecheck` | Passed |
+| `pnpm test` | 8 tests in 4 files passed |
+| Ruff | Passed |
+| Pyright | No errors or warnings |
+| Selected pytest | 10 passed, 1 failed, 9 deselected |
+| Build | Failed: TS2307 for the concurrently edited methodology module |
+| Compose smoke | Blocked: Docker Desktop daemon unavailable |
+| Full API/E2E suite | Not run without PostGIS/S3 |
 
-## تفسیر pytest
+## Pytest interpretation
 
-انتخاب با عبارت `golden_cog or openapi or coordinate_validation or rejects_untrusted_options`
-انجام شد. مورد `test_tile_rejects_untrusted_options[style=coherence-default]` برخلاف
-queryهای ممنوع URL/path به محصول واقعی در PostGIS نیاز دارد. نبود اتصال باعث 503 به‌جای
-422 شد؛ این آزمون موفق اعلام نمی‌شود و با mock جایگزین نشده است. تطبیق OpenAPI، COG
-ساختگی و بررسی‌های مستقل ورودی در همین انتخاب موفق بودند.
+Selection used `golden_cog or openapi or coordinate_validation or rejects_untrusted_options`. Unlike forbidden URL/path queries, `test_tile_rejects_untrusted_options[style=coherence-default]` needs a real product in PostGIS. The unavailable connection returned 503 instead of 422. This was a failure and was not replaced with a mock. OpenAPI synchronization, the synthetic COG and independent input checks passed within the same selection.
 
-## محیط و دامنه
+## Environment and scope
 
-بررسی خواندنی `docker --context desktop-linux compose ps` با نبود اتصال daemon برگشت.
-restart مشترک از نوبت قبل مجوز نگرفته بود و در این ممیزی تکرار نشد. context فعال کاربر
-تغییر نکرد. هیچ dev server یا کانتینر در این مرحله راه‌اندازی نشده است.
+The read-only `docker --context desktop-linux compose ps` check could not connect to the daemon. A shared restart had not been authorized in the preceding turn and was not repeated during this audit. The user's active context remained unchanged. No development server or container was started for this stage.
 
-هنگام build، pnpm به‌علت تغییر هم‌زمان dependencyهای frontend وارد install شد و به
-محدودیت DNS سندباکس رسید. فرایند retry متوقف و dependencyهای lockfile با
-`pnpm install --frozen-lockfile` بازیابی شدند؛ package جدیدی برای V2 انتخاب نشد.
+During the build, concurrent dependency edits caused pnpm to install packages and encounter sandbox DNS restrictions. The retry process was stopped and lockfile dependencies restored with `pnpm install --frozen-lockfile`; no new V2 package was selected.
 
-پس از بازیابی dependency، build در `src/app/router.tsx` و `src/routes/content.test.tsx`
-با TS2307 متوقف شد: module `routes/methodology` هنگام آن اجرا پیدا نشد. نتیجهٔ موفق
-typecheck ابتدای ممیزی به معنی سلامت این وضعیت تازه نیست. فایل‌های محتوایی متعلق به
-ویرایش هم‌زمان‌اند و برای عبور مصنوعی از gate با نسخهٔ قدیمی جایگزین نشده‌اند.
+After recovery, the build failed with TS2307 in `src/app/router.tsx` and `src/routes/content.test.tsx`: `routes/methodology` was unavailable at that instant. The earlier successful typecheck did not establish correctness of the changed state. Concurrently owned content files were not replaced with older versions to force a passing check.
 
-## پذیرش و ادامه
+## Acceptance and continuation
 
-audit، ۹ ADR، سند اصلی V2 و اتصال README تحویل مستندات این مرحله‌اند. تمام migrationها
-و قابلیت‌های اجرایی V2 هنوز پیاده‌سازی‌نشده‌اند. gate کامل مرحلهٔ صفر باز است؛ پس از
-دسترسی به PostGIS/S3، ابتدا baseline V1 و Compose/E2E بررسی شوند و سپس مرحلهٔ ۱ و
-برش registry مرحلهٔ ۲ مطابق audit اجرا شوند. این وضعیت نه پذیرش V2 MVP است، نه
-اعتبارسنجی علمی dataset یا روش differential.
+The audit, nine ADRs, V2 master specification and README link were the documentation deliverables. At this checkpoint, all V2 migrations and runtime features remained unimplemented. Stage zero's complete execution gate remained open. Once PostGIS/S3 became available, the required next steps were baseline V1 and Compose/E2E verification, then stage 1 and the registry slice of stage 2. This record does not establish V2 MVP acceptance or scientific validation of a dataset or differential method. Later delivery evidence is recorded separately.

@@ -1,7 +1,7 @@
-# LOS و مرجع
+# LOS and reference
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-MVP فقط LOS است؛ sign convention، unit، reference و QC همراه محصول می‌آیند. Vertical نیازمند decomposition معتبر است.
+The V1 MVP exposes LOS only, accompanied by sign convention, unit, reference and QC. Vertical motion requires valid decomposition. The V2 external published-source exception is recorded in its separate ADR 0010.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

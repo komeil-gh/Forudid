@@ -1,7 +1,7 @@
-# توسعهٔ محلی
+# Localhost-first development
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-Compose و proxy روی localhost با پورت‌های قابل تنظیم؛ دامنه، TLS عمومی و deployment اینترنتی جزو این مرحله نیستند.
+Compose and the proxy run on localhost with configurable ports. Domains, public TLS and internet deployment are outside this stage.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

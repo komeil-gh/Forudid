@@ -1,183 +1,144 @@
-# ممیزی V1 برای FORUDID V2
+# V1 audit for FORUDID V2
 
-تاریخ بررسی: ۲۰۲۶-۰۹-۰۵. مبنا: `c250a67` / `v0.1.0` و تغییر صفحات محتوایی در
-`d0642f3` و `03e3417`. هنگام ممیزی، تغییرات مستقل دیگری در صفحات، CSS، نسخه‌ها و برند در worktree
-وجود داشتند؛ جزو این ممیزی نیستند و بازنویسی نمی‌شوند.
+Audit date: 2026-09-05. Baseline: `c250a67` / `v0.1.0`, with content-page changes in `d0642f3` and `03e3417`. Independent page, CSS, version and branding edits were present in the worktree and were outside this audit. This historical record preserves what was known then; later acceptance is documented separately.
 
-## نتیجه
+## Finding
 
-V1 یک WebGIS محلی با fixture ساختگی است، نه محصول علمی کامل ورامین. پشتهٔ آن برای V2
-قابل حفظ است؛ مدل محصول و نمونه‌برداری فعلی هنوز مستقل از منبع نیستند. مرحلهٔ صفر V2
-از نظر بررسی معماری و تصمیم‌ها مستند شده، اما gate کامل محیط اجرا باز است: Docker
-Desktop پاسخ اتصال نمی‌دهد. ساخت کاتالوگ مرحلهٔ ۲ نباید به‌عنوان پذیرفته‌شده اعلام شود
-تا migration و API روی PostGIS واقعی بررسی شوند.
+V1 was a local WebGIS using synthetic fixtures, not a complete scientific Varamin product. Its stack could be retained for V2, but product modeling and sampling were not yet source-independent. Stage-zero architecture and decisions were documented while runtime acceptance remained open: Docker Desktop was unreachable. Stage-two catalog delivery could not be accepted before migration and API checks on real PostGIS.
 
-سند [V2](MASTER_SPEC.md) مرجع قابلیت‌های جدید است. [سند V1](../MASTER_SPEC.md) و history
-حفظ می‌شوند. الزام قبلی به LOS و تولید HyP3/MintPy برای تمام محصولات، با ADR جدید
-اصلاح می‌شود؛ قواعد مرجع، عدم جعل داده، provenance و localhost باقی می‌مانند.
+The [V2 specification](MASTER_SPEC.md) defines new capabilities. Preserve [V1](../MASTER_SPEC.md) and history. New ADRs revise the requirement that every product be LOS generated through HyP3/MintPy, while reference integrity, real data, provenance and local-only development remain mandatory.
 
-## معماری موجود و مرزهای قابل حفظ
+## Existing architecture and retained boundaries
 
-| مسیر | مسئولیت فعلی | تصمیم V2 |
+| Path | Responsibility at audit time | V2 decision |
 | --- | --- | --- |
-| `apps/web/src/app/router.tsx` | SPA، shell، URL و صفحات | حفظ؛ افزودن routeها پس از API متناظر |
-| `apps/web/src/routes/map.tsx` | انتخاب محصول، لایه، نقطه و dialog | حفظ؛ افزودن mode و انتخاب source تدریجی |
-| `apps/web/src/features/map/MapCanvas.tsx` | MapLibre، raster و GeoJSON کوچک | حفظ؛ شبکهٔ ملی از Martin/MVT |
-| `apps/web/src/generated/api/forudid.ts` | کلاینت Orval از OpenAPI | فقط بازتولید، بدون ویرایش دستی |
-| `apps/api/src/forudid_api/main.py` | FastAPI خواندنی، خطا و request ID | حفظ؛ endpointهای کاتالوگ و نتایج اضافه شوند |
-| `apps/api/src/forudid_api/catalog.py` | کنترل انتشار محصول و asset | حفظ کنترل انتشار؛ افزودن منشأ خارجی |
-| `apps/api/src/forudid_api/tiles.py` | TiTiler محدود به asset ID | حفظ؛ برای kind/component جدید آگاهانه گسترش یابد |
-| `apps/api/src/forudid_api/points.py` | نمونه‌برداری fixture و سری زمانی | تعمیم پیش از ورود منبع خارجی؛ جزئیات پایین |
-| `apps/api/src/forudid_api/storage.py` | S3 خصوصی، checksum، immutable put | حفظ قرارداد؛ افزودن streaming برای فایل بزرگ |
-| `apps/api/src/forudid_api/seed.py` | fixture کوچک، COG و STAC | حفظ صرفاً برای regression V1 |
-| `compose.yml` و `infra/` | PostGIS، MinIO، initialize، API، web، Caddy | حفظ؛ Martin با viewهای صریح در مرحلهٔ ۵ |
+| `apps/web/src/app/router.tsx` | SPA shell, URLs and pages | Retain; add routes after corresponding APIs |
+| `apps/web/src/routes/map.tsx` | Product/layer/point selection and dialogs | Retain; add modes and source selection incrementally |
+| `apps/web/src/features/map/MapCanvas.tsx` | MapLibre raster and small GeoJSON | Retain; use Martin/MVT for national networks |
+| `apps/web/src/generated/api/forudid.ts` | Orval client from OpenAPI | Regenerate only |
+| `apps/api/src/forudid_api/main.py` | Read API, errors and request IDs | Retain; add catalog and result endpoints |
+| `apps/api/src/forudid_api/catalog.py` | Product/asset publication guards | Preserve gates and add external provenance |
+| `apps/api/src/forudid_api/tiles.py` | Asset-ID-restricted TiTiler | Extend deliberately for new kinds/components |
+| `apps/api/src/forudid_api/points.py` | Fixture and time-series sampling | Generalize before external ingestion |
+| `apps/api/src/forudid_api/storage.py` | Private S3, checksums, immutable writes | Preserve contract; add large-file streaming |
+| `apps/api/src/forudid_api/seed.py` | Small COG/STAC fixture | Retain only for V1 regression |
+| `compose.yml`, `infra/` | PostGIS, MinIO, initializer, API, web, Caddy | Retain; add explicitly exposed Martin views in stage 5 |
 
-React 19، Vite 8، TypeScript، TanStack، MapLibre 6، ECharts، Tailwind/Radix، FastAPI،
-SQLAlchemy/Alembic، TiTiler و object storage بازنویسی نمی‌شوند. HDF5 و Zarr مسیر انتشار
-آینده‌اند؛ cube فعلی JSON کوچک است. worker کنونی فقط seed است، نه موتور تحلیل علمی.
+Do not rewrite React 19, Vite 8, TypeScript, TanStack, MapLibre 6, ECharts, Tailwind/Radix, FastAPI, SQLAlchemy/Alembic, TiTiler or object storage. HDF5/Zarr remain future publication paths; the existing cube is small JSON. The existing worker only seeds fixtures and is not a scientific engine.
 
-## جدول‌های V1
+## V1 tables
 
-مرجع: `apps/api/src/forudid_api/db.py` و migration `98916efed35d_initial_catalog`.
-این فهرست از کد استخراج شده؛ وضعیت اعمال migration در دیتابیس این نوبت قابل بازخوانی نبود.
+Source: `apps/api/src/forudid_api/db.py` and migration `98916efed35d_initial_catalog`. Extracted from code; live database migration state could not be reread during this audit.
 
-| جدول | مدل | ارتباط و دادهٔ اصلی |
+| Table | Model | Principal data and relationships |
 | --- | --- | --- |
-| `areas_of_interest` | AOI | slug یکتا، MultiPolygon/4326، bbox، نام‌ها، active |
-| `processing_runs` | Run | AOI، config، profile، git SHA، status، parent run |
-| `products` | Product | AOI و run اجباری، kind، orbit/track، دوره، واحد، stats، STAC ID |
-| `product_assets` | Asset | فایل محصول، object key یکتا، checksum، اندازه، media type |
-| `reference_points` | Reference | run، Point/4326، روش، دلیل، بازبین و stability metadata |
-| `qc_metrics` | QCMetric | run/product، عدد یا JSON، threshold و passed |
+| `areas_of_interest` | AOI | Unique slug, MultiPolygon/4326, bbox, names, active |
+| `processing_runs` | Run | AOI, configuration, profile, Git SHA, status, parent run |
+| `products` | Product | Required AOI/run, kind, orbit/track, period, unit, statistics, STAC ID |
+| `product_assets` | Asset | Product file, unique object key, checksum, size, media type |
+| `reference_points` | Reference | Run, Point/4326, method, reason, reviewer, stability metadata |
+| `qc_metrics` | QCMetric | Run/product, number or JSON, threshold, pass state |
 
-`Asset` فعلی **فایل محصول** است؛ `assets` در V2 **زیرساخت مکانی** خواهد بود. مدل جدید
-در Python باید نام متمایزی مانند `InfrastructureAsset` داشته باشد. تغییر نام یا حذف
-جدول `product_assets` لازم نیست. مهاجرت‌های V2 افزایشی‌اند؛ migration اعمال‌شدهٔ V1
-بازنویسی نمی‌شود. هر downgrade فقط متعلق به همان migration و آزمون دیتابیس موقت است.
+The existing Asset is a product file; V2 `assets` means spatial infrastructure. Use a distinct Python model such as `InfrastructureAsset`. Do not rename or remove `product_assets`. V2 migrations are additive; never rewrite an applied V1 migration. Downgrades concern only their own migration and temporary-database tests.
 
-## مسیرهای فعلی API
+## Existing API routes
 
-تمام مسیرهای زیر GET هستند؛ هیچ API تحلیل سنگین، import عمومی یا publish عمومی وجود ندارد.
-مرجع کد: `main.py` و `tiles.py`؛ قرارداد ثبت‌شده: `docs/openapi.json`.
+All listed routes were GETs, with no public heavy analysis, arbitrary import or publication API. Sources: `main.py`, `tiles.py`, and `docs/openapi.json`.
 
-| مسیر | کاربرد |
+| Route | Purpose |
 | --- | --- |
-| `/health/live` | زنده‌بودن برنامه |
-| `/health/ready` | دسترسی PostGIS و bucket |
-| `/api/v1/aois` | محدوده‌های فعال |
-| `/api/v1/aois/{slug}` | جزئیات محدوده |
-| `/api/v1/products` | محصولات منتشرشده با فیلتر AOI/kind/orbit/track/run |
-| `/api/v1/products/{product_id}` | محصول |
-| `/api/v1/products/{product_id}/legend` | رنگ و واحد از سرور |
-| `/api/v1/products/{product_id}/quality` | کیفیت محصول |
+| `/health/live` | Process liveness |
+| `/health/ready` | PostGIS and bucket availability |
+| `/api/v1/aois` | Active areas |
+| `/api/v1/aois/{slug}` | Area details |
+| `/api/v1/products` | Published products filtered by AOI/kind/orbit/track/run |
+| `/api/v1/products/{product_id}` | Product details |
+| `/api/v1/products/{product_id}/legend` | Server colors and units |
+| `/api/v1/products/{product_id}/quality` | Product quality |
 | `/api/v1/products/{product_id}/metadata` | STAC |
-| `/api/v1/products/{product_id}/provenance` | سابقهٔ تولید |
-| `/api/v1/points/summary` | مختصات و product ID |
-| `/api/v1/points/timeseries` | مختصات و run ID |
-| `/api/v1/runs/{run_id}` | run منتشرشده |
-| `/tiles/{asset_id}/{z}/{x}/{y}.png` | raster asset منتشرشده؛ تنها query مجاز style |
+| `/api/v1/products/{product_id}/provenance` | Production history |
+| `/api/v1/points/summary` | Coordinates and product ID |
+| `/api/v1/points/timeseries` | Coordinates and run ID |
+| `/api/v1/runs/{run_id}` | Published run |
+| `/tiles/{asset_id}/{z}/{x}/{y}.png` | Published raster; only the style query is allowed |
 
-FastAPI مسیرهای استاندارد `/docs`، `/redoc` و `/openapi.json` را نیز ارائه می‌کند.
-مسیرهای V2 منابع، assets، regions، reports و vector هنوز وجود ندارند.
+FastAPI also provides `/docs`, `/redoc` and `/openapi.json`. V2 source, asset, region, report and vector routes did not yet exist.
 
-## مسیرهای frontend
+## Frontend routes
 
-| مسیر | مسئولیت |
+| Route | Responsibility |
 | --- | --- |
-| `/` | معرفی کوتاه و ورود به fixture |
-| `/map` | نقشه و نقطهٔ LOS |
-| `/methodology` | صفحهٔ روش‌شناسی؛ اکنون فایل مستقل `routes/methodology.tsx` |
-| `/about` | صفحهٔ مستقل `routes/about.tsx` با متن نویسنده |
+| `/` | Short introduction and fixture entry |
+| `/map` | Map and LOS point |
+| `/methodology` | Independent `routes/methodology.tsx` page |
+| `/about` | Independent `routes/about.tsx` with author-owned text |
 
-متن اختصاصی صفحهٔ درباره جزو تغییر معماری V2 نیست. نام فارسی/لاتین از قبل صحیح است؛
-rename repository یا تغییر تاریخچه لازم نیست. فایل‌های طراحی برندِ خارج از commit مبنا
-در مرحلهٔ برند بر اساس سند منتخب همان کار بررسی شوند، نه از روی حدس یا مسیرهای ردشده.
+The About page's authored text is outside V2 architectural changes. Persian and Latin names were already correct; no repository rename/history rewrite was needed. Review uncommitted branding only against its selected design record, not assumptions or rejected alternatives.
 
-## بدهی‌های اولویت‌دار و محل رفع
+## Prioritized debt and correction points
 
-| اولویت | شاهد در کد | اثر و مرحلهٔ رفع |
+| Priority | Code evidence | Impact and planned correction |
 | --- | --- | --- |
-| P1 | `Product.processing_run_id` اجباری؛ join با Run در catalog/main | محصول خارجی بدون run داخلی قابل عرضه نیست؛ مرحلهٔ ۳، FK منبع و منشأ صریح، حفظ readerهای V1 |
-| P1 | Kind فقط velocity_los/coherence/uncertainty/mask/timeseries | قائم و seasonal amplitude مدل ندارند؛ مرحلهٔ ۳، metric/component/method مستقل |
-| P1 | `points.summary` به cube JSON و هر سه raster وابسته است | نبود uncertainty یا timeseries نباید نقطه را از کار بیندازد؛ مرحلهٔ ۳، sampling native-grid مستقل و null صریح |
-| P1 | `points.timeseries` همیشه velocity_los و run می‌خواهد | برای dataset ایستا سری زمانی ساختگی ساخته نشود؛ capability availability صریح |
-| P1 | `put_immutable` ورودی bytes و readback کامل دارد | برای PBF و raster بزرگ مصرف RAM خطی با اندازهٔ فایل؛ پیش از ingestion، streaming checksum/upload و حفظ عدم overwrite |
-| P1 | کنترل tile بر role/kind/published متکی است | ورود asset خارجی نیازمند validation raster پیش از published؛ URL دلخواه همچنان ممنوع |
-| P2 | `Asset.size_bytes` Integer و تاریخ‌های Product رشته‌اند | پیش از داده‌های بزرگ BIGINT؛ Date و اعتبارسنجی بازه با migration افزایشی |
-| P2 | فهرست products بدون pagination | کاتالوگ ملی به pagination و index مناسب نیاز دارد؛ مرحلهٔ ۲ برای endpointهای جدید، سپس V1 |
-| P2 | AOI ثابت varamin در Zod و select بدون تغییر | source switcher و search داخلی واقعی در مراحل ۳ و ۸ |
-| P2 | `from/to` در URL پذیرفته می‌شوند ولی مصرف نمی‌شوند | UI نباید فیلتر اعمال‌نشده را معتبر جلوه دهد؛ قرارداد دوره در مرحلهٔ ۳ |
-| P2 | labelهای LOS و آرایهٔ ثابت لایه‌ها | frontend از metadata مؤلفه/واحد/capability بخواند؛ تغییر صرف label کافی نیست |
-| P2 | baseline build هشدار chunk بزرگ دارد | map/chart از قبل lazy هستند؛ پس از UI واقعی profile اندازه‌گیری شود، library موازی افزوده نشود |
-| P2 | API خطای sanitized دارد ولی cause در log محدود است | timeout پایگاه و ثبت نوع خطا بدون credential؛ پیش از gate محیط مرحلهٔ ۲ |
+| P1 | Required `Product.processing_run_id`; Run joins | External products cannot bypass internal runs; stage 3 adds source FK/provenance while preserving V1 readers |
+| P1 | Kinds limited to velocity_los/coherence/uncertainty/mask/timeseries | Stage 3 adds explicit metric/component/method for vertical and seasonal amplitude |
+| P1 | Point summary depends on JSON cube and all three rasters | Missing uncertainty/time series must not break sampling; independent native-grid reads and explicit nulls |
+| P1 | Time series always requires velocity_los and run | Declare capabilities; never fabricate a time series for a static dataset |
+| P1 | `put_immutable` takes bytes and rereads the whole object | Stream checksums/uploads before large PBF/raster ingestion; preserve no-overwrite behavior |
+| P1 | Tile gates depend on role/kind/publication | Validate external rasters before publication; arbitrary URLs remain prohibited |
+| P2 | Integer asset size and string product dates | Add BIGINT before large files; additive Date/range validation migration |
+| P2 | Unpaginated products | Add pagination and indexes for new national endpoints, then V1 |
+| P2 | Fixed Varamin AOI in Zod and selection | Real source switching and internal search in stages 3 and 8 |
+| P2 | Accepted but unused URL `from/to` | Do not imply unapplied filters; define period contract in stage 3 |
+| P2 | Fixed LOS labels and layer array | Read component/unit/capability metadata; relabeling alone is insufficient |
+| P2 | Large build chunk warning | Map/chart are already lazy; measure real UI before adding parallel libraries |
+| P2 | Sanitized errors but limited cause logs | Database timeout and credential-free exception-type logging before stage-two runtime gate |
 
-## تحقیق اولیهٔ منابع
+## Initial source research
 
-در [رکورد نسخه‌دار Zenodo](https://zenodo.org/records/10815578)، نسخهٔ `1.0.0` شامل rate،
-seasonal amplitude و mask است؛ دورهٔ مشاهده ۲۰۱۴–۲۰۲۰ و مجوز اعلام‌شده CC BY 4.0 است.
-rate و amplitude از LOS نزولی به قائم تصویر شده‌اند؛ این decomposition صعودی/نزولی
-نیست. DOI نسخه `10.5281/zenodo.10815578` است. واحد واقعی باند، scale/offset، NoData،
-CRS، resolution، sign و reference باید از فایل و مقاله استخراج شوند؛ این ممیزی آن‌ها
-را حدس نمی‌زند. داده هنوز دانلود یا ingest نشده است. Attribution نویسندگان و Copernicus
-و metadata اصلی همراه source version نگه داشته شوند.
+[Zenodo version 1.0.0, record 10815578](https://zenodo.org/records/10815578) contains rate, seasonal amplitude and mask for 2014–2020 under CC BY 4.0. Rate and amplitude are projected from descending LOS into vertical, not decomposed from ascending/descending. Version DOI: `10.5281/zenodo.10815578`. Actual band units, scale/offset, NoData, CRS, resolution, sign and reference still required file/paper inspection. No dataset had been downloaded or ingested at this audit. Preserve author/Copernicus attribution and original metadata with the source version.
 
-[Geofabrik ایران](https://download.geofabrik.de/asia/iran.html) PBF و snapshotهای تاریخ‌دار
-دارد و ODbL 1.0/OSM Contributors را ذکر می‌کند. snapshot دقیق و SHA-256 داخلی لازم است؛
-latest شناسهٔ نسخه نیست. هیچ شمارش feature یا پوشش واقعی کریدور هنوز تأیید نشده است.
+[Geofabrik Iran](https://download.geofabrik.de/asia/iran.html) offers dated PBF snapshots with ODbL 1.0/OSM Contributors attribution. Pin the exact snapshot and local SHA-256; `latest` is not an identity. No actual feature count or corridor coverage had yet been verified.
 
-[WorldPop API](https://www.worldpop.org/sdi/introapi/) امکان کشف dataset و metadata را
-مستند می‌کند. انتخاب محصول ایران، سال، روش، count/density، citation و مجوز همان محصول
-هنوز باز است؛ مجوز یک محصول به همهٔ خانواده‌ها تعمیم داده نمی‌شود.
+The [WorldPop API](https://www.worldpop.org/sdi/introapi/) documents discovery. Exact Iran product, year, method, count/density semantics, citation and license remained open. Do not generalize one product's license to all families.
 
-مرجع احتمالی Payne مشخص شد: [DOI 10.1029/2024JB030367](https://doi.org/10.1029/2024JB030367).
-این صرفاً شناسایی مقاله است؛ استخراج روش و ضمائم، بازتولید مثال و scientific review
-انجام نشده‌اند. هیچ threshold یا beta از این شناسایی وارد محصول نمی‌شود.
+The likely Payne reference was identified as [10.1029/2024JB030367](https://doi.org/10.1029/2024JB030367). This identified the paper only: method/supplement extraction, reproduction and scientific review were not complete. It supplied no accepted threshold or beta value.
 
-## تصمیم‌ها و ترتیب اجرا
+## Decisions and delivery sequence
 
-۹ ADR در [adr](adr/) با نام‌های درخواستی V2 قرار دارند. پوشهٔ مستقل V2 تعارض شمارهٔ
-`0010` با ADR توسعهٔ محلی V1 را حل می‌کند و فایل تاریخی را تغییر نمی‌دهد.
+Nine requested V2 ADRs live in [adr](adr/). Their separate directory avoids collision with V1 localhost ADR `0010` while preserving history.
 
-| مرحله | برش قابل پذیرش | gate اصلی |
+| Stage | Acceptance slice | Principal gate |
 | --- | --- | --- |
-| 0 | این audit، نقشهٔ کد، بدهی‌ها و ADRها | شواهد کد و baseline؛ Compose فعلاً مسدود |
-| 1 | نام درست در shell/title/docs و معرفی pivot | حفظ متن نویسنده، RTL و مسیرهای V1 |
-| 2 | ثبت منبع از CLI → source version → API → `/sources` | citation/license/version/checksum، idempotency، pagination، migration واقعی |
-| 3 | یک نسخهٔ واقعی Haghighi–Motagh | immutable original، COG/STAC، مؤلفه/روش/دوره و attribution صحیح |
-| 4 | snapshot OSM → rail/major roads | tags اصلی، شمارش و بازرسی هندسه، provenance |
-| 5 | Martin → MVT → نقشه | فقط view مجاز، بدون GeoJSON ملی، تست عدم انتشار دادهٔ draft |
-| 6 | fixture ده‌در‌ده کیلومتر و دو خط | طول/chainage/NoData/coverage/segment و tolerance معلوم |
-| 7–9 | یک کریدور واقعی → profile/summary/segments → UI | تحلیل توصیفی، deep link، کلیک متقابل نقشه/جدول و source provenance |
-| 10–11 | یک population dataset → یک region | mass conservation، grid/NoData، برآورد جمعیت و سال صریح |
-| 12–15 | proxy تجربی سپس پژوهش differential | flag خاموش؛ validated فقط پس از بازتولید و بازبینی علمی |
-| 16–17 | گزارش فارسی و CSV/GeoJSON | روش/source IDs/دوره/محدودیت‌ها، PDF مستقل از React، خروجی قابل ردیابی |
-| 18 | ساختمان | اختیاری V2.1؛ مانع MVP نیست |
+| 0 | Audit, code map, debt and ADRs | Code/baseline evidence; Compose blocked at the time |
+| 1 | Correct shell/title/docs naming and pivot explanation | Preserve author copy, RTL and V1 routes |
+| 2 | CLI registration → source version → API → `/sources` | Citation/license/version/checksum, idempotency, pagination, real migration |
+| 3 | One real Haghighi–Motagh version | Immutable original, COG/STAC, correct component/method/period/attribution |
+| 4 | OSM snapshot → rail/major roads | Original tags, counts, geometry inspection, provenance |
+| 5 | Martin → MVT → map | Allowed views only, no national GeoJSON, no draft exposure |
+| 6 | Analytical 10 × 10 km fixture and two lines | Known length/chainage/NoData/coverage/segments/tolerance |
+| 7–9 | Real corridor → profile/summary/segments → UI | Descriptive analysis, deep links, linked table/map selection, provenance |
+| 10–11 | Population dataset → region | Conservation, grid/NoData, explicit estimated population/year |
+| 12–15 | Experimental proxy then differential research | Disabled flag; validated only after reproduction and scientific review |
+| 16–17 | Persian report and CSV/GeoJSON | Method/source IDs, period, limits, React-independent PDF, traceable exports |
+| 18 | Buildings | Optional V2.1; not an MVP blocker |
 
-## معیار پذیرش مرحلهٔ بعد
+## Next-stage acceptance criteria
 
-به‌عنوان تحلیل‌گر، می‌توانم منشأ و نسخهٔ دقیق داده را ببینم تا نتیجه را به ورودی مشخص
-ارجاع دهم. ثبت metadata به‌تنهایی به معنی ingest یا اعتبار علمی محصول نیست.
+An analyst must be able to identify the exact source/version behind a result. Metadata registration alone does not establish ingestion or scientific validity.
 
-- ثبت CLI با citation، license، provider و version معتبر پذیرفته شود؛ SHA-256 از فایل واقعی محاسبه شود.
-- تکرار ورودی یکسان رکورد تکراری نسازد؛ تعارض checksum در همان شناسه خطا دهد.
-- source_versions immutable باشند؛ تغییر ورودی نسخهٔ جدید بسازد.
-- سه GET منابع مطابق بند ۷۵ و UI `/sources` با حالت loading/error/empty کار کنند.
-- URI خصوصی و credential به مرورگر نرسند؛ endpoint عمومی arbitrary import ساخته نشود.
-- migration افزایشی، roundtrip روی DB موقت، API integration، Orval sync و RTL مرورگر موفق باشند.
+- CLI accepts valid citation, license, provider and version; calculate SHA-256 from the actual file.
+- Repeating identical input creates no duplicate; a conflicting checksum under the same identity fails.
+- Source versions are immutable; input changes create new versions.
+- The three source GETs in section 75 and `/sources` loading/error/empty states work.
+- No private URI or credential reaches the browser; do not expose arbitrary public imports.
+- Additive migration, temporary-database roundtrip, real API integration, Orval synchronization and RTL browser checks pass.
 
-این مرحله dependency علمی جدید نمی‌خواهد: argparse/pathlib/hashlib، Pydantic، SQLAlchemy
-و اجزای UI موجود کافی‌اند. adapterهای بعدی فقط هنگام اجرای مرحلهٔ مربوط ساخته می‌شوند.
+This stage needs no new scientific dependency: argparse/pathlib/hashlib, Pydantic, SQLAlchemy and existing UI components suffice. Add adapters when their actual stage is implemented.
 
-## فرض‌های علمی باز
+## Open scientific assumptions
 
-واحد/sign/reference و grid فایل واقعی؛ روش و بازهٔ زمانی دقیق ورودی؛ کف کیفیت داده؛
-قانون bandهای توصیفی؛ spacing وابسته به resolution؛ semantics جمعیت و روش حفظ جرم؛
-coverage کریدور واقعی؛ completeness دارایی‌های OSM؛ روش/threshold/window معتبر Payne.
-هیچ‌کدام با مقدار ساختگی جایگزین نمی‌شوند. عدم قطعیت ناموجود null است. صفر با NoData
-یکی نیست و نبود تغییرشکل کشف‌شده به معنی ایمنی سازه نیست.
+Actual file units/sign/reference/grid, precise input method and period, minimum quality, descriptive bands, resolution-based spacing, population semantics/conservation, real corridor coverage, OSM completeness and valid Payne method/threshold/window remained unresolved. Never fill them with invented values. Missing uncertainty is null; zero differs from NoData; no detected deformation does not establish structural safety.
 
-## تغییر و مهاجرت این تحویل
+## Change and migration scope
 
-فقط مستندات مرحلهٔ صفر V2؛ هیچ migration، dependency یا endpoint جدید ایجاد نشده است.
-گزارش بررسی‌های همین نوبت در `verification.md` قرار می‌گیرد. نتایج قبلی V1 در
-[وضعیت V1](../operations/milestones.md) سابقه‌اند، نه اثبات سلامت فعلی کل stack.
+This was stage-zero documentation only, with no new migration, dependency or endpoint. See [verification](verification.md) for checks from that turn. [V1 milestone records](../operations/milestones.md) are historical evidence, not proof of current stack health.

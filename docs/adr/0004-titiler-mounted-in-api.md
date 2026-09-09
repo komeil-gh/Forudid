@@ -1,7 +1,7 @@
-# TiTiler داخل API
+# TiTiler mounted in the API
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-فقط router محدود به asset منتشرشده mount می‌شود؛ URL، path و expression دلخواه پذیرفته نمی‌شود.
+Mount only the router restricted to published assets. Arbitrary URLs, paths and expressions are rejected.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

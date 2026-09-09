@@ -19,7 +19,9 @@ def test_real_population_result_is_count_preserving_and_versioned():
 
     client = TestClient(app)
     url = "/api/v1/products/744b6536-b9a7-56c5-85b1-66a629a78b91/population-exposure"
-    response = client.get(url)
+    response = client.get(
+        url, params={"population_version": "488059d8-d3f6-5064-af66-131da47742e3"}
+    )
     assert response.status_code == 200, response.text
     country = response.json()
     m = country["metrics"]
@@ -38,7 +40,13 @@ def test_real_population_result_is_count_preserving_and_versioned():
     )
     with Session(engine()) as db:
         tehran = db.scalar(select(Region.id).where(Region.name_en == "Tehran"))
-    regional = client.get(url, params={"region_id": str(tehran)})
+    regional = client.get(
+        url,
+        params={
+            "region_id": str(tehran),
+            "population_version": "488059d8-d3f6-5064-af66-131da47742e3",
+        },
+    )
     assert regional.status_code == 200, regional.text
     result = regional.json()
     assert (

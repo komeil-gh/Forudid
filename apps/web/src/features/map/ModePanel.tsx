@@ -1,13 +1,15 @@
 import { Link } from '@tanstack/react-router'
-import { useGetExposureRanking, useListRegions, type ProductInfo } from '../../generated/api/forudid'
+import { useGetExposureRanking, useListRegions, type ProductInfo, type PopulationSource } from '../../generated/api/forudid'
 import { type MapSearch, defaultAssetSearch } from '../../lib/search'
 import { PopulationExposure } from '../../routes/regions'
 import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
+import { PopulationSelection } from './PopulationLayer'
 
-export function ModePanel({ state, product, update, selectAsset }: {
+export function ModePanel({ state, product, population, update, selectAsset }: {
   state: MapSearch; product?: ProductInfo; update: (next: Partial<MapSearch>) => void;
+  population?: PopulationSource;
   selectAsset: (id: string, runId: string) => void;
 }) {
   const { language } = useLanguage(), fa = language === 'fa'
@@ -26,8 +28,10 @@ export function ModePanel({ state, product, update, selectAsset }: {
     </select></label>
     {regions.isError && <Status error retry={() => void regions.refetch()} />}
     {state.region && <p>{fa ? 'مرز تاریخی ۲۰۱۷؛ geoBoundaries / OpenStreetMap، با مجوز ODbL. مرجع رسمی کنونی نیست.' : 'Historical 2017 boundary; geoBoundaries / OpenStreetMap, ODbL. Not a current official boundary.'}</p>}
-    {state.mode === 'population' ? product && <><PopulationExposure product={product.id} region={state.region} />
-      <Link to="/regions" search={{ region: state.region, product: product.id }}>{fa ? 'داشبورد کامل محدوده و زیرساخت' : 'Full region and infrastructure dashboard'}</Link></> : <>
+    {state.mode === 'population' ? <><PopulationSelection value={state.populationVersion} onChange={populationVersion => update({ populationVersion, panel: 'none', pointLon: undefined, pointLat: undefined })} />
+      {!product && <p>{fa ? 'دادهٔ تغییرشکل در دسترس نیست؛ نقشه و شمار جمعیت قابل بررسی‌اند، اما تحلیل مواجهه در دسترس نیست.' : 'Deformation data are unavailable. Population mapping and sampling remain available; exposure analysis is unavailable.'}</p>}
+      {product && population && <><PopulationExposure product={product.id} region={state.region} populationVersion={population.source_version_id} />
+      <Link to="/regions" search={{ aoi: state.aoi, region: state.region, product: product.id, populationVersion: population.source_version_id }}>{fa ? 'داشبورد کامل محدوده و زیرساخت' : 'Full region and infrastructure dashboard'}</Link></>}</> : <>
       <h2>{fa ? 'فهرست زیرساخت' : 'Infrastructure list'}</h2>
       <label className="field-label">{fa ? 'نوع زیرساخت' : 'Infrastructure type'}<select value={type} onChange={e => filter({ infrastructure: e.target.value as 'road' | 'railway' })}>
         <option value="railway">{fa ? 'راه‌آهن' : 'Railway'}</option><option value="road">{fa ? 'راه‌های اصلی' : 'Major roads'}</option>

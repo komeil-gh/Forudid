@@ -9,7 +9,7 @@ export const en = {
   empty: 'No real, published scientific product is available for this area.', reset: 'Return to Iran view',
   point: 'Selected point', selectPoint: 'Select a point on the map to inspect deformation.',
   inspectCenter: 'Inspect map centre', velocity: 'LOS deformation rate',
-  uncertainty: 'Velocity uncertainty', coherence: 'Temporal coherence', observations: 'Valid observations',
+  uncertainty: 'Velocity uncertainty', coherence: 'Temporal coherence', observations: 'Epochs with data',
   timeSeries: 'LOS displacement over time', close: 'Close', resetZoom: 'Reset zoom',
   quality: { valid: '✓ Valid quality', caution: '△ Use with caution',
     invalid: '✕ Invalid quality', nodata: '○ No data' },

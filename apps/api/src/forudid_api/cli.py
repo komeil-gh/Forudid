@@ -21,6 +21,8 @@ def parser():
         ingest.add_argument("directory", type=Path)
         if name == "subsidence":
             ingest.add_argument("--normalized", type=Path, required=True)
+        if name == "population":
+            ingest.add_argument("--year", type=int, choices=(2020, 2026), default=2026)
     analysis = groups.add_parser("analyze").add_subparsers(dest="command", required=True)
     for name in ("asset", "infrastructure", "population"):
         command = analysis.add_parser(name)
@@ -93,8 +95,8 @@ def execute(args):
         else:
             from forudid_api.ingest_population import acquire, register
 
-            acquire(args.directory)
-            print(register(args.directory))
+            acquire(args.directory, args.year)
+            print(register(args.directory, args.year))
     elif args.group == "analyze":
         if args.command in ("asset", "infrastructure"):
             from forudid_api.analyze import analyze

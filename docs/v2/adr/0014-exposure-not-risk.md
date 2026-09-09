@@ -1,22 +1,17 @@
-# 0014 — مواجهه، نه برآورد ریسک سازه
+# 0014 — Exposure without structural-risk estimates
 
-وضعیت: تصمیم پذیرفته‌شده برای تمام خروجی‌های V2.
+Status: accepted for all V2 outputs.
 
-## تصمیم
+## Decision
 
-Hazard کمیت تغییرشکل است؛ Exposure هم‌مکانی دارایی/جمعیت با آن؛ Vulnerability حساسیت
-سازه است. مدل vulnerability/consequence در V2 نداریم و Structural Risk، احتمال خرابی
-و safe/unsafe تولید نمی‌کنیم. confidence دربارهٔ تناسب داده است، نه ایمنی زیرساخت.
+Hazard describes deformation; exposure describes its spatial intersection with assets or population; vulnerability describes structural susceptibility. V2 has no vulnerability/consequence model and must not generate structural risk, failure probability or safe/unsafe classifications. Confidence concerns data fitness, not infrastructure safety.
 
-رتبه‌بندی بر metrics قابل مشاهده است؛ وزن‌دهی دلخواه velocity/population به‌عنوان risk
-ممنوع است. band توصیفی سرعت از hazard class روش معتبر جدا ذخیره و نمایش داده می‌شود.
-مقادیر unavailable و insufficient_data با صفر یا low جایگزین نمی‌شوند.
+Rank using observable metrics. Arbitrary weighting of velocity and population must not become a risk score. Store and display descriptive velocity bands separately from hazard classes produced by a validated method. Preserve unavailable and insufficient-data states instead of replacing them with zero or low.
 
-## پذیرش
+## Acceptance
 
-تمام صفحات analysis و report این متن را دارند:
+Every analysis page and report includes the exact Persian UI notice:
 
 > FORUDID یک ابزار پایش و غربالگری مکانی است و جایگزین ارزیابی ژئوتکنیکی، سازه‌ای، نقشه‌برداری زمینی یا بازدید میدانی نیست.
 
-نبود تغییرشکل کشف‌شده به معنی ایمنی نیست. تست متن/قرارداد مانع تبدیل exposure به
-ادعای structural risk می‌شود. جدول همان اطلاعات اساسی رنگ‌های نقشه را ارائه می‌کند.
+No detected deformation does not establish safety. Text and contract checks prevent exposure from becoming a structural-risk claim. Tables convey the same essential information as map colors.

@@ -1,7 +1,7 @@
-# ذخیره‌سازی S3-compatible
+# S3-compatible storage
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-object storage خصوصی، endpoint قابل تغییر و keyهای immutable بر پایه run ID. MinIO فقط پیاده‌سازی محلی است.
+Object storage is private, with a configurable endpoint and immutable run-based keys. MinIO is the local implementation.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

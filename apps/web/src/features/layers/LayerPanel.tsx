@@ -1,8 +1,9 @@
 import { Activity, Grid2X2, Sigma, FileText, Info } from 'lucide-react'
-import type { ProductInfo } from '../../generated/api/forudid'
+import { useListAreas, type ProductInfo } from '../../generated/api/forudid'
 import type { MapSearch } from '../../lib/search'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
+import { Status } from '../../components/Status'
 const icons = { velocity_los: Activity, temporal_coherence: Grid2X2, velocity_uncertainty: Sigma,
   velocity_vertical: Activity, seasonal_amplitude: Activity }
 export function LayerPanel({ state, product, products, update, onMetadata }:
@@ -10,24 +11,40 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
     update: (next: Partial<MapSearch>) => void; onMetadata: () => void }) {
   const { language, messages: m, layerLabels } = useLanguage()
   const en = language === 'en'
+  const areas = useListAreas()
+  const area = areas.data?.find(a => a.slug === state.aoi)
+  const layer = product?.kind ?? state.layer
   return <div className="layer-panel">
-    <div className="area-heading"><h1>{state.aoi === 'iran' ? (en ? 'Iran' : 'ایران') : (en ? 'Varamin Plain' : 'دشت ورامین')}</h1><span>{state.aoi === 'iran' ? (en ? 'Historical collection, 2014 to 2020' : 'مجموعهٔ تاریخی ۲۰۱۴ تا ۲۰۲۰') : 'Varamin'}</span></div>
+    <div className="area-heading"><h1>{area ? (en ? area.name_en : area.name_fa) : state.aoi}</h1>
+      {product && <span><bdi>{product.start_date} – {product.end_date}</bdi></span>}</div>
+    <label className="field-label">{en ? 'Deformation source area' : 'محدودهٔ منبع تغییرشکل'}
+      <select value={state.aoi} onChange={event => {
+        const selected = areas.data?.find(a => a.slug === event.target.value)
+        if (selected) update({ aoi: selected.slug, product: undefined, run: undefined, layer: 'velocity_vertical',
+          panel: 'none', asset: undefined, analysis: undefined, segment: undefined, pointLon: undefined, pointLat: undefined,
+          lon: (selected.bbox[0] + selected.bbox[2]) / 2, lat: (selected.bbox[1] + selected.bbox[3]) / 2,
+          z: Math.max(2, Math.min(11, Math.log2(360 / Math.max(selected.bbox[2] - selected.bbox[0], selected.bbox[3] - selected.bbox[1])) - 1)) })
+      }}>
+        {!area && <option value={state.aoi}>{state.aoi}</option>}
+        {areas.data?.map(a => <option key={a.id} value={a.slug}>{en ? a.name_en : a.name_fa}</option>)}
+      </select></label>
+    {areas.isError && <Status error retry={() => void areas.refetch()} />}
     {product?.is_fixture && <p className="notice"><Info size={17} />{m.fixture}</p>}
     <label className="field-label">{m.product}<select value={product?.id || ''}
       onChange={e => { const chosen = products.find(p => p.id === e.target.value);
-        if (chosen) update({ product: chosen.id, run: chosen.processing_run_id }) }}>
-      {products.filter(p => p.kind === state.layer).map(p => <option value={p.id} key={p.id}>{p.product_version}</option>)}
+        if (chosen) update({ product: chosen.id, run: chosen.processing_run_id, layer: chosen.kind as MapSearch['layer'], orbit: chosen.orbit_direction }) }}>
+      {products.filter(p => p.kind === layer).map(p => <option value={p.id} key={p.id}>{p.product_version}</option>)}
     </select></label>
-    <fieldset className="layer-options"><legend>{m.layers}</legend>
+    {state.mode === 'deformation' && <fieldset className="layer-options"><legend>{m.layers}</legend>
       {(Object.keys(layerLabels) as (keyof typeof layerLabels)[]).filter(kind => products.some(p => p.kind === kind)).map(kind => {
         const Icon = icons[kind]
-        return <label key={kind} className={state.layer === kind ? 'selected' : ''}>
-          <input type="radio" name="layer" value={kind} checked={state.layer === kind}
-            onChange={() => update({ layer: kind, product: undefined })} />
+        return <label key={kind} className={layer === kind ? 'selected' : ''}>
+          <input type="radio" name="layer" value={kind} checked={layer === kind}
+            onChange={() => update({ layer: kind, product: undefined, run: undefined })} />
           <span>{layerLabels[kind]}</span><Icon size={18} />
         </label>
       })}
-    </fieldset>
+    </fieldset>}
     <label className="field-label">{en ? 'OpenStreetMap infrastructure' : 'زیرساخت OpenStreetMap'}
       <select value={state.infrastructure} onChange={e => update({ infrastructure: e.target.value as MapSearch['infrastructure'] })}>
         <option value="all">{en ? 'Roads and railways' : 'راه و راه‌آهن'}</option><option value="railway">{en ? 'Railways' : 'راه‌آهن'}</option>

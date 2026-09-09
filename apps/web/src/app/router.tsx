@@ -72,7 +72,7 @@ const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/event
 const eventDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events/$eventId',
   component: () => <Suspense fallback={<Status />}><EventDetailPage /></Suspense> })
 const regionsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/regions',
-  validateSearch: raw => z.object({ region: z.uuid().optional(), product: z.uuid().optional() }).parse(raw),
+  validateSearch: raw => z.object({ aoi: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/).optional(), region: z.uuid().optional(), product: z.uuid().optional(), populationVersion: z.uuid().optional() }).parse(raw),
   component: () => <Suspense fallback={<Status />}><RegionsPage /></Suspense> })
 const assetsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/assets',
   validateSearch: raw => assetSearchSchema.parse(raw),

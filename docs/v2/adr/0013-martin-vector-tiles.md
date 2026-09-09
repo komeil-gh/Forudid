@@ -1,22 +1,13 @@
-# 0013 — Martin برای لایه‌های برداری
+# 0013 — Martin for vector tiles
 
-وضعیت: تصمیم معماری پذیرفته‌شده؛ مرحلهٔ ۵.
+Status: accepted architecture; implementation stage 5.
 
-## مسئله و تصمیم
+## Problem and decision
 
-GeoJSON ملی برای شبکهٔ راه مناسب نیست. Martin از PostGIS، MVT می‌دهد؛ TiTiler برای
-raster و FastAPI برای metadata/نتایج باقی می‌مانند. سرویس در شبکهٔ Compose با پورت
-داخلی 3000 و مسیر proxy `/vector/*` است؛ پورت عمومی مستقل لازم نیست.
+National road networks are unsuitable for browser GeoJSON. Martin serves PostGIS MVT; TiTiler retains raster delivery and FastAPI serves metadata and results. Martin runs on internal Compose port 3000 behind `/vector/*`; it needs no separate public port.
 
-طبق [مستندات Martin](https://maplibre.org/martin/config-file/)، auto discovery باید
-خاموش و فقط viewهای tiles_railways، tiles_major_roads، tiles_exposure_segments و
-tiles_regions مجاز شوند. نقش DB فقط SELECT روی viewها دارد. view نتیجه به analysis
-منتشرشده و source version مشخص محدود است؛ UUID انتخاب از property صریح خوانده شود.
-all_tags، URI و دادهٔ خصوصی وارد tile نمی‌شوند.
+Following the [Martin configuration documentation](https://maplibre.org/martin/config-file/), disable automatic discovery. Allow only `tiles_railways`, `tiles_major_roads`, `tiles_exposure_segments` and `tiles_regions`. The database role receives SELECT on these views only. Result views restrict records to published analyses and explicit source versions. Read selection UUIDs from explicit properties. Exclude `all_tags`, private URIs and private data from tiles.
 
-## وابستگی و پذیرش
+## Dependency and acceptance
 
-گزینه‌ها Martin یا endpoint سفارشی ST_AsMVT بودند؛ Martin طبق سند انتخاب شده و
-تکرار server در FastAPI ساخته نمی‌شود. نسخه/image و maintenance upstream در مرحلهٔ
-نصب بررسی و pin می‌شوند. پذیرش: MVT واقعی، بازخوانی asset ID، تست نبود draft/جدول
-غیرمجاز، سقف payload و pan/zoom پایلوت؛ GeoJSON فقط برای انتخاب کوچک است.
+Martin and a custom `ST_AsMVT` endpoint were considered. The specification selects Martin; do not duplicate its server in FastAPI. Check upstream maintenance and pin the version/image during installation. Acceptance requires real MVT, asset-ID retrieval, no draft or unauthorized-table exposure, bounded payloads and pilot pan/zoom. GeoJSON remains appropriate for small selections.

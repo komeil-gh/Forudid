@@ -11,7 +11,7 @@ export const fa = {
   empty: 'هنوز محصول علمی واقعی و منتشرشده‌ای برای این محدوده وجود ندارد.', reset: 'بازگشت به نمای ایران',
   point: 'نقطهٔ انتخاب‌شده', selectPoint: 'برای مشاهدهٔ جزئیات، روی محدودهٔ رنگی کلیک کنید.',
   inspectCenter: 'بررسی نقطهٔ مرکز نقشه', velocity: 'نرخ تغییرشکل LOS',
-  uncertainty: 'عدم قطعیت سرعت', coherence: 'همدوسی زمانی', observations: 'تعداد مشاهدات معتبر',
+  uncertainty: 'عدم قطعیت سرعت', coherence: 'همدوسی زمانی', observations: 'تعداد تاریخ‌های دارای داده',
   timeSeries: 'جابه‌جایی LOS در طول زمان', close: 'بستن', resetZoom: 'بازنشانی بزرگ‌نمایی',
   quality: { valid: '✓ کیفیت معتبر', caution: '△ نیازمند احتیاط',
     invalid: '✕ کیفیت نامعتبر', nodata: '○ بدون داده' },

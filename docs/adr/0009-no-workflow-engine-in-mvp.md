@@ -1,7 +1,7 @@
-# CLI کافی است
+# A CLI is sufficient for the MVP
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-در MVP فرمان Python و state پایدار کافی است. اجرای خودکار، queue و workflow engine افزوده نمی‌شود.
+Python commands and persistent state are sufficient for the MVP. Do not introduce automatic execution, a queue or a workflow engine without the corresponding implementation requirement.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

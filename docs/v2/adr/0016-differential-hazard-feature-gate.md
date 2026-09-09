@@ -1,24 +1,15 @@
-# 0016 — دروازهٔ اعتبار علمی روش differential
+# 0016 — Scientific acceptance gate for differential methods
 
-وضعیت: تصمیم پذیرفته‌شده؛ محاسبهٔ proxy و نمونهٔ پژوهشی Payne پیاده‌سازی شده‌اند،
-اما وضعیت علمی همچنان experimental است و انتشار خطر فعال نیست.
+Status: accepted. The gradient proxy and Payne research example are implemented, but remain experimental; hazard publication is disabled.
 
-شواهد: [گرادیان](../gradient-proxy.md)، [مقایسه با مقاله](../payne-2025-research.md).
+Evidence: [gradient proxy](../gradient-proxy.md), [literature comparison](../payne-2025-research.md).
 
-## تصمیم
+## Decision
 
-velocity exposure توصیفی مستقل از gradient proxy و angular distortion است. proxy
-فقط روی مؤلفهٔ قائم مناسب و با نام Experimental Deformation Gradient Proxy عرضه
-می‌شود. Payne-style method تا استخراج دقیق مقاله/ضمائم و validation پشت flag خاموش
-می‌ماند. حضور β = Δd/l به‌تنهایی specification کامل الگوریتم نیست.
+Descriptive velocity exposure is separate from a gradient proxy and angular distortion. Offer the proxy only for a suitable vertical component under the name Experimental Deformation Gradient Proxy. Keep the Payne-style method behind a disabled flag until the paper and supplements are extracted precisely and validation passes. The equation β = Δd/l alone is not a complete algorithm specification.
 
-analysis_methods نسخه، parameters، reference و status را نگه می‌دارد. thresholdها
-فقط در profile سمت سرورند. زمان، واحد، pixel size، window، valid-pixel rule، gradient
-و classification باید معلوم باشند؛ فرض باز مقدار null دارد و جلوی publication را می‌گیرد.
+`analysis_methods` stores version, parameters, reference and status. Thresholds belong in server-side profiles. Time, units, pixel size, window, valid-pixel rules, gradient and classification must be defined. An unresolved assumption remains null and blocks publication.
 
-## پذیرش
+## Acceptance
 
-flat plane، linear plane، NoData window، تغییر CRS/resolution و literature golden
-با tolerance پذیرفته‌شده بررسی شوند. سپس experimental → review → validated با
-بازبین، زمان و شواهد ثبت شود. backend انتشار ترکیب نامعتبر method/product را رد
-می‌کند، حتی اگر flag رابط تغییر کند. dataset مرورشده به‌تنهایی روش مشتق را validated نمی‌کند.
+Check flat and linear planes, NoData windows, CRS/resolution changes and a literature golden case with accepted tolerance. Record reviewer, time and evidence for experimental → review → validated transitions. The backend rejects invalid method/product combinations even if a UI flag changes. A reviewed input dataset does not validate a derived method.

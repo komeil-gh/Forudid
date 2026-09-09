@@ -6,7 +6,7 @@ test.beforeEach(async ({}) => test.skip(!process.env.FORUDID_POPULATION_TESTS ||
 test('map modes retain real ranking selection and historical-region population in the URL', async ({ page, isMobile }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.goto('/map?mode=infrastructure&infrastructure=railway&rankQuery=963780743')
+  await page.goto('/map?mode=infrastructure&infrastructure=railway&rankQuery=963780743&populationVersion=488059d8-d3f6-5064-af66-131da47742e3')
   await expect(page.getByRole('group', { name: 'حالت نقشه' }).getByRole('button', { name: 'زیرساخت', exact: true })).toHaveAttribute('aria-pressed', 'true')
   if (isMobile) await page.locator('.mobile-layer-button').click()
   await expect(page.locator('.rank-asset:visible')).toHaveCount(1)

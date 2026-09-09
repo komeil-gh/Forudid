@@ -1,7 +1,7 @@
-# آرشیو و انتشار
+# Scientific archive and publication
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-HDF5 خروجی علمی حفظ می‌شود؛ انتشار واقعی COG/Zarr 3/STAC خواهد بود. Stage A اجازهٔ cube کوچک JSON دارد.
+Preserve scientific HDF5 output. Real publication uses COG, Zarr 3 and STAC. Stage A permits a small JSON fixture cube.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

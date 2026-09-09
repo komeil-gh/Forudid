@@ -3,6 +3,7 @@ import { expect, it, vi } from 'vitest'
 import { LayerPanel } from './LayerPanel'
 import { defaultSearch } from '../../lib/search'
 import type { ProductInfo } from '../../generated/api/forudid'
+vi.mock('../../generated/api/forudid', () => ({ useListAreas: () => ({ data: [] }) }))
 it('switches a layer without carrying a conflicting product identifier', () => {
   const update = vi.fn()
   const product: ProductInfo = {
@@ -18,5 +19,5 @@ it('switches a layer without carrying a conflicting product identifier', () => {
   render(<LayerPanel state={defaultSearch} products={[product]} update={update} onMetadata={() => undefined} />)
   expect(screen.queryByRole('radio', { name: 'Temporal Coherence' })).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('radio', { name: 'دامنهٔ فصلی قله‌تا‌قله' }))
-  expect(update).toHaveBeenCalledWith({ layer: 'seasonal_amplitude', product: undefined })
+  expect(update).toHaveBeenCalledWith({ layer: 'seasonal_amplitude', product: undefined, run: undefined })
 })

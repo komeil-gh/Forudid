@@ -9,7 +9,8 @@ from pathlib import Path
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import rasterio
-from forudid_analysis import population as method
+from forudid_analysis import population as legacy_method
+from forudid_analysis import population_v2
 from shapely.geometry import shape
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
@@ -37,6 +38,9 @@ def analyze(
     velocity_path: Path,
     region_id: UUID | None = None,
 ) -> UUID:
+    with Session(engine()) as db:
+        item = catalog.product(db, product_id)
+        method = population_v2 if item.kind == "velocity_los" and region_id else legacy_method
     method_id = uuid5(NAMESPACE_URL, f"forudid:analysis:{method.METHOD_VERSION}")
     definition = {
         "algorithm_sha256": digest(Path(method.__file__)),
@@ -79,6 +83,11 @@ def analyze(
                     "is_fixture"
                 ):
                     raise ValueError("A published real velocity product is required")
+                bands = (
+                    (-150, -100, -50, 0, 25)
+                    if product.kind == "velocity_los"
+                    else (0, 50, 100, 200, 400)
+                )
                 data = catalog.role_asset(db, product, "data")
                 version = db.get(SourceVersion, population_version)
                 if version is None:
@@ -118,12 +127,15 @@ def analyze(
                     if region_id
                     else "population_source_country_footprint",
                     "region": region_input,
-                    "band_edges_mm_year": [0, 50, 100, 200, 400],
+                    "band_edges_mm_year": list(bands),
                     "runtime": {
                         name: importlib.metadata.version(name)
                         for name in ("numpy", "rasterio", "pyproj", "shapely")
                     },
                 }
+                if product.kind == "velocity_los":
+                    inputs["measurement_component"] = "los"
+                    inputs["reference"] = product.stats.get("reference")
                 signature = hashlib.sha256(json_bytes(inputs)).hexdigest()
                 run_id = uuid5(method_id, signature)
                 registered = db.get(AnalysisMethod, method_id)
@@ -169,7 +181,7 @@ def analyze(
                         velocity,
                         population_unit="people/pixel",
                         velocity_unit=unit,
-                        band_edges_mm_year=(0, 50, 100, 200, 400),
+                        band_edges_mm_year=bands,
                         region=region_geometry,
                     )
                 if region_id is None and not math.isclose(

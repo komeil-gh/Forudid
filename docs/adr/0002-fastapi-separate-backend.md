@@ -1,7 +1,7 @@
-# FastAPI مستقل
+# Separate FastAPI backend
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-API مستقل با OpenAPI منبع حقیقت؛ Orval client را تولید می‌کند. محیط علمی جدا می‌ماند.
+The API is independent, with OpenAPI as its contract and Orval generating the client. The scientific environment remains separate.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

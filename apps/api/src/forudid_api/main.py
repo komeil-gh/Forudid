@@ -17,6 +17,7 @@ from forudid_api import (
     exposure,
     infrastructure,
     points,
+    population,
     regions,
     reports,
     sources,
@@ -57,6 +58,7 @@ app.include_router(exposure.router)
 app.include_router(regions.router)
 app.include_router(reports.router)
 app.include_router(events.router)
+app.include_router(population.router)
 DB = Annotated[Session, Depends(session)]
 Lon = Annotated[float, Query(ge=-180, le=180, allow_inf_nan=False)]
 Lat = Annotated[float, Query(ge=-90, le=90, allow_inf_nan=False)]
@@ -68,8 +70,16 @@ async def request_log(request: Request, call_next):
     request_id, started = str(uuid4()), time.monotonic()
     try:
         response = await call_next(request)
-    except Exception:
-        log.error(json.dumps({"request_id": request_id, "code": "INTERNAL_ERROR"}))
+    except Exception as exc:
+        log.error(
+            json.dumps(
+                {
+                    "request_id": request_id,
+                    "code": "INTERNAL_ERROR",
+                    "exception_type": type(exc).__name__,
+                }
+            )
+        )
         response = JSONResponse(
             status_code=503,
             content={

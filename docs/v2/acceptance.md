@@ -1,5 +1,7 @@
 # V2 MVP local acceptance — 2026-09-06
 
+This is the dated V2 MVP acceptance record, not completion of every master requirement. See [population updates](population-exposure.md) for the subsequent 2026 source and map verification.
+
 The V2 MVP in master-specification section 160 is locally accepted. This is a
 software and descriptive-exposure release, not independent scientific approval
 of a structural hazard model. The real-data path was tested on the built Compose

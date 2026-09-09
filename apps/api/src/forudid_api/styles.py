@@ -5,6 +5,11 @@ from forudid_api.schemas import Legend
 
 # Versioned presentation ranges for fixtures; these are not scientific QC thresholds.
 STYLES = {
+    "comet-los-v1": (
+        "velocity_los",
+        [-0.15, -0.1, -0.05, 0.0, 0.025],
+        ["#7a1834", "#bb5553", "#eb997d", "#f7f8f6", "#087c83"],
+    ),
     "historical-subsidence-v1": (
         "velocity_vertical",
         [0.0, 5.0, 10.0, 20.0, 40.0],
@@ -32,7 +37,11 @@ STYLES = {
         ["#f9f4dd", "#d6a876", "#7f423e"],
     ),
 }
-DEFAULT_STYLE = {value[0]: key for key, value in STYLES.items() if "contrast" not in key}
+DEFAULT_STYLE = {
+    value[0]: key
+    for key, value in STYLES.items()
+    if "contrast" not in key and not key.startswith("comet-")
+}
 LABELS = {
     "velocity_vertical": "نرخ فرونشست قائم برآوردشده",
     "seasonal_amplitude": "دامنهٔ قله‌تا‌قلهٔ فصلی",
@@ -42,8 +51,17 @@ LABELS = {
 }
 
 
+def default_style(item: Product) -> str:
+    if (
+        item.kind == "velocity_los"
+        and item.stats.get("measurement_method") == "provider_licsbas_los"
+    ):
+        return "comet-los-v1"
+    return DEFAULT_STYLE[item.kind]
+
+
 def legend(item: Product) -> Legend:
-    style = DEFAULT_STYLE[item.kind]
+    style = default_style(item)
     _, ticks, colors = STYLES[style]
     return Legend(
         style=style,

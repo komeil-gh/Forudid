@@ -1,85 +1,85 @@
-# وضعیت اجرا
+# Delivery status
 
-## وضعیت جاری V3
+This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
-مرحلهٔ اول در `0.3.0-alpha.1`: چهار جدول رخداد/تاریخچه/مشاهده/شواهد،
-نوشتن نسخه‌دار داخلی و APIهای خواندن محدودشده به دادهٔ منتشرشده اضافه شدند.
-آزمون PostGIS با rollback و رفت‌وبرگشت migration موفق است؛
-[جزئیات](../v3/event-foundation.md). هنوز رخداد عملیاتی واقعی ثبت نشده است.
+## Current data and map update — 2026-09-09
 
-مرحلهٔ دوم: پایهٔ عددی تشخیص روند با فصل‌گرایی، خوشه‌بندی و تطبیق هندسی نوشته شده است؛
-[روش و محدودیت پذیرش عملیاتی](../v3/statistical-detector.md). آستانهٔ عملیاتی پیش‌فرض ندارد.
+WorldPop 2026 R2025A v1 is registered with verified originals and lossless base-pixel COG conversion. Country and all 31 historical-region results are published. The map renders the selected population raster, supports independently addressable 2020 results, native-cell inspection and real local city/coordinate search. Six real population browser cases and four map-mode/region cases passed on desktop and mobile; screenshots were inspected. Population inspection remains available when the deformation catalog fails. See [population evidence](../v2/population-exposure.md). This is a modelled population estimate, not a census.
 
-مرحلهٔ سوم در `0.3.0-alpha.3`: فهرست و پروندهٔ رخداد، نقشه، تاریخچه، مشاهدات و شواهد
-به API متصل‌اند؛ [پذیرش رابط](../v3/event-ui.md). فرادادهٔ واقعی NISAR کشف شده،
-اما ورود اندازه‌گیری هنوز انجام نشده است؛ [کشف منبع](../v3/operational-source-discovery.md).
+The official COMET Varamin ascending HDF5 snapshot is normalized and registered locally with 323 actual acquisition dates through 2026-07-31. Its native LOS rate and point series are connected to the map, with unavailable uncertainty and independent validation explicit. Both desktop/mobile source-to-chart checks passed. This adds a recent pilot footprint, not nationwide current coverage; see [COMET evidence](../v2/comet-varamin.md).
 
-## پذیرش V2
+Separate COMET/WorldPop 2026 country and Tehran analyses are published. The
+Tehran run uses the separately versioned exact-quantile capacity change in
+`ellipsoid-cell-overlap-2`; the original algorithm file remains unchanged.
+The final combined run passed all 14 real desktop/mobile cases in 1.2 minutes,
+including source selection, chart reload, both population source years, region
+navigation, tile retry, catalog failure isolation and report prerequisites.
+All 16 frontend unit tests passed. The API regression run passed 30 tests with
+14 optional integrations skipped; a subsequent real COMET plus full numerical
+run passed 14 tests after adding the LOS population pair. Ruff, Pyright,
+TypeScript and source/test ESLint checks passed. This is local verification,
+not remote CI, scientific approval or completion of the full master specs.
 
-ثبت منبع واقعی، نرمال‌سازی بدون تغییر پیکسل و انتشار مجموعهٔ تاریخی ۲۰۱۴–۲۰۲۰ انجام شده است.
-شواهد و محدودیت‌ها در [پذیرش محصول تاریخی](../v2/historical-products.md) ثبت شده‌اند.
-ورود ۱۳۳٬۱۱۵ قطعهٔ واقعی زیرساخت OSM، نمایش MVT با Martin و انتخاب شناسنامهٔ هر قطعه
-نیز در محیط محلی بررسی شده‌اند؛ [زیرساخت](../v2/osm-infrastructure.md)، [لایهٔ برداری](../v2/vector-tiles.md).
-تحلیل هر ۱۲٬۷۲۲ قطعهٔ راه‌آهن و ۱۲۰٬۳۹۳ قطعهٔ راه اصلی کامل و منتشر شده است.
-جمعیت کل و ۳۱ منطقهٔ تاریخی، فهرست زیرساخت، جزئیات قابل اشتراک و دانلودهای
-JSON/CSV/GeoJSON نیز در نسخهٔ `0.2.0-alpha.6` آزموده شده‌اند؛
-[شواهد زیرساخت و خروجی](../v2/asset-exploration.md)، [جمعیت](../v2/population-exposure.md).
-نسخهٔ `0.2.0-alpha.7` مواجههٔ بریده‌شده با مرز تاریخی و سه حالت اصلی نقشه را اضافه می‌کند؛
-شواهد در [مناطق](../v2/regions.md) ثبت شده است.
-نسخهٔ `0.2.0-alpha.8` جدول قطعه‌بندی، انتخاب هندسهٔ واقعی و بازیابی آن از نشانی را
-با چهار آزمون دسکتاپ و موبایل اضافه می‌کند؛ [شواهد](../v2/asset-exploration.md).
-نسخهٔ `0.2.0-alpha.9` گرادیان آزمایشی کل دادهٔ واقعی و مقایسهٔ نمونهٔ قم مقالهٔ Payne
-را با سه آزمون تحلیلی و فایل واقعی اضافه می‌کند؛ [گرادیان](../v2/gradient-proxy.md)،
-[اختلاف‌ها و فرض‌های باز](../v2/payne-2025-research.md).
-نسخهٔ `0.2.0-alpha.10` گزارش PDF فارسی زیرساخت را با آزمون واقعی تولید، خطا، بازیابی
-و دانلود در دسکتاپ و موبایل اضافه می‌کند؛ [شواهد](../v2/reports.md).
-نسخهٔ `0.2.0-alpha.11` گزارش منطقه‌ای و سراسری را با نسخهٔ دقیق تحلیل جمعیت و دو نوع
-زیرساخت اضافه می‌کند؛ سه آزمون واقعی API/PDF و چهار آزمون دسکتاپ/موبایل موفق شدند.
-نسخهٔ `0.2.0-rc.1` CLI یکپارچه را اضافه می‌کند. مجموعهٔ ۴۶ آزمون API و محاسبات مکانی،
-۱۴ آزمون رابط، lint و بررسی نوع‌ها موفق شدند؛ imageهای API، وب و راه‌انداز ساخته شدند.
-نسخهٔ `0.2.0` با پشتهٔ سالم Compose و پوشش هر ۳۲ سناریوی مرورگر پذیرفته شد؛
-[دامنه و شواهد نهایی MVP](../v2/acceptance.md). کمبود Expat در image اصلاح شد.
-پذیرش علمی روش تفاضلی باز می‌ماند و خطر سازه‌ای فعال نیست.
-پیش‌نیاز MVP برای آغاز مرحلهٔ اول V3 فراهم شده است؛ دادهٔ تاریخی جایگزین مشاهدهٔ جدید نیست.
-جدول و موانع زیر سابقهٔ پذیرش V1 هستند و وضعیت جاری دادهٔ عمومی را توصیف نمی‌کنند.
+The API and web images built sequentially and became healthy against the retained
+PostGIS and object store. The API reported `0.3.0-alpha.4`, listed population
+years 2026/2020 and returned all 323 COMET epochs through the local reverse proxy.
+Ten real desktop/mobile source, population, navigation and recovery cases then
+passed on the built Compose stack in 48 seconds. Image identities were
+`sha256:5a7329cd95b80b1690b6d95bbb5a05217c631e613fdb5249c2249761d9c9868a`
+(API) and `sha256:2cce46d9120650128872e4b45f3a94c54108d51faa9d92a8f0cba24dddb5de12`
+(web). Large frontend chunk warnings remain. No remote repository or deployment
+target is configured, so no public release is claimed.
 
-این جدول وضعیت نرم‌افزار را از تأیید علمی جدا می‌کند. تست ناموفق به معنی milestone تمام‌شده نیست.
+## V3 foundations already delivered
 
-| مرحله | پیاده‌سازی | شواهد پذیرش |
+`0.3.0-alpha.1` added four event/revision/observation/evidence tables, internal versioned writes and read APIs restricted to published data. PostGIS rollback and migration roundtrip passed; see [event foundation](../v3/event-foundation.md). No real operational event was registered at that checkpoint.
+
+The second stage implemented numerical seasonal-trend detection, clustering and geometric association; see [method and operational limits](../v3/statistical-detector.md). It defines no default operational threshold.
+
+`0.3.0-alpha.3` connected event listing/details, map, history, observations and evidence to the API; see [UI acceptance](../v3/event-ui.md). Real NISAR metadata was discovered, but measurements were not ingested; see [source discovery](../v3/operational-source-discovery.md).
+
+## Historical V2 delivery
+
+The real 2014–2020 source was registered, normalized without changing base pixels and published; see [historical products](../v2/historical-products.md). Local checks also covered 133,115 real OSM infrastructure segments, Martin MVT and per-feature selection; see [infrastructure](../v2/osm-infrastructure.md) and [vector tiles](../v2/vector-tiles.md). Analysis of all 12,722 railway and 120,393 major-road features completed and was published.
+
+| Version | Delivered scope and evidence |
+| --- | --- |
+| `0.2.0-alpha.6` | Country and 31 historical-region population, infrastructure listing, shareable details and JSON/CSV/GeoJSON downloads; [asset exploration](../v2/asset-exploration.md), [population](../v2/population-exposure.md) |
+| `0.2.0-alpha.7` | Historically clipped regional exposure and three map modes; [regions](../v2/regions.md) |
+| `0.2.0-alpha.8` | Segment table, actual geometry selection and URL recovery; four desktop/mobile checks |
+| `0.2.0-alpha.9` | Experimental gradient over the complete real dataset and the Payne Qom comparison; three analytical/real-file checks; [gradient](../v2/gradient-proxy.md), [unresolved differences](../v2/payne-2025-research.md) |
+| `0.2.0-alpha.10` | Persian infrastructure PDF with real generation, failure, recovery and desktop/mobile downloads; [reports](../v2/reports.md) |
+| `0.2.0-alpha.11` | Regional/country reports pinned to population and both infrastructure analysis types; three real API/PDF and four browser checks |
+| `0.2.0-rc.1` | Unified CLI; 46 API/geospatial and 14 UI checks, lint and types passed; API/web/initializer images built |
+| `0.2.0` | Healthy Compose stack and all 32 browser cases; [MVP scope and acceptance](../v2/acceptance.md); missing Expat in the image fixed |
+
+Differential scientific acceptance remains open; structural hazard is disabled. The MVP was used as the prerequisite for initial V3 foundations. Historical data never replace new observations. The user's subsequent direction is to close the full V2 gaps before further V3 expansion.
+
+## Historical V1 acceptance table
+
+| Stage | Implementation | Evidence at that checkpoint |
 | --- | --- | --- |
-| 0 — Repository | monorepo، Compose، Dockerfile، قرارداد API و CI | ساخت دو image موفق؛ پذیرش کامل Compose هنوز تأیید نشده |
-| 1 — Shell | فارسی/RTL، React/Vite، URL، routing، حالت خطا | build/typecheck موفق؛ حالت قطع API روی build در دسکتاپ و موبایل موفق |
-| 2 — Model | شش جدول PostGIS و seed ورامین | upgrade → downgrade → upgrade موفق |
-| 3 — Fixture | COG خصوصی و tile با asset ID | COG validation و PNG و golden pixel موفق |
-| 4 — UI | سه لایه، opacity، legend، metadata | ۶ آزمون frontend موفق؛ پذیرش کامل E2E باقی است |
-| 5 — Point | نمونه‌برداری COG و NoData | مقدار golden و مرزهای مختصات موفق |
-| 6 — Time series | cube JSON fixture، نمودار، missing epoch و uncertainty band | آزمون داده موفق؛ پذیرش نهایی reload نیازمند اجرای مجدد stack |
-| 7 — QC UI | caution صریح، coherence، uncertainty، reference، counts | پوشش failure isolation نوشته شده؛ مجموعهٔ کامل هنوز سبز نیست |
-| 8 — STAC | Catalog/Collection/Item، metadata و provenance | validator رسمی STAC موفق |
-| 9 تا 16 | هنوز اجرا نشده | discovery واقعی، profile، HyP3، MintPy و تأیید علمی لازم است |
+| 0 — Repository | Monorepo, Compose, Dockerfiles, API contract and CI | Two image builds passed; complete Compose acceptance unverified |
+| 1 — Shell | Persian/RTL, React/Vite, URLs, routes and errors | Build/types passed; disconnected-API behavior passed on desktop/mobile build |
+| 2 — Model | Six PostGIS tables and Varamin seed | Upgrade → downgrade → upgrade passed |
+| 3 — Fixture | Private COG and asset-ID tiles | COG validation, PNG and golden pixel passed |
+| 4 — UI | Three layers, opacity, legend and metadata | Six frontend checks passed; full E2E pending |
+| 5 — Point | COG sampling and NoData | Golden value and coordinate boundaries passed |
+| 6 — Time series | JSON fixture cube, chart, missing epochs and uncertainty band | Data check passed; reload required another stack run |
+| 7 — QC UI | Explicit caution, coherence, uncertainty, reference and counts | Failure-isolation coverage written; complete suite not green |
+| 8 — STAC | Catalog/Collection/Item, metadata and provenance | Official STAC validation passed |
+| 9–16 | Not implemented at the checkpoint | Real discovery, profile, HyP3, MintPy and scientific approval required |
 
-## شواهد نسخهٔ 0.1.0 — ۲۰۲۶-۰۹-۰۵
+## Version 0.1.0 evidence — 2026-09-05
 
-- ۲۰ آزمون API/raster/STAC با PostGIS و S3 محلی موفق شدند.
-- پس از اصلاح قرارداد خطای 422، دو آزمون مستقل COG و همگامی OpenAPI دوباره موفق شدند.
-- شش آزمون frontend، lint، TypeScript، Ruff، Pyright و build موفق شدند.
-- migration با upgrade → downgrade → upgrade روی پایگاه اولیه بررسی شد.
-- ساخت imageهای API و frontend موفق شد؛ آخرین اصلاح worker پس از آن بوده و image نهایی باید دوباره ساخته شود.
-- آزمون Playwright روی build نهایی، worker نقشه، خطای قطع API، نبود overflow و دسترسی کپی URL را در دسکتاپ و موبایل تأیید کرد: ۲ آزمون موفق.
-- مجموعهٔ کامل E2E سبز نشده است. در اجرای قبلی ۸ مورد از ۱۲ مورد موفق شدند؛ اجرای مجدد با قطع اتصال داده متوقف شد. این نتیجه پذیرش milestoneهای 0–8 نیست.
+Twenty API/raster/STAC checks passed against local PostGIS/S3. After the 422 error contract fix, independent COG and OpenAPI checks passed again. Six frontend tests, lint, TypeScript, Ruff, Pyright and build passed. Initial database migration roundtrip passed. API and frontend images built; a later worker correction still required a final rebuild.
 
-STAC پس از پیداشدن لینک Collection مفقود در run جدید اصلاح شد. نسخهٔ قبلی برای حفظ
-provenance نگه داشته و superseded شده است. مشکل آدرس worker در MapLibre 6 نیز مطابق
-[راهنمای رسمی نصب](https://maplibre.org/maplibre-gl-js/docs/) با worker مستقل Vite اصلاح شد.
+Two Playwright cases against the final build verified the map worker, API-disconnected state, no overflow and URL-copy access on desktop/mobile. The full E2E suite was not green: 8 of 12 passed previously, and a rerun stopped on a data disconnection. That did not accept milestones 0–8.
 
-## مانع محیط محلی و ادامهٔ پذیرش
+A missing STAC Collection link was fixed in a new run; the previous version was retained and superseded. The MapLibre 6 worker URL was fixed using a separate Vite worker according to the [official installation documentation](https://maplibre.org/maplibre-gl-js/docs/).
 
-Docker Desktop حین بررسی به وضعیت `stopping` رفت و API آن 500 داد. context فعال نیز به
-`colima-cankav-builder` تغییر کرده بود؛ برای جلوگیری از تداخل، context کاربر تغییر داده نشد.
-راه‌اندازی مجدد کل engine انجام نشد. پذیرش کامل Compose و ۱۴ آزمون مرورگر باید پس از
-بازیابی Docker اجرا شود. CI نوشته شده ولی روی سرویس CI اجرا نشده است.
+## Historical environment blocker
 
-API و Vite موقت پس از بررسی بسته می‌شوند. volumeهای داده حذف نمی‌شوند.
+Docker Desktop entered `stopping` and returned API 500. The active context had also changed to `colima-cankav-builder`; the user's context was preserved. The shared engine was not restarted. Complete Compose and 14 browser checks required Docker recovery. CI was written but had not run on a remote CI service.
 
-Chromium موردنیاز Playwright از CDN با 403 منطقه‌ای دانلود نشد؛ آزمون جایگزین از Chrome
-نصب‌شده و پروفایل موقت استفاده می‌کند. این جایگزین به معنی تأیید همهٔ مرورگرهای هدف نیست.
+Temporary API/Vite services were to be stopped after checking; persistent volumes were retained. Playwright Chromium download failed with a regional CDN 403, so checks used installed Chrome with a temporary profile. This did not establish support for every target browser.

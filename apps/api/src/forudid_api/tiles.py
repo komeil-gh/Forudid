@@ -12,7 +12,7 @@ from forudid_api import catalog
 from forudid_api.config import settings
 from forudid_api.db import session
 from forudid_api.storage import read_url
-from forudid_api.styles import DEFAULT_STYLE, STYLES, colormap
+from forudid_api.styles import DEFAULT_STYLE, STYLES, colormap, default_style
 
 
 class PublishedTiler(TilerFactory):
@@ -36,14 +36,18 @@ class PublishedTiler(TilerFactory):
             asset, item = catalog.asset(db, asset_id)
             if asset.role != "data" or item.kind not in DEFAULT_STYLE:
                 raise catalog.missing("RASTER_NOT_PUBLISHED")
-            selected = style or DEFAULT_STYLE[item.kind]
+            selected = style or default_style(item)
             if selected not in STYLES or STYLES[selected][0] != item.kind:
                 raise HTTPException(422, "Style does not match this product")
             ticks = STYLES[selected][1]
+            object_key, checksum = asset.object_key, asset.checksum_sha256
+            # Release the catalog connection before remote raster I/O.
+            db.close()
             try:
                 with rasterio.Env(GDAL_HTTP_TIMEOUT=10, GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR"):
-                    with Reader(input=read_url(asset.object_key), options={}) as reader:
+                    with Reader(input=read_url(object_key), options={}) as reader:
                         img = reader.tile(x, y, z, tilesize=256)
+                img.array.set_fill_value(0)
                 img.rescale([(ticks[0], ticks[-1])])
                 payload = img.render(img_format="PNG", colormap=colormap(selected))
             except TileOutsideBounds:
@@ -53,6 +57,6 @@ class PublishedTiler(TilerFactory):
                 media_type="image/png",
                 headers={
                     "Cache-Control": f"public, max-age={settings().tile_cache_seconds}, immutable",
-                    "ETag": f'"{asset.checksum_sha256}-{selected}"',
+                    "ETag": f'"{checksum}-{selected}-{z}-{x}-{y}"',
                 },
             )

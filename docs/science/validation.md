@@ -1,35 +1,40 @@
-# مرز انتشار علمی
+# Scientific publication boundary
 
-نقشهٔ فعلی مجموعهٔ تاریخی واقعی Haghighi–Motagh، دورهٔ ۲۰۱۴–۲۰۲۰، را نشان می‌دهد.
-این محصول برآورد قائم با فرض ناچیزبودن حرکت افقی است، نه تجزیهٔ صعودی/نزولی؛ عدم قطعیت
-و سری زمانی پیکسلی در منبع ارائه نشده‌اند. مقدار `quality=caution` از backend می‌آید.
-تطبیق تمام پیکسل‌ها با منبع تأیید شده، اما اعتبارسنجی علمی مستقل فرودید انجام نشده است.
-هیچ threshold علمی در frontend تعریف نشده است.
+The historical Haghighi–Motagh product covers 2014–2020. It estimates vertical
+motion assuming negligible horizontal motion; it is not ascending/descending
+decomposition. The provider supplies neither pixel uncertainty nor pixel time
+series. The backend reports `quality=caution`. Every normalized base pixel has
+been compared with the original, but independent FORUDID scientific validation
+has not been performed. Scientific thresholds are not defined in the frontend.
 
-API عمومی محصول‌های دارای `is_fixture=true` را به‌طور پیش‌فرض ارائه نمی‌کند؛ fixtureها
-به آزمون نرم‌افزار محدود می‌مانند. شواهد نسخه و حدود علمی در
-[محصول تاریخی V2](../v2/historical-products.md) ثبت شده‌اند.
+Public endpoints hide products with `is_fixture=true` by default. Fixtures are
+software tests only. See [historical products](../v2/historical-products.md) for
+source versions and interpretation limits. WorldPop 2026 is a modelled population
+estimate/projection, not a new deformation observation or a 2026 census.
 
-## پردازش مستقل Sentinel-1 در V1
+## Independent Sentinel-1 processing in V1
 
-پروفایل `pipeline/profiles/varamin-desc-20x4-v1.json` عمداً مقادیر تأییدنشده را `null` نگه
-می‌دارد: ترک واقعی، baselineهای زمانی و عمودی، حداقل درجهٔ شبکه، coherence، تعداد
-مشاهدات و cutoff عدم قطعیت. ترک 071 در نمونه صرفاً fixture است.
+`pipeline/profiles/varamin-desc-20x4-v1.json` deliberately leaves unverified fields
+null: real track, temporal/perpendicular baselines, minimum network degree,
+coherence, observation count and uncertainty cutoff. Track 071 is a fixture value.
 
-پیش از پردازش واقعی لازم است:
+Before real processing:
 
-1. geometry تقریباً ۵۰×۵۰ کیلومتر ورامین و پوشش burstها بررسی و تأیید شود.
-2. acquisitionهای واقعی با مسیر Descending، polarization و ترک سازگار کشف شوند.
-3. بازهٔ زمانی و thresholdهای profile با شواهد علمی تعیین شوند.
-4. دسترسی Earthdata/HyP3 در محیط محلی امن تنظیم شود؛ credential در مخزن قرار نگیرد.
-5. محیط Conda/Mamba علمی مستقل، نسخه‌ها و digest کانتینر ثبت شوند.
-6. QC ماشین‌خوان و خواندنی تولید و run در `validation_required` متوقف شود.
-7. تأیید دستی علمی همراه نام بازبین، زمان و شواهد ثبت شود؛ سپس publish مجاز است.
+1. Verify the approximately 50 × 50 km Varamin geometry and burst coverage.
+2. Discover real descending acquisitions with compatible polarization and track.
+3. Establish the time range and profile thresholds from scientific evidence.
+4. Configure Earthdata/HyP3 access securely outside the repository.
+5. Record the separate Conda/Mamba scientific environment, versions and container digest.
+6. Generate machine-readable and human-readable QC; stop the run at `validation_required`.
+7. Record manual scientific approval with reviewer, time and evidence before publication.
 
-فرمان seed به run علمی دست نمی‌زند و endpoint پردازش یا publish عمومی وجود ندارد.
-پردازش مستقل قائم یا decomposition در این مسیر V1 تولید نشده است؛ محصول تاریخی V2
-از خروجی منتشرشدهٔ پژوهشگران ثبت و بدون تغییر پیکسل نرمال‌سازی شده است.
+The seed command does not modify scientific runs. There is no public processing
+or publication endpoint. Independent vertical processing and decomposition have
+not been produced in this V1 path. V2 registers researchers' published outputs
+and normalizes them without changing base pixels.
 
-Provenance fixture صریحاً `scientifically_validated=false` و container digest ناموجود را
-`null` ثبت می‌کند. این وضعیت برای محصول علمی قابل قبول نیست. مولد fixture با checksum
-در مسیر immutable همان run آرشیو می‌شود.
+Fixture provenance explicitly records `scientifically_validated=false` and a null
+container digest when unavailable. This is not sufficient for scientific-product
+acceptance. The fixture generator is checksummed and archived under its immutable
+run. Numerical software verification is distinct from independent scientific
+validation, operational event evidence, and structural safety assessment.

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import { Layers, X } from 'lucide-react'
 import { mapRoute } from '../app/router'
-import { useListProducts, useGetLegend, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetRegion, type ProfileSample } from '../generated/api/forudid'
+import { useListProducts, useListPopulationSources, useGetLegend, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetRegion, type ProfileSample } from '../generated/api/forudid'
 import { defaultSearch, roundCoordinate, type MapSearch } from '../lib/search'
 import { MapCanvas } from '../features/map/MapCanvas'
 import { LayerPanel } from '../features/layers/LayerPanel'
@@ -15,6 +15,7 @@ import { Button } from '../components/ui/button'
 import { publishedRealProducts } from '../lib/products'
 import { AssetPanel } from '../features/assets/AssetPanel'
 import { ModePanel } from '../features/map/ModePanel'
+import { PopulationLegend, PopulationPointPanel } from '../features/map/PopulationLayer'
 import '../features/map/modes.css'
 
 export default function MapPage() {
@@ -25,10 +26,13 @@ export default function MapPage() {
   const [profilePoint, setProfilePoint] = useState<{ asset: string; sample: ProfileSample }>()
   const inspectProfile = useCallback((sample?: ProfileSample) => setProfilePoint(
     sample && state.asset ? { asset: state.asset, sample } : undefined), [state.asset])
-  const products = useListProducts({ aoi: state.aoi, orbit: state.orbit, run: state.run })
+  const products = useListProducts({ aoi: state.aoi })
+  const populations = useListPopulationSources()
+  const population = state.populationVersion ? populations.data?.items.find(row => row.source_version_id === state.populationVersion) : populations.data?.items[0]
   const choices = publishedRealProducts(products.data || [])
-  const product = state.product ? choices.find(p => p.id === state.product && p.kind === state.layer) :
-    choices.find(p => p.kind === state.layer)
+  const product = state.product ? choices.find(p => p.id === state.product && p.kind === state.layer && (!state.run || p.processing_run_id === state.run)) :
+    choices.find(p => p.kind === state.layer && p.orbit_direction === state.orbit && (!state.run || p.processing_run_id === state.run)) ??
+      (!state.run ? choices.find(p => p.kind === state.layer) ?? choices.find(p => p.kind === 'velocity_los' || p.kind === 'velocity_vertical') : undefined)
   const legend = useGetLegend(product?.id || '', { query: { enabled: !!product } })
   const asset = useGetInfrastructureAsset(state.asset || '', { query: { enabled: state.panel === 'asset' && !!state.asset } })
   const region = useGetRegion(state.region || '', { query: { enabled: state.mode !== 'deformation' && !!state.region } })
@@ -39,17 +43,17 @@ export default function MapPage() {
     void navigate({ search: prev => ({ ...prev, ...values }), replace: true })
   }
   function selectPoint(lon: number, lat: number) {
-    if (!product) return
+    if (state.mode === 'population' ? !population : !product) return
     update({ pointLon: roundCoordinate(lon), pointLat: roundCoordinate(lat), panel: 'point', asset: undefined, analysis: undefined, segment: undefined,
-      product: product.id, run: product.processing_run_id })
+      ...(state.mode !== 'population' && product ? { product: product.id, run: product.processing_run_id, layer: product.kind as MapSearch['layer'], orbit: product.orbit_direction } : {}) })
   }
   const panelProps = { state, product, products: choices, update, onMetadata: () => {
     setLayersOpen(false); setMetadataOpen(true)
   } }
-  const showPoint = product && state.panel === 'point' && state.pointLon !== undefined && state.pointLat !== undefined
+  const showPoint = (state.mode === 'population' ? !!population : !!product) && state.panel === 'point' && state.pointLon !== undefined && state.pointLat !== undefined
   const showAsset = state.panel === 'asset' && !!state.asset
   const controls = state.mode === 'deformation' ? <LayerPanel {...panelProps} /> : <>
-    <ModePanel state={state} product={product} update={update} selectAsset={(id, runId) => {
+    <ModePanel state={state} product={product} population={population} update={update} selectAsset={(id, runId) => {
       update({ asset: id, analysis: runId, segment: undefined, panel: 'asset', pointLon: undefined, pointLat: undefined }); setLayersOpen(false)
     }} />
     <details className="mode-display"><summary>{language === 'fa' ? 'داده و تنظیمات نمایش' : 'Data and display settings'}</summary><LayerPanel {...panelProps} /></details>
@@ -64,19 +68,21 @@ export default function MapPage() {
   </div><div className={`workspace ${showPoint || showAsset ? 'has-point' : ''}`}>
     <aside className="desktop-sidebar">{controls}</aside>
     <div className="map-workspace"><div className="map-region">
-      <MapCanvas state={state} product={product} style={legend.data?.style} update={update} selectPoint={selectPoint}
+      <MapCanvas state={state} product={product} population={state.mode === 'population' ? population : undefined} style={legend.data?.style} update={update} selectPoint={selectPoint}
         region={state.mode !== 'deformation' && state.region ? region.data : undefined}
         profilePoint={profilePoint && profilePoint.asset === state.asset && showAsset ? profilePoint.sample : undefined}
         selectedGeometry={showAsset ? interval?.geometry ?? asset.data?.geometry : undefined} />
-      {products.isPending ? <div className="map-message"><Status /></div> : products.isError ?
+      {state.mode !== 'population' && (products.isPending ? <div className="map-message"><Status /></div> : products.isError ?
         <div className="map-message"><Status error retry={() => void products.refetch()} /></div> : !product ?
         <div className="map-message"><p>{m.empty}</p><Button onClick={() => update(defaultSearch)}>{m.reset}</Button></div> :
-        <>{legend.isError && <div className="map-message"><Status error retry={() => void legend.refetch()} /></div>}
+        legend.isError && <div className="map-message"><Status error retry={() => void legend.refetch()} /></div>)}
+      {(state.mode === 'population' ? population : product) && <>
           <div className="map-guidance">
-            {legend.data && <Legend data={legend.data} />}
-            {!showPoint && !showAsset && <p className="map-hint">{state.mode === 'population' ? (language === 'fa' ? 'محدوده را از پنل انتخاب کنید؛ مرز تاریخی روی نقشه و آمار جمعیت در پنل نمایش داده می‌شود.' : 'Choose a region in the panel to display its historical boundary and population statistics.') : (language === 'fa' ? 'برای جزئیات روی راه یا راه‌آهن بزنید؛ برای مقدار تغییرشکل، نقطه‌ای از نقشه را انتخاب کنید.' : 'Select a road or railway for details, or choose a map point for a deformation value.')}</p>}
+            {state.mode === 'population' ? population && <PopulationLegend source={population} /> : legend.data && <Legend data={legend.data} />}
+            {!showPoint && !showAsset && <p className="map-hint">{state.mode === 'population' ? (language === 'fa' ? 'برای شمار جمعیت، روی سلول بزنید. سال و محدوده از پنل انتخاب می‌شوند؛ دوره و مؤلفهٔ تغییرشکل مستقل از سال جمعیت‌اند.' : 'Select a cell for its population count. Choose year and region in the panel; deformation period and component are independent of population year.') : (language === 'fa' ? 'برای جزئیات روی راه یا راه‌آهن بزنید؛ برای مقدار تغییرشکل، نقطه‌ای از نقشه را انتخاب کنید.' : 'Select a road or railway for details, or choose a map point for a deformation value.')}</p>}
           </div></>}
       {state.mode !== 'deformation' && state.region && region.isError && <div className="map-message"><Status error retry={() => void region.refetch()} /></div>}
+      {state.mode === 'population' && (populations.isPending ? <div className="map-message"><Status /></div> : populations.isError ? <div className="map-message"><Status error retry={() => void populations.refetch()} /></div> : !population && <div className="map-message"><p>{language === 'fa' ? 'نسخهٔ جمعیت انتخاب‌شده در دسترس نیست.' : 'The selected population version is unavailable.'}</p></div>)}
       <Dialog.Root open={layersOpen} onOpenChange={setLayersOpen}>
         <Dialog.Trigger asChild><Button className="mobile-layer-button"><Layers size={18} />{m.layers}</Button></Dialog.Trigger>
         <Dialog.Portal><Dialog.Overlay className="dialog-overlay" /><Dialog.Content className="mobile-layers" dir={language === 'fa' ? 'rtl' : 'ltr'}>
@@ -85,7 +91,7 @@ export default function MapPage() {
           {controls}</Dialog.Content></Dialog.Portal>
       </Dialog.Root>
     </div>
-      {showPoint && <PointPanel state={state} product={product} close={() => update({ panel: 'none' })} />}
+      {showPoint && (state.mode === 'population' ? population && <PopulationPointPanel source={population} lon={state.pointLon!} lat={state.pointLat!} close={() => update({ panel: 'none' })} /> : product && <PointPanel state={state} product={product} close={() => update({ panel: 'none' })} />)}
       {showAsset && <AssetPanel data={asset.data} pending={asset.isPending} error={asset.isError}
         productId={product?.id} runId={state.analysis ?? exposure.data?.analysis_run_id} onInspect={inspectProfile}
         selectedSegment={state.segment} onSelectSegment={ordinal => update({ segment: ordinal, analysis: exposure.data?.analysis_run_id })}

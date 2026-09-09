@@ -1,14 +1,17 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { useListProducts, useListRegions, useGetPopulationExposure, useGetRegionalInfrastructureExposure, type PopulationSummary } from '../generated/api/forudid'
+import { useListAreas, useListProducts, useListRegions, useListPopulationSources, useGetPopulationExposure, useGetRegionalInfrastructureExposure, type PopulationSummary } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { useLanguage } from '../i18n'
 import { apiBase } from '../lib/api'
 import { ReportAction } from '../features/assets/ReportAction'
+import { PopulationSelection } from '../features/map/PopulationLayer'
 import './sources.css'
 import './regions.css'
 
 function PopulationResult({ result }: { result: PopulationSummary }) {
   const { language } = useLanguage(), fa = language === 'fa'
+  const populations = useListPopulationSources()
+  const source = populations.data?.items.find(row => row.source_version_id === result.population_source_version_id)
   const number = new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 0 })
   const decimal = new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 1 })
   const percent = new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { style: 'percent', maximumFractionDigits: 1 })
@@ -18,6 +21,8 @@ function PopulationResult({ result }: { result: PopulationSummary }) {
     <h2 id="population-heading">{fa ? 'برآورد جمعیت در پوشش دادهٔ تغییرشکل' : 'Estimated population within deformation coverage'}</h2>
     <p>{fa ? 'سال جمعیت (میلادی):' : 'Population year:'} <bdi>{new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { useGrouping: false }).format(result.population_year)}</bdi> · WorldPop · {fa ? 'حدود یک کیلومتر' : 'approximately 1 km'}</p>
     <p>{fa ? 'برآورد مدل جمعیت است، نه شمار سرشماری. درون هر سلول جمعیت، توزیع یکنواخت فرض شده است.' : 'A population-model estimate, not a census count. Population is assumed uniformly distributed within each native cell.'}</p>
+    <p className="population-source-note">{fa ? 'دورهٔ تغییرشکل مستقل از سال جمعیت است:' : 'Deformation period is independent of population year:'} <bdi dir="ltr">{Array.isArray(result.inputs.deformation_period) ? result.inputs.deformation_period.join(' — ') : '—'}</bdi></p>
+    {result.inputs.measurement_component === 'los' && <p>{fa ? 'نرخ در راستای دید ماهواره (LOS) است؛ مقدار منفی یعنی حرکت دور از ماهواره. این نرخ، مؤلفهٔ قائم یا اندازهٔ فرونشست نیست.' : 'Line-of-sight (LOS) rate: negative means motion away from the satellite. This is not a vertical rate or a subsidence magnitude.'}</p>}
     <dl className="region-metrics">
       <div><dt>{fa ? 'کل جمعیت برآوردی محدوده' : 'Total estimated population'}</dt><dd data-testid="population-total">{number.format(m.estimated_total)}</dd></div>
       <div><dt>{fa ? 'دارای دادهٔ تغییرشکل' : 'With deformation data'}</dt><dd data-testid="population-covered">{number.format(m.estimated_valid_coverage)}</dd></div>
@@ -37,7 +42,9 @@ function PopulationResult({ result }: { result: PopulationSummary }) {
     <details className="source-version"><summary>{fa ? 'روش، منابع و شناسهٔ محاسبه' : 'Method, sources and calculation identity'}</summary>
       <p>{fa ? 'روش آزمایشی؛ اعتبارسنجی علمی مستقل انجام نشده است.' : 'Experimental method; independent scientific validation has not been completed.'}</p>
       <code>{result.method_version}</code><code>{result.analysis_run_id}</code><code>{result.checksum_sha256}</code>
-      <p>{fa ? 'منبع جمعیت:' : 'Population source:'} <a href="https://hub.worldpop.org/geodata/summary?id=31792">WorldPop 2020 · DOI 10.5258/SOTON/WP00670</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+      <p>{fa ? 'منبع جمعیت:' : 'Population source:'} <a href={source?.source_url ?? '/sources'}>WorldPop {result.population_year}</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
+      <p dir="ltr">{typeof result.inputs.population_citation === 'string' ? result.inputs.population_citation : source?.citation}</p>
+      <code>{result.population_source_version_id}</code>
       <p>{fa ? 'واحد پایه نفر/سلول است. بازنمونه‌گیری درون‌یابی‌شدهٔ شمار جمعیت انجام نشده؛ سهم مساحت هم‌پوشانی ملاک تخصیص است.' : 'Native values are people per cell. Counts are allocated by overlapping area without interpolation.'}</p>
       <Link to="/sources">{fa ? 'مشاهدهٔ نسخه‌های منابع' : 'View source versions'}</Link>
     </details>
@@ -81,8 +88,8 @@ function InfrastructureResult({ product, region, type }: { product: string, regi
   </section>
 }
 
-export function PopulationExposure({ product, region }: { product: string, region?: string }) {
-  const query = useGetPopulationExposure(product, { region_id: region }, { query: { retry: false } })
+export function PopulationExposure({ product, region, populationVersion }: { product: string, region?: string, populationVersion?: string }) {
+  const query = useGetPopulationExposure(product, { region_id: region, population_version: populationVersion }, { query: { retry: false } })
   const { language } = useLanguage()
   if (query.isPending) return <Status />
   if (query.isError) return query.error instanceof Error && query.error.message === 'HTTP 404'
@@ -93,9 +100,11 @@ export function PopulationExposure({ product, region }: { product: string, regio
 
 export default function RegionsPage() {
   const { language } = useLanguage(), fa = language === 'fa'
-  const regions = useListRegions(), products = useListProducts({ aoi: 'iran' })
   const search = useSearch({ from: '/regions' }), navigate = useNavigate({ from: '/regions' })
+  const areas = useListAreas(), regions = useListRegions(), products = useListProducts({ aoi: search.aoi ?? 'iran' })
+  const populations = useListPopulationSources()
   const selected = search.region ?? '', selectedProduct = search.product ?? ''
+  const population = search.populationVersion ? populations.data?.items.find(row => row.source_version_id === search.populationVersion) : populations.data?.items[0]
   const velocities = products.data?.filter(p => p.kind === 'velocity_vertical' || p.kind === 'velocity_los') ?? []
   const product = velocities.find(p => p.id === selectedProduct) ?? velocities[0]
   const region = regions.data?.items.find(r => r.id === selected)
@@ -104,16 +113,18 @@ export default function RegionsPage() {
   return <main className="sources-page regions-page"><header><h1>{fa ? 'جمعیت و مناطق' : 'Population and regions'}</h1>
     <p>{fa ? 'مواجههٔ توصیفی با دادهٔ تاریخی تغییرشکل زمین؛ همراه با سال جمعیت، منبع مرز و محدودیت پوشش.' : 'Descriptive exposure to historical ground deformation, with population year, boundary source, and coverage limitations.'}</p></header>
     {regions.isPending || products.isPending ? <Status /> : regions.isError || products.isError ? <Status error retry={() => { void regions.refetch(); void products.refetch() }} /> : invalidSelection ? <p role="status">{fa ? 'محدوده یا محصول انتخاب‌شده در دسترس نیست.' : 'The selected region or product is unavailable.'} <Link to="/regions">{fa ? 'بازگشت به انتخاب محدوده' : 'Choose a region'}</Link></p> : <>
-      <div className="region-controls"><label>{fa ? 'محدوده' : 'Region'}<select value={selected} onChange={e => void navigate({ search: { ...search, region: e.target.value || undefined } })}>
+      <div className="region-controls"><label>{fa ? 'محدودهٔ منبع تغییرشکل' : 'Deformation source area'}<select value={search.aoi ?? 'iran'} onChange={e => void navigate({ search: { ...search, aoi: e.target.value, product: undefined } })}>
+        {areas.data?.map(area => <option key={area.slug} value={area.slug}>{fa ? area.name_fa : area.name_en}</option>)}</select></label><label>{fa ? 'محدوده' : 'Region'}<select value={selected} onChange={e => void navigate({ search: { ...search, region: e.target.value || undefined } })}>
         <option value="">{fa ? 'کل محدودهٔ دادهٔ جمعیت ایران' : 'Entire Iran population dataset footprint'}</option>
         {regions.data.items.map(r => <option key={r.id} value={r.id}>{fa ? r.name_fa : r.name_en}</option>)}</select></label>
         <label>{fa ? 'محصول تغییرشکل' : 'Deformation product'}<select value={product?.id ?? ''} onChange={e => void navigate({ search: { ...search, product: e.target.value || undefined } })}>
-          {velocities.map(p => <option key={p.id} value={p.id}>{date(p.start_date)} — {date(p.end_date)} · {p.kind === 'velocity_vertical' ? (fa ? 'قائمِ برآوردی' : 'Projected vertical') : 'LOS'}</option>)}</select></label></div>
+          {velocities.map(p => <option key={p.id} value={p.id}>{date(p.start_date)} — {date(p.end_date)} · {p.kind === 'velocity_vertical' ? (fa ? 'قائمِ برآوردی' : 'Projected vertical') : 'LOS'}</option>)}</select></label>
+        <PopulationSelection value={search.populationVersion} onChange={populationVersion => void navigate({ search: { ...search, populationVersion } })} /></div>
       {region && <section className="source-version"><h2>{fa ? region.name_fa : region.name_en}</h2>
         <p>{fa ? 'مرز تاریخی ۲۰۱۷ از geoBoundaries / OpenStreetMap؛ این مرز مرجع رسمیِ وضعیت کنونی نیست.' : 'Historical 2017 boundary from geoBoundaries / OpenStreetMap; not an official current administrative boundary.'}</p>
         <p>{fa ? 'فرادادهٔ منبع ۳۳ واحد اعلام کرده، اما فایل ۳۲ هندسه و ۳۱ نام یکتا دارد. دو بخش مازندران با حفظ شناسه‌های اصلی یکپارچه شده‌اند.' : 'Provider metadata reports 33 units; the file contains 32 geometries and 31 unique names. The two Mazandaran parts were merged with original identifiers preserved.'}</p>
         <a href={`${apiBase}/api/v1/regions/${region.id}`} download={`${region.name_en}.geojson`}>{fa ? 'دریافت مرز و فراداده (GeoJSON)' : 'Download boundary and metadata (GeoJSON)'}</a> · <a href="https://www.openstreetmap.org/copyright">ODbL 1.0</a></section>}
-      {product ? <div key={`${product.id}/${selected}`}><PopulationExposure product={product.id} region={region?.id} />
+      {product ? <div key={`${product.id}/${selected}`}>{population && <PopulationExposure product={product.id} region={region?.id} populationVersion={population.source_version_id} />}
         <InfrastructureResult product={product.id} region={region?.id} type="railway" />
         <InfrastructureResult product={product.id} region={region?.id} type="road" />
       </div> : <p role="status">{fa ? 'محصول نرخ تغییرشکل منتشرشده در دسترس نیست.' : 'No published deformation-rate product is available.'}</p>}

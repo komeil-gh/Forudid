@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { defaultSearch, searchSchema, assetSearchSchema, roundCoordinate } from './search'
+import { defaultSearch, searchSchema, assetSearchSchema, roundCoordinate, parseMapCoordinates } from './search'
 import { presentation } from './units'
 describe('shareable state and scientific units', () => {
+  it('accepts Persian and Arabic coordinate digits without treating malformed or polar values as a place', () => {
+    expect(parseMapCoordinates('۵۱٫۴، ۳۵٫۷')).toEqual({ lon: 51.4, lat: 35.7 })
+    expect(parseMapCoordinates('٥١.٤, ٣٥.٧')).toEqual({ lon: 51.4, lat: 35.7 })
+    expect(parseMapCoordinates('0, 0')).toEqual({ lon: 0, lat: 0 })
+    for (const value of ['181, 30', '51, 90', 'NaN, 10', ',35', '51,', 'Tehran']) expect(parseMapCoordinates(value)).toBeUndefined()
+  })
   it('accepts numeric OSM queries decoded from URLs without accepting structured input', () => {
     expect(assetSearchSchema.parse({ q: 963780743 }).q).toBe('963780743')
     expect(assetSearchSchema.parse({ q: 'راه‌آهن' }).q).toBe('راه‌آهن')
@@ -17,6 +23,10 @@ describe('shareable state and scientific units', () => {
     expect(value.lon).toBe(52)
     expect(value.pointLon).toBe(51.6452)
     expect(searchSchema.parse(JSON.parse(JSON.stringify(value)))).toEqual(value)
+  })
+  it('restores registered source slugs without accepting paths or oversized input', () => {
+    expect(searchSchema.parse({ aoi: 'varamin-comet' }).aoi).toBe('varamin-comet')
+    for (const aoi of ['../secret', 'x'.repeat(65), 'Iran?run=x']) expect(searchSchema.parse({ aoi }).aoi).toBe('iran')
   })
   it('preserves nulls, negative LOS and zero in SI conversion', () => {
     expect(presentation(-0.0712, 'm/year')).toBeCloseTo(-71.2)

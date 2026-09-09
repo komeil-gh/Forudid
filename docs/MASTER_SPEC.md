@@ -1,73 +1,73 @@
 # فرودید | FORUDID — Master Engineering Specification
 
-## 0. مأموریت پروژه
+## 0. Project mission
 
-«فرودید» یا **FORUDID** یک سامانه علمی‌ـ‌عملیاتی WebGIS برای پایش تغییرشکل سطح زمین ایران بر پایه Sentinel-1 InSAR است.
+**FORUDID**, known in Persian as «فرودید», is a scientific and operational WebGIS platform for monitoring ground deformation in Iran using Sentinel-1 InSAR.
 
-در وضعیت فعلی، پروژه فقط روی **لوکال‌هاست** اجرا می‌شود و هنوز دامنه عمومی ندارد. بنابراین هر اشاره به دامنه، لینک عمومی یا آدرس production باید فعلاً با آدرس توسعه محلی جایگزین شود؛ برای مثال:
+The project currently runs only on **localhost** and has no public domain. Replace references to domains, public links or production addresses with configured local development addresses, for example:
 
 ```text
 http://localhost:5173/map
 ```
 
-یا هر پورت دیگری که در تنظیمات پروژه تعریف شده باشد.
+Or use another port defined in project configuration.
 
-نسخه اول نباید ادعا کند الگوریتم جدیدی برای InSAR ساخته است. محصول باید پردازش‌های علمی معتبر موجود را به یک زنجیره reproducible، versioned و قابل استفاده تبدیل کند.
+Version one must not claim to invent an InSAR algorithm. It must turn established scientific processing into a reproducible, versioned and usable workflow.
 
-کاربر باید بتواند:
+Users must be able to:
 
-1. یک AOI را روی نقشه ببیند.
-2. نقشه سرعت تغییرشکل LOS را مشاهده کند.
-3. coherence و uncertainty را ببیند.
-4. روی یک نقطه کلیک کند.
-5. مقدار LOS velocity و QC آن نقطه را ببیند.
-6. سری زمانی displacement را مشاهده کند.
-7. تاریخ، محصول، orbit و processing run را تشخیص دهد.
-8. بفهمد عدد نمایش‌داده‌شده چقدر قابل اعتماد است.
-9. لینک همان view را برای شخص دیگری ارسال یا در محیط محلی ذخیره کند.
-10. metadata و provenance محصول را مشاهده کند.
+1. View an AOI on the map.
+2. View LOS deformation velocity.
+3. View coherence and uncertainty.
+4. Select a point.
+5. Read that point's LOS velocity and QC.
+6. View its displacement time series.
+7. Identify the date, product, orbit and processing run.
+8. Understand the reliability of the displayed value.
+9. Share or locally save a link to the same view.
+10. Inspect product metadata and provenance.
 
-اصل پروژه:
+Project principle:
 
-> اول یک دشت را درست اندازه بگیر، بعد ایران را اندازه بگیر.
+> Measure one plain correctly before measuring Iran.
 
-MVP فقط با **ورامین** آغاز شود.
+Start the MVP with **Varamin** only.
 
 ---
 
-# 1. قواعد علمی غیرقابل مذاکره
+# 1. Non-negotiable scientific rules
 
-## 1.1 LOS با فرونشست عمودی یکی نیست
+## 1.1 LOS is not vertical subsidence
 
-در MVP هرگز عبارت‌هایی مانند:
+Never display statements such as:
 
 ```text
 Vertical Subsidence = -72 mm/year
 ```
 
-نمایش داده نشود، مگر اینکه محصول واقعاً از decomposition علمی مناسب Ascending + Descending تولید شده باشد.
+Unless the product was actually produced through appropriate scientific ascending/descending decomposition.
 
-در نسخه اول label اصلی باید باشد:
+The primary label in version one must be the following Persian UI text:
 
 **نرخ تغییرشکل در راستای دید ماهواره — LOS Velocity**
 
-یا:
+Or:
 
 **LOS Velocity (mm/year)**
 
-این یکی از الزامات اصلی پروژه است.
+This is a core project requirement.
 
-## 1.2 علامت مقدار باید تعریف شود
+## 1.2 Define the sign convention
 
-هر محصول باید metadata مربوط به sign convention را داشته باشد.
+Every product must contain sign-convention metadata.
 
-Frontend نباید مستقل از metadata حدس بزند که مقدار منفی یا مثبت به چه معناست.
+The frontend must not infer positive or negative meaning independently of metadata.
 
-Tooltip در legend باید convention محصول را توضیح دهد.
+Explain the product convention in the legend tooltip.
 
-## 1.3 displacement نسبی است
+## 1.3 Displacement is relative
 
-هر time series باید شامل موارد زیر باشد:
+Every time series must include:
 
 * reference date
 * reference point/area
@@ -75,27 +75,27 @@ Tooltip در legend باید convention محصول را توضیح دهد.
 * processing run
 * unit
 
-کاربر باید بتواند بفهمد مقدار نسبت به چه مرجعی محاسبه شده است.
+Users must be able to identify the reference used for the measurement.
 
-## 1.4 QC بخشی از محصول است
+## 1.4 QC is part of the product
 
-هر عدد باید همراه حداقل این موارد قابل مشاهده باشد:
+Every value must make at least the following information available:
 
 * temporal coherence
 * uncertainty
-* تعداد observations
+* observation count
 * orbit direction
 * relative orbit / track
-* شروع دوره
-* پایان دوره
-* آخرین acquisition
+* period start
+* period end
+* latest acquisition
 * processing version
 * reference point
 * quality status
 
-## 1.5 هیچ threshold علمی مهمی hard-code نشود
+## 1.5 Do not hard-code scientific thresholds
 
-مواردی مانند:
+Parameters such as:
 
 * coherence threshold
 * maximum temporal baseline
@@ -103,17 +103,17 @@ Tooltip در legend باید convention محصول را توضیح دهد.
 * minimum valid observations
 * uncertainty cutoff
 
-باید داخل Processing Profile باشند.
+Must belong to a Processing Profile.
 
-همه باید versioned و قابل تغییر باشند.
+All must be versioned and adjustable.
 
 ---
 
-# 2. تصمیم نهایی Frontend
+# 2. Final frontend decision
 
 ## 2.1 Core
 
-Frontend نهایی:
+Frontend stack:
 
 ```text
 React 19
@@ -122,27 +122,27 @@ Vite 8
 pnpm
 ```
 
-از Next.js استفاده نشود.
+Do not use Next.js.
 
-از SSR استفاده نشود.
+Do not use SSR.
 
-Frontend یک SPA مستقل باشد که به FastAPI وصل می‌شود.
+Use an independent SPA connected to FastAPI.
 
-Build نهایی static باشد.
+Produce a static build.
 
-در محیط فعلی، frontend باید روی لوکال‌هاست اجرا شود و هیچ وابستگی به دامنه‌ای مانند `farodid.ir` یا هر دامنه عمومی دیگر نداشته باشد.
+Run locally without depending on `farodid.ir` or any other public domain.
 
 ## 2.2 Routing
 
-استفاده شود:
+Use:
 
 ```text
 @tanstack/react-router
 ```
 
-دلیل اصلی: state قابل اشتراک نقشه باید داخل URL قرار گیرد.
+The main reason is to keep shareable map state in the URL.
 
-مثال محلی:
+Local example:
 
 ```text
 /map
@@ -156,19 +156,19 @@ Build نهایی static باشد.
   &panel=point
 ```
 
-Search params با Zod validate شوند.
+Validate search parameters with Zod.
 
-هر view مهم نقشه باید bookmarkable باشد و پس از reload در لوکال‌هاست قابل بازیابی باشد.
+Every significant map view must be bookmarkable and recoverable after local reload.
 
 ## 2.3 Server State
 
-استفاده شود:
+Use:
 
 ```text
 @tanstack/react-query
 ```
 
-تمام اطلاعات API مانند:
+Manage all API information, including:
 
 * AOI
 * products
@@ -178,11 +178,11 @@ Search params با Zod validate شوند.
 * QC
 * processing runs
 
-با TanStack Query مدیریت شوند.
+Through TanStack Query.
 
-Redux نصب نشود.
+Do not install Redux.
 
-Zustand هم در MVP نصب نشود.
+Do not install Zustand in the MVP.
 
 State architecture:
 
@@ -200,32 +200,32 @@ Temporary UI state
 React local state
 ```
 
-اگر بعداً state پیچیده شد، Zustand فقط با ADR جدا اضافه شود.
+If state later becomes complex, introduce Zustand only through a separate ADR.
 
 ---
 
 # 3. Map stack
 
-استفاده شود:
+Use:
 
 ```text
 MapLibre GL JS 6.x
 react-map-gl 8.x
 ```
 
-Map component مستقیم در React نوشته شود.
+Implement the map component directly in React.
 
-برای MVP، deck.gl dependency ضروری نیست.
+deck.gl is not required for the MVP.
 
-ولی معماری map layer registry طوری نوشته شود که بعداً بتوان اضافه کرد:
+Keep the map-layer architecture capable of later adding:
 
 ```text
 deck.gl
 ```
 
-کاربردهای احتمالی deck.gl:
+Potential deck.gl uses:
 
-* صدها هزار validation point
+* hundreds of thousands of validation points
 * GNSS stations
 * infrastructure risk
 * wells
@@ -236,7 +236,7 @@ deck.gl
 
 ## 3.1 Map performance rule
 
-هیچ event پرتکراری مثل:
+Frequent events such as:
 
 ```text
 mousemove
@@ -244,18 +244,18 @@ onHover
 onViewStateChange
 ```
 
-نباید در هر frame کل application state را update کند.
+Must not update the entire application state every frame.
 
-Camera state فقط روی:
+Write camera state to the URL only on:
 
 ```text
 moveend
 zoomend
 ```
 
-یا با debounce مناسب وارد URL شود.
+Or with appropriate debouncing.
 
-Hover state در local/ref نگهداری شود.
+Keep hover state local or in a ref.
 
 ---
 
@@ -267,30 +267,30 @@ Charts:
 Apache ECharts 6
 ```
 
-از full bundle بدون نیاز استفاده نشود.
+Do not import the full bundle without need.
 
-فقط moduleهای مورد نیاز import شوند.
+Import only required modules.
 
-Time-series chart باید شامل موارد زیر باشد:
+The time-series chart must include:
 
 * X = acquisition date
 * Y = LOS displacement
-* unit = mm برای نمایش
+* display unit: mm
 * reference zero
 * tooltip
-* uncertainty band در صورت وجود
+* uncertainty band when available
 * missing observations
 * zoom
 * reset zoom
-* export CSV بعداً
+* CSV export later
 
-Chart نباید با رنگ به‌تنهایی مفهوم quality را منتقل کند.
+Do not convey quality through color alone.
 
 ---
 
 # 5. UI system
 
-استفاده شود:
+Use:
 
 ```text
 Tailwind CSS 4
@@ -298,32 +298,32 @@ shadcn/ui
 Radix UI
 ```
 
-زبان اولیه:
+Initial language:
 
 ```text
 fa
 ```
 
-جهت:
+Direction:
 
 ```html
 <html lang="fa" dir="rtl">
 ```
 
-RTL باید از اولین commit فعال باشد.
+Enable RTL from the first commit.
 
-نه اینکه آخر پروژه اضافه شود.
+Do not defer it until project completion.
 
-برای اعداد فنی، تاریخ ISO، مختصات و identifierها wrapper با:
+Wrap technical numbers, ISO dates, coordinates and identifiers with:
 
 ```css
 direction: ltr;
 unicode-bidi: isolate;
 ```
 
-استفاده شود.
+Apply this directional isolation consistently.
 
-نام برند در رابط کاربری به شکل زیر نمایش داده شود:
+Display the brand in the UI as:
 
 ```text
 فرودید | FORUDID
@@ -333,9 +333,9 @@ unicode-bidi: isolate;
 
 # 6. Frontend API generation
 
-FastAPI باید source of truth قرارداد API باشد.
+FastAPI is the source of truth for the API contract.
 
-Frontend typeهای API را دستی ننویسد.
+Do not handwrite frontend API types.
 
 Pipeline:
 
@@ -351,31 +351,31 @@ TypeScript API Client
 TanStack Query hooks
 ```
 
-استفاده شود:
+Use:
 
 ```text
 Orval 8
 ```
 
-generated code داخل:
+Place generated code in:
 
 ```text
 apps/web/src/generated/api
 ```
 
-باشد.
+Use this generated-code directory.
 
-هیچ فایل generated دستی edit نشود.
+Do not edit generated files manually.
 
-CI باید بررسی کند generated client با OpenAPI sync است.
+CI must check that the generated client is synchronized with OpenAPI.
 
-در محیط لوکال، آدرس API از طریق configuration قابل تنظیم باشد و به hostname داخلی Docker یا دامنه عمومی وابسته نباشد.
+Make the local API address configurable without depending on internal Docker hostnames or a public domain.
 
 ---
 
 # 7. Frontend Testing
 
-استفاده شود:
+Use:
 
 ```text
 Vitest
@@ -403,19 +403,19 @@ Component test:
 
 E2E:
 
-* بازشدن map در لوکال‌هاست
-* انتخاب AOI
-* نمایش velocity
-* click نقطه
-* نمایش time series
-* عوض‌کردن layer
+* opening the local map
+* AOI selection
+* velocity display
+* point selection
+* time-series display
+* layer changes
 * deep link
-* reload کردن deep link
+* deep-link reload
 * mobile bottom sheet
 
-در unit tests خود MapLibre می‌تواند mock شود.
+MapLibre itself may be mocked in unit tests.
 
-در Playwright یک map واقعی با fixture COG اجرا شود.
+Run a real map with a fixture COG in Playwright.
 
 ---
 
@@ -441,17 +441,17 @@ Package management API:
 uv
 ```
 
-API environment از scientific processing environment جدا باشد.
+Keep the API environment separate from scientific processing.
 
 ---
 
-# 9. جداسازی محیط API و Science
+# 9. Separate API and science environments
 
-این دو environment هرگز یکی نشوند.
+Never merge these environments.
 
 ## API image
 
-سبک‌تر:
+Keep the API image lighter:
 
 ```text
 FastAPI
@@ -465,7 +465,7 @@ PySTAC
 
 ## Science image
 
-با Conda/Mamba:
+Use Conda/Mamba for science:
 
 ```text
 MintPy
@@ -481,23 +481,23 @@ rio-cogeo
 scientific dependencies
 ```
 
-دلیل:
+Reason:
 
-dependencyهای MintPy/GDAL نباید deployment معمول API را شکننده کنند.
+MintPy/GDAL dependencies must not make routine API deployment fragile.
 
 ---
 
 # 10. Raster serving
 
-استفاده شود:
+Use:
 
 ```text
 TiTiler
 ```
 
-اما MVP نباید TiTiler را الزاماً microservice مستقل کند.
+The MVP does not require TiTiler to be a separate microservice.
 
-داخل FastAPI mount شود:
+Mount it in FastAPI:
 
 ```text
 FastAPI
@@ -506,23 +506,23 @@ FastAPI
       └── TiTiler routers
 ```
 
-اگر tile traffic سنگین شد، بدون تغییر public API جدا شود.
+If tile traffic becomes heavy, separate it without changing the public API.
 
-در وضعیت فعلی، این مسیرها فقط از طریق لوکال‌هاست در دسترس هستند.
+These routes currently remain local-only.
 
 ---
 
-# 11. قانون امنیتی مهم TiTiler
+# 11. TiTiler security rule
 
-Public API نباید چیزی شبیه این داشته باشد:
+The public API must not expose routes such as:
 
 ```text
 /tiles?url=https://anything-user-wants.example/file.tif
 ```
 
-کاربر هرگز URL arbitrary به TiTiler ندهد.
+Never accept arbitrary user-supplied URLs in TiTiler.
 
-به‌جای آن:
+Instead use:
 
 ```text
 /tiles/{asset_id}/{z}/{x}/{y}.png
@@ -530,19 +530,19 @@ Public API نباید چیزی شبیه این داشته باشد:
 
 Backend:
 
-1. `asset_id` را دریافت کند.
-2. آن را در DB resolve کند.
-3. بررسی کند asset published است.
-4. internal S3 URI را پیدا کند.
-5. همان URI trusted را به tiler بدهد.
+1. Receive `asset_id`.
+2. Resolve it in the database.
+3. Verify that the asset is published.
+4. Resolve its internal S3 URI.
+5. Pass only that trusted URI to the tiler.
 
-این کار riskهای SSRF و access به objectهای غیرمجاز را کم می‌کند.
+This reduces SSRF and unauthorized-object access risks.
 
 ---
 
 # 12. Storage architecture
 
-معماری به vendor وابسته نباشد.
+Keep storage architecture independent of a vendor.
 
 Interface:
 
@@ -550,7 +550,7 @@ Interface:
 S3-compatible Object Storage
 ```
 
-Application فقط با استاندارد S3 کار کند.
+The application uses the S3 standard only.
 
 Configuration:
 
@@ -563,19 +563,19 @@ S3_BUCKET
 S3_PATH_STYLE
 ```
 
-Object storage private باشد.
+Keep object storage private.
 
-Rasterها public bucket نشوند مگر بعداً تصمیم معماری صریح گرفته شود.
+Do not make raster buckets public without a later explicit architecture decision.
 
-در محیط توسعه، object storage می‌تواند با سرویس محلی S3-compatible اجرا شود و هیچ دامنه عمومی برای آن لازم نیست.
+Development storage can use a local S3-compatible service without a public domain.
 
 ---
 
 # 13. Object naming
 
-هیچ محصول علمی overwrite نشود.
+Never overwrite a scientific product.
 
-ساختار پیشنهادی:
+Suggested structure:
 
 ```text
 s3://forudid/
@@ -598,27 +598,27 @@ s3://forudid/
                 provenance.json
 ```
 
-نام bucket و prefix باید از configuration قابل تغییر باشد.
+Make bucket names and prefixes configurable.
 
-`latest/velocity.tif` ساخته نشود.
+Do not create `latest/velocity.tif`.
 
-Latest product در DB resolve شود.
+Resolve the latest product through the database.
 
 ---
 
 # 14. Scientific archive vs Web product
 
-دو مفهوم جدا:
+Keep these two concepts separate:
 
 ## Scientific archive
 
-خروجی اصلی MintPy:
+Preserve the original MintPy output:
 
 ```text
 HDF5
 ```
 
-نگهداری شود.
+Retain this scientific archive.
 
 ## Published web products
 
@@ -629,7 +629,7 @@ STAC
 JSON metadata
 ```
 
-یعنی:
+The relationship is:
 
 ```text
 MintPy
@@ -644,26 +644,26 @@ MintPy
        └── provenance
 ```
 
-HDF5 صرفاً به خاطر اضافه‌شدن Zarr حذف نشود.
+Do not delete HDF5 merely because Zarr was added.
 
 ---
 
 # 15. STAC
 
-از روز اول metadata محصول با STAC تولید شود.
+Produce STAC product metadata from the start.
 
-اما در MVP نیازی به:
+The MVP does not require:
 
 ```text
 pgSTAC
 stac-fastapi
 ```
 
-نیست.
+These services are unnecessary initially.
 
-ابتدا PySTAC کافی است.
+PySTAC is sufficient at first.
 
-ساختار:
+Structure:
 
 ```text
 STAC Catalog
@@ -673,7 +673,7 @@ Collection: forudid-varamin
 Item: processing run / velocity product
 ```
 
-هر STAC Item باید حداقل شامل:
+Every STAC Item must include at least:
 
 * geometry
 * bbox
@@ -702,9 +702,9 @@ provenance
 
 # 16. Database
 
-PostgreSQL + PostGIS source of truth metadata و vector data باشد.
+PostgreSQL/PostGIS is the source of truth for metadata and vectors.
 
-Rasterها داخل PostgreSQL ذخیره نشوند.
+Do not store rasters inside PostgreSQL.
 
 ## 16.1 areas_of_interest
 
@@ -796,13 +796,13 @@ status ENUM
 created_at
 ```
 
-`pair_signature` برای idempotency استفاده شود.
+Use `pair_signature` for idempotency.
 
 ---
 
 # 20. processing_runs
 
-مهم‌ترین table عملیاتی:
+The principal operational table:
 
 ```text
 id UUID
@@ -837,7 +837,7 @@ error JSONB
 created_at
 ```
 
-هر بار تغییر config علمی باید run جدید بسازد.
+Every scientific configuration change creates a new run.
 
 ---
 
@@ -861,7 +861,7 @@ request JSONB
 response JSONB
 ```
 
-HyP3 job metadata کامل نگهداری شود.
+Preserve complete HyP3 job metadata.
 
 ---
 
@@ -923,7 +923,7 @@ etag TEXT
 created_at
 ```
 
-object key ذخیره شود، نه presigned URL.
+Store object keys, not presigned URLs.
 
 ---
 
@@ -943,7 +943,7 @@ stability_metrics JSONB
 created_at
 ```
 
-Frontend باید بتواند reference point مرتبط را نشان دهد.
+The frontend must be able to display the associated reference point.
 
 ---
 
@@ -965,13 +965,13 @@ passed BOOLEAN NULL
 created_at
 ```
 
-Thresholdها با run ذخیره شوند.
+Store thresholds with their run.
 
 ---
 
 # 26. validation_observations
 
-برای آینده:
+For later implementation:
 
 ```text
 id
@@ -999,13 +999,13 @@ Base path:
 /api/v1
 ```
 
-در محیط فعلی، API از طریق آدرس محلی پروژه در دسترس است؛ برای مثال:
+The API currently uses a local project address, for example:
 
 ```text
 http://localhost:8000/api/v1
 ```
 
-پورت باید از configuration خوانده شود و در مستندات پروژه به‌صورت ثابت فرض نشود.
+Read the port from configuration; documentation must not assume a fixed port.
 
 Health:
 
@@ -1085,7 +1085,7 @@ Response:
 }
 ```
 
-Internal unit SI نگه داشته شود.
+Preserve canonical SI units internally.
 
 Frontend:
 
@@ -1093,9 +1093,9 @@ Frontend:
 m/year → mm/year
 ```
 
-تبدیل کند یا API presentation value جدا بدهد.
+Convert in the frontend, or provide a separate API presentation value.
 
-Canonical value در response از بین نرود.
+Retain the canonical value in the response.
 
 ---
 
@@ -1134,15 +1134,15 @@ Response:
 }
 ```
 
-برای MVP extraction می‌تواند server-side از HDF5/Zarr انجام شود.
+For the MVP, extraction may run server-side from HDF5/Zarr.
 
-Caching برای point requests بعداً اضافه شود.
+Add point-request caching later.
 
 ---
 
 # 30. Region statistics API
 
-بعد از point API:
+After the point API:
 
 ```text
 POST /api/v1/regions/statistics
@@ -1173,9 +1173,9 @@ coverage_fraction
 area_above_threshold
 ```
 
-در MVP threshold arbitrary از client قبول نشود مگر محدود و validated باشد.
+Do not accept arbitrary client thresholds unless bounded and validated.
 
-Polygon محدودیت داشته باشد:
+Bound polygon requests by:
 
 * maximum vertices
 * maximum geographic area
@@ -1186,32 +1186,32 @@ Polygon محدودیت داشته باشد:
 
 # 31. Tile API
 
-Public در محیط محلی:
+Public within the local environment:
 
 ```text
 GET /tiles/{asset_id}/{z}/{x}/{y}.png
 ```
 
-Query parameters فقط whitelist:
+Allow only whitelisted query parameters:
 
 ```text
 style
 ```
 
-مثال:
+Example:
 
 ```text
 ?style=velocity-default
 ```
 
-به client اجازه نده:
+Do not allow the client to supply:
 
 * arbitrary file path
 * arbitrary S3 URL
 * arbitrary remote URL
 * arbitrary Python expression
 
-Style definitions server-side باشند.
+Define styles server-side.
 
 ---
 
@@ -1226,7 +1226,7 @@ coherence-default
 uncertainty-default
 ```
 
-هر style شامل:
+Every style must include:
 
 ```text
 rescale
@@ -1237,11 +1237,11 @@ legend ticks
 unit
 ```
 
-باشد.
+Include all of these fields.
 
-Frontend legend همان style metadata را از API بگیرد.
+The frontend legend must use the same API style metadata.
 
-Color scale و tile rendering نباید مستقل از هم تعریف شوند.
+Do not define the color scale independently of tile rendering.
 
 ---
 
@@ -1256,11 +1256,11 @@ Color scale و tile rendering نباید مستقل از هم تعریف شون�
 /about
 ```
 
-صفحه اصلی می‌تواند ساده باشد.
+The home page may remain simple.
 
-هسته محصول `/map` است.
+The product core is `/map`.
 
-در محیط فعلی، مسیرهای بالا باید با آدرس لوکال frontend قابل دسترسی باشند؛ برای مثال:
+These routes must be accessible through the local frontend address, for example:
 
 ```text
 http://localhost:5173/map
@@ -1270,7 +1270,7 @@ http://localhost:5173/map
 
 # 34. Map URL state
 
-Schema تقریبی:
+Approximate schema:
 
 ```text
 aoi
@@ -1289,9 +1289,9 @@ opacity
 panel
 ```
 
-همه search params validate شوند.
+Validate every search parameter.
 
-Invalid URL نباید app را crash کند.
+Invalid URLs must not crash the application.
 
 Fallback:
 
@@ -1299,13 +1299,13 @@ Fallback:
 default Iran extent
 ```
 
-یا AOI default ورامین در MVP.
+Or use the default Varamin AOI in the MVP.
 
 ---
 
 # 35. Desktop layout
 
-پیشنهاد:
+Suggested layout:
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
@@ -1324,32 +1324,32 @@ default Iran extent
 
 RTL:
 
-Layer panel سمت راست.
+Place the layer panel on the right.
 
-Bottom panel برای time series.
+Use the bottom panel for time series.
 
-Map بیشترین فضای ممکن را بگیرد.
+Give the map as much space as possible.
 
 ---
 
 # 36. Mobile layout
 
-روی موبایل:
+On mobile:
 
-* map تمام صفحه
+* full-screen map
 * top search compact
 * floating layer button
-* selected point به شکل bottom sheet
-* time-series داخل bottom sheet
-* هیچ sidebar دائمی وجود نداشته باشد
+* selected point in a bottom sheet
+* time series inside the bottom sheet
+* no permanent sidebar
 
-Touch targets حداقل اندازه مناسب داشته باشند.
+Use appropriately sized touch targets.
 
 ---
 
 # 37. Layer panel
 
-MVP فقط:
+MVP layers only:
 
 ```text
 ● LOS Velocity
@@ -1373,7 +1373,7 @@ End
 Processing version
 ```
 
-لایه‌های آبخوان، جاده، راه‌آهن و غیره تا MVP scientific درست نشده اضافه نشوند.
+Do not add aquifer, road, railway or other layers until the scientific MVP works.
 
 ---
 
@@ -1386,15 +1386,15 @@ LOS Velocity
 mm/year
 ```
 
-نباید فقط:
+Do not label it merely:
 
 ```text
 Subsidence
 ```
 
-نوشته شود.
+The label must identify the measured component.
 
-Legend باید:
+The legend must include:
 
 * unit
 * min/max
@@ -1403,7 +1403,7 @@ Legend باید:
 * masked pixels
 * sign convention tooltip
 
-را داشته باشد.
+Provide all of this context.
 
 ---
 
@@ -1425,9 +1425,9 @@ GET time series
 open bottom panel
 ```
 
-Request قبلی در click جدید cancel شود.
+Cancel the previous request when another point is selected.
 
-TanStack Query query key شامل:
+The TanStack Query key must include:
 
 ```text
 productId
@@ -1435,15 +1435,15 @@ rounded lon
 rounded lat
 ```
 
-باشد.
+Include all of these values in the key.
 
-دقت rounding باید با raster resolution سازگار باشد.
+Coordinate rounding must match raster resolution.
 
 ---
 
 # 40. Point detail UI
 
-نمایش:
+Display:
 
 ```text
 مختصات
@@ -1477,9 +1477,9 @@ Processing
 v...
 ```
 
-اگر quality بد است، مقدار حذف نشود؛ با status واضح نشان داده شود.
+Do not remove a poor-quality value; display it with an explicit status.
 
-مثلاً:
+For example:
 
 ```text
 کیفیت پایین — برای استناد مناسب نیست
@@ -1487,9 +1487,9 @@ v...
 
 ---
 
-# 41. Quality model در UI
+# 41. UI quality model
 
-مثلاً:
+For example:
 
 ```text
 valid
@@ -1498,28 +1498,28 @@ invalid
 nodata
 ```
 
-اما این status از backend/QC بیاید.
+The status must come from backend QC.
 
-Frontend خودش science threshold اختراع نکند.
+The frontend must not invent scientific thresholds.
 
-رنگ تنها indicator نباشد.
+Color must not be the only indicator.
 
-هم icon و هم text باشد.
+Use both an icon and text.
 
 ---
 
 # 42. Accessibility
 
-تمام داده‌ای که فقط روی canvas/WebGL دیده می‌شود، برای selected point در DOM قابل خواندن باشد.
+All selected-point data shown only on canvas/WebGL must also be readable in the DOM.
 
-الزامات:
+Requirements:
 
 * keyboard navigation
 * visible focus
 * semantic buttons
 * ARIA labels
 * chart textual summary
-* contrast مناسب
+* adequate contrast
 * color-independent status
 * reduced-motion support
 
@@ -1527,9 +1527,9 @@ Frontend خودش science threshold اختراع نکند.
 
 # 43. Basemap
 
-هیچ demo tile provider عمومی بدون مجوز به‌عنوان production basemap استفاده نشود.
+Do not use a public demo tile provider as a production basemap without permission.
 
-در وضعیت فعلی، basemap فقط برای محیط توسعه لوکال پیکربندی می‌شود و نباید فرض شود که دامنه عمومی یا سرویس production در دسترس است.
+The basemap is currently configured for local development only; do not assume a public domain or production service is available.
 
 Basemap configuration:
 
@@ -1538,11 +1538,11 @@ VITE_BASEMAP_STYLE_URL
 VITE_BASEMAP_ATTRIBUTION
 ```
 
-باشد.
+Use these configuration fields.
 
-Provider قابل تعویض باشد.
+Make the provider replaceable.
 
-Attribution هیچ‌وقت مخفی نشود.
+Never hide attribution.
 
 ---
 
@@ -1607,7 +1607,7 @@ forudid/
 └── README.md
 ```
 
-نام repository و packageها باید با برند فعلی پروژه، یعنی `forudid`، هماهنگ باشند.
+Repository and package names must match the current `forudid` brand.
 
 ---
 
@@ -1658,13 +1658,13 @@ test/
 
 Feature-first architecture.
 
-Component dump بزرگی در:
+Do not create an undifferentiated component collection in:
 
 ```text
 components/
 ```
 
-ساخته نشود.
+Keep components organized by feature.
 
 ---
 
@@ -1706,19 +1706,19 @@ core/
   security.py
 ```
 
-API handler مستقیم SQL پیچیده اجرا نکند.
+API handlers must not execute complex SQL directly.
 
-Repository/service separation ساده و معقول باشد.
+Keep repository/service separation simple and proportionate.
 
-Overengineering نشود.
+Avoid overengineering.
 
 ---
 
 # 47. Scientific pipeline commands
 
-Pipeline یک CLI داشته باشد.
+Provide a pipeline CLI.
 
-مثلاً:
+For example:
 
 ```text
 forudid discover
@@ -1730,7 +1730,7 @@ forudid qc
 forudid publish
 ```
 
-و:
+And:
 
 ```text
 forudid run \
@@ -1738,15 +1738,15 @@ forudid run \
   --profile varamin-desc-20x4-v1
 ```
 
-هر step idempotent باشد.
+Every step must be idempotent.
 
-Run شکست‌خورده از صفر شروع نشود.
+A failed run must not restart from scratch.
 
 ---
 
 # 48. Processing Profile
 
-نمونه:
+Example:
 
 ```yaml
 name: varamin-desc-20x4-v1
@@ -1783,21 +1783,21 @@ publish:
   timeseries: true
 ```
 
-`null` یعنی threshold علمی هنوز باید از validation/profile تعیین شود.
+`null` means the scientific threshold still needs to be determined through validation and the profile.
 
-Codex نباید خودش عدد علمی اختراع کند.
+Do not invent scientific parameter values.
 
 ---
 
 # 49. Sentinel discovery
 
-استفاده:
+Use:
 
 ```text
 asf_search
 ```
 
-برای هر AOI:
+For every AOI:
 
 1. geometry query
 2. Sentinel-1 relevant acquisitions
@@ -1805,35 +1805,35 @@ asf_search
 4. relative orbit consistency
 5. polarization consistency
 6. burst coverage
-7. persistence در DB
+7. database persistence
 
-Raw provider metadata هم ذخیره شود.
+Also preserve raw provider metadata.
 
-Discovery باید repeatable باشد.
+Discovery must be repeatable.
 
 ---
 
 # 50. Pair network
 
-اول SBAS network ساخته شود.
+Build the SBAS network first.
 
-Network باید graph در نظر گرفته شود.
+Treat the network as a graph.
 
-قبل از submit:
+Before submission, check:
 
 ```text
 is graph connected?
 ```
 
-بررسی شود.
+This check is required.
 
-اگر disconnected:
+If disconnected:
 
-run متوقف شود و QC error بدهد.
+Stop the run with a QC error.
 
-Pair generation output versioned باشد.
+Version pair-generation output.
 
-برای هر pair:
+For every pair, preserve:
 
 ```text
 reference
@@ -1844,21 +1844,21 @@ burst set
 signature
 ```
 
-ذخیره شود.
+Store these values.
 
 ---
 
 # 51. HyP3 integration
 
-استفاده:
+Use:
 
 ```text
 hyp3_sdk
 ```
 
-Job submission idempotent باشد.
+Job submission must be idempotent.
 
-قبل از submit:
+Before submission, hash:
 
 ```text
 pair_signature
@@ -1868,15 +1868,15 @@ processing options
 burst ids
 ```
 
-hash شوند.
+Use the combined hash for identity.
 
-اگر job قبلی موجود است، duplicate submit نشود.
+Do not resubmit if a matching job already exists.
 
-HyP3 Multi-Burst برای Sentinel-1 مسیر MVP باقی بماند.
+Keep HyP3 Multi-Burst as the MVP Sentinel-1 path.
 
-پس از کامل‌شدن job، output سریع به object storage خود پروژه منتقل شود.
+Promptly copy completed job outputs into project-owned object storage.
 
-Provider storage هیچ‌وقت archive دائمی پروژه فرض نشود.
+Never treat provider storage as the project's permanent archive.
 
 ---
 
@@ -1902,7 +1902,7 @@ Failure:
 failed
 ```
 
-با:
+Store failures with:
 
 ```text
 provider message
@@ -1910,13 +1910,13 @@ retry count
 last attempt
 ```
 
-ذخیره شود.
+Retain this failure context.
 
 ---
 
 # 53. Integrity
 
-بعد از download:
+After download, record:
 
 ```text
 SHA-256
@@ -1924,31 +1924,31 @@ size
 file list
 ```
 
-ثبت شود.
+Persist the integrity record.
 
-Upload به S3 انجام شود.
+Upload to S3.
 
-سپس integrity دوباره بررسی شود.
+Then verify integrity again.
 
-فقط بعد:
+Only afterward set:
 
 ```text
 archived = true
 ```
 
-شود.
+Do not mark an unverified upload archived.
 
 ---
 
 # 54. MintPy
 
-از workflow استاندارد MintPy استفاده شود.
+Use the standard MintPy workflow.
 
-Config MintPy برای هر processing run ذخیره شود.
+Store MintPy configuration for each processing run.
 
-Run command، dependency versions و config همگی در provenance قرار گیرند.
+Include the run command, dependency versions and configuration in provenance.
 
-خروجی‌هایی مانند:
+Preserve outputs such as:
 
 ```text
 timeseries.h5
@@ -1957,13 +1957,13 @@ temporalCoherence.h5
 geometry*.h5
 ```
 
-به‌عنوان scientific artifact نگهداری شوند.
+As scientific artifacts.
 
 ---
 
 # 55. Reproducibility
 
-هر processing run باید بتواند بگوید:
+Every processing run must identify:
 
 ```text
 git_sha
@@ -1978,15 +1978,15 @@ input pairs
 reference point
 ```
 
-بدون این metadata محصول publish نشود.
+Do not publish without this metadata.
 
 ---
 
 # 56. QC Pipeline
 
-QC یک step مستقل باشد.
+QC must be an independent step.
 
-حداقل checks:
+Minimum checks:
 
 ### Network QC
 
@@ -2019,7 +2019,7 @@ residual metrics where available
 
 ### Unwrapping QC
 
-هر metric قابل استخراج از workflow انتخاب‌شده ذخیره شود.
+Preserve every metric available from the selected workflow.
 
 ### Reference QC
 
@@ -2042,7 +2042,7 @@ all required assets exist
 
 # 57. Publication Gate
 
-MVP publication باید manual scientific approval داشته باشد.
+MVP publication requires manual scientific approval.
 
 Flow:
 
@@ -2060,15 +2060,15 @@ validated
 publish
 ```
 
-هیچ run صرفاً چون process exit code = 0 بوده public نشود.
+Never publish a run merely because its process exited with code zero.
 
 ---
 
 # 58. COG publication
 
-برای هر raster web محصول COG ساخته شود.
+Create a COG for every published web raster.
 
-حداقل:
+At minimum:
 
 ```text
 velocity_los.tif
@@ -2077,13 +2077,13 @@ velocity_uncertainty.tif
 valid_mask.tif
 ```
 
-COG validation در CI/publish pipeline انجام شود.
+Validate COGs in CI and the publication pipeline.
 
-Overviews ساخته شوند.
+Build overviews.
 
-NoData صریح باشد.
+Declare NoData explicitly.
 
-CRS و transform حفظ شوند.
+Preserve CRS and transform.
 
 ---
 
@@ -2095,7 +2095,7 @@ Published time cube:
 timeseries.zarr
 ```
 
-ساختار مفهومی:
+Conceptual structure:
 
 ```text
 time
@@ -2105,7 +2105,7 @@ x
 displacement[time,y,x]
 ```
 
-Coordinate arrays و attributes:
+Include coordinate arrays and attributes:
 
 ```text
 unit
@@ -2114,11 +2114,11 @@ reference
 processing_run_id
 ```
 
-داشته باشند.
+Preserve all these attributes.
 
-Zarr برای web/cloud analysis است.
+Zarr supports web/cloud analysis.
 
-HDF5 archive همچنان حفظ شود.
+Keep the HDF5 archive.
 
 ---
 
@@ -2140,21 +2140,21 @@ mm
 mm/year
 ```
 
-تمام conversionها در utility واحد نوشته شوند.
+Put all unit conversions in a shared utility.
 
-هیچ component به‌صورت دستی:
+Components must not manually repeat:
 
 ```text
 value * 1000
 ```
 
-تکرار نکند.
+Reuse the unit utility.
 
 ---
 
 # 61. Time policy
 
-همه timestampهای operational:
+All operational timestamps use:
 
 ```text
 UTC
@@ -2162,9 +2162,9 @@ TIMESTAMPTZ
 ISO 8601
 ```
 
-Acquisition date از provider preserve شود.
+Preserve provider acquisition dates.
 
-Frontend localization فارسی فقط presentation باشد.
+Persian localization is presentation only.
 
 ---
 
@@ -2176,21 +2176,21 @@ PostGIS vectors:
 EPSG:4326
 ```
 
-باشد.
+Use this CRS for PostGIS vectors.
 
-Scientific raster CRS بدون دلیل فقط برای frontend تغییر داده نشود.
+Do not change a scientific raster's CRS merely for frontend convenience.
 
-TiTiler مسئول tile reprojection به WebMercator باشد.
+TiTiler handles tile reprojection to Web Mercator.
 
-CRS هر product در metadata ذخیره شود.
+Store each product's CRS in metadata.
 
 ---
 
 # 63. Observability
 
-از روز اول structured logging.
+Use structured logging from the start.
 
-هر log مرتبط باید در صورت امکان داشته باشد:
+Relevant logs should include, when available:
 
 ```text
 request_id
@@ -2200,15 +2200,15 @@ aoi_id
 product_id
 ```
 
-JSON logs در production.
+Use JSON logs in production.
 
-در محیط لوکال نیز logها باید برای debugging خوانا و قابل فیلتر باشند.
+Local logs must also be readable and filterable for debugging.
 
-Frontend error boundary داشته باشد.
+Provide a frontend error boundary.
 
-API exceptionها error code استاندارد بدهند.
+API exceptions return standardized error codes.
 
-مثال:
+Example:
 
 ```json
 {
@@ -2219,7 +2219,7 @@ API exceptionها error code استاندارد بدهند.
 }
 ```
 
-Stack trace به user فرستاده نشود.
+Do not send stack traces to users.
 
 ---
 
@@ -2227,15 +2227,15 @@ Stack trace به user فرستاده نشود.
 
 ## Public
 
-در MVP فقط read APIs public باشند.
+Only read APIs are public in the MVP.
 
-در وضعیت فعلی، منظور از public فقط قابل دسترسی بودن در محیط توسعه محلی است؛ هیچ endpointی هنوز روی اینترنت عمومی منتشر نشده است.
+Public currently means accessible within local development. No endpoint is yet published on the public internet.
 
-Processing API public نباشد.
+Keep processing APIs private.
 
 ## Secrets
 
-هیچ‌کدام commit نشوند:
+Never commit:
 
 ```text
 Earthdata credentials
@@ -2244,15 +2244,15 @@ S3 secrets
 DB password
 ```
 
-`.env.example` فقط نام متغیرها را داشته باشد.
+`.env.example` contains variable names only.
 
 ## CORS
 
-فقط originهای مشخص.
+Allow explicitly configured origins only.
 
-در محیط لوکال، originهای توسعه مانند `http://localhost:5173` باید صریحاً در configuration تعریف شوند.
+Declare local origins such as `http://localhost:5173` explicitly in configuration.
 
-`*` در production ممنوع.
+Do not allow `*` in production.
 
 ## S3
 
@@ -2262,7 +2262,7 @@ API/worker credentials least privilege.
 
 ## Statistics endpoint
 
-محدودیت:
+Enforce limits on:
 
 * polygon size
 * geometry complexity
@@ -2272,7 +2272,7 @@ API/worker credentials least privilege.
 
 ## TiTiler
 
-arbitrary URL ممنوع.
+Arbitrary URLs are prohibited.
 
 ---
 
@@ -2280,25 +2280,25 @@ arbitrary URL ممنوع.
 
 MVP:
 
-Browser cache برای immutable tile assets.
+Use browser caching for immutable tile assets.
 
-Product assets immutable هستند، بنابراین:
+Product assets are immutable, so use:
 
 ```text
 Cache-Control: public, max-age=..., immutable
 ```
 
-در صورت مناسب‌بودن deployment.
+Where appropriate for the deployment.
 
-Metadata APIs cache کوتاه‌تر.
+Use shorter caches for metadata APIs.
 
-`latest` endpoint در صورت وجود cache کوتاه.
+Any `latest` endpoint must have a short cache.
 
-بعداً CDN برای tileها.
+Add a tile CDN later.
 
-Redis در MVP برای cache اضافه نشود مگر evidence واقعی لازم بودن وجود داشته باشد.
+Do not add Redis caching to the MVP without evidence that it is needed.
 
-در وضعیت فعلی، caching باید با نیازهای لوکال‌هاست و fixtureها سازگار باشد و باعث stale شدن داده‌های توسعه نشود.
+Local caching must accommodate fixtures and must not leave development data stale.
 
 ---
 
@@ -2315,7 +2315,7 @@ web
 reverse-proxy
 ```
 
-نه:
+Do not add:
 
 ```text
 Kubernetes
@@ -2327,45 +2327,45 @@ GraphQL
 service mesh
 ```
 
-Reverse proxy در محیط لوکال باید routeهای داخلی را بدون نیاز به دامنه عمومی فراهم کند.
+The local reverse proxy must provide internal routes without a public domain.
 
 ---
 
 # 67. Workflow engine
 
-در MVP:
+For the MVP:
 
 ```text
 Python CLI + persisted processing state
 ```
 
-کافی است.
+This is sufficient.
 
-Prefect فقط وقتی اضافه شود که:
+Add Prefect only when:
 
-* acquisition جدید خودکار ingest شود
-* schedule لازم شود
-* retries مرکزی لازم شود
-* چند worker داشته باشیم
-* monitoring workflow لازم شود
+* new acquisitions are ingested automatically
+* scheduling is required
+* centralized retries are required
+* multiple workers are needed
+* workflow monitoring is required
 
-آن موقع:
+At that point, add:
 
 ```text
 Prefect 3
 ```
 
-اضافه شود.
+Use that version family.
 
-نه قبل از آن.
+Do not introduce it earlier.
 
 ---
 
 # 68. Reverse proxy
 
-یک reverse proxy ساده استفاده شود.
+Use a simple reverse proxy.
 
-Routeها:
+Routes:
 
 ```text
 /          → web
@@ -2373,23 +2373,23 @@ Routeها:
 /tiles/*   → FastAPI/TiTiler
 ```
 
-در محیط فعلی، این routeها باید از طریق لوکال‌هاست قابل دسترسی باشند.
+These routes must currently be accessible through localhost.
 
-TLS فقط در زمان استقرار روی محیط عمومی یا production اضافه شود.
+Add TLS when deploying to a public or production environment.
 
-Frontend هیچ hostname داخلی container را نشناسد.
+The frontend must not know internal container hostnames.
 
 ---
 
 # 69. MVP Development Strategy
 
-مستقیماً از Sentinel شروع نشود.
+Do not start directly with Sentinel data.
 
-اول یک vertical slice با fixture ساخته شود.
+First build a complete vertical slice using fixtures.
 
 ## Stage A — Fake science, real software
 
-استفاده از:
+Use:
 
 ```text
 sample velocity COG
@@ -2397,7 +2397,7 @@ sample coherence COG
 sample timeseries JSON/Zarr
 ```
 
-هدف:
+The goal is:
 
 ```text
 DB
@@ -2409,26 +2409,26 @@ DB
 → Chart
 ```
 
-کاملاً کار کند.
+Make this complete path work.
 
-این stage mock architecture نیست؛ data fixture است.
+This stage uses fixture data with real architecture.
 
 ---
 
 # 70. Milestone 0 — Repository Foundation
 
-Codex باید:
+Implementation tasks:
 
-1. monorepo بسازد.
-2. README بنویسد.
-3. `.editorconfig` اضافه کند.
-4. `.env.example` بسازد.
-5. Docker Compose base بسازد.
-6. CI base بسازد.
-7. ADR structure بسازد.
-8. frontend scaffold کند.
-9. FastAPI scaffold کند.
-10. PostGIS migration اولیه بسازد.
+1. Create the monorepo.
+2. Write the README.
+3. Add `.editorconfig`.
+4. Create `.env.example`.
+5. Create the base Docker Compose stack.
+6. Create baseline CI.
+7. Create the ADR structure.
+8. Initialize the frontend.
+9. Initialize FastAPI.
+10. Create the initial PostGIS migration.
 
 Acceptance:
 
@@ -2436,7 +2436,7 @@ Acceptance:
 docker compose up
 ```
 
-کل dev stack را بالا بیاورد.
+Must start the entire development stack.
 
 Frontend health OK.
 
@@ -2444,13 +2444,13 @@ API health OK.
 
 DB health OK.
 
-هیچ دامنه‌ای برای موفقیت این milestone لازم نیست؛ تمام سرویس‌ها باید با آدرس‌های محلی و configuration مستندشده در دسترس باشند.
+No domain is required for this milestone. All services must use local addresses and documented configuration.
 
 ---
 
 # 71. Milestone 1 — Frontend Shell
 
-بسازد:
+Build:
 
 ```text
 React
@@ -2481,13 +2481,13 @@ Acceptance:
 * no console errors
 * route reload works
 * URL state works
-* اجرا روی لوکال‌هاست بدون وابستگی به دامنه عمومی
+* local execution without a public-domain dependency
 
 ---
 
 # 72. Milestone 2 — Data Model
 
-Alembic migration برای:
+Create Alembic migrations for:
 
 ```text
 areas_of_interest
@@ -2498,7 +2498,7 @@ reference_points
 qc_metrics
 ```
 
-ورامین seed شود.
+Seed Varamin.
 
 Acceptance:
 
@@ -2508,15 +2508,15 @@ alembic downgrade -1
 alembic upgrade head
 ```
 
-همه موفق.
+All steps must pass.
 
 ---
 
 # 73. Milestone 3 — Sample Product
 
-یک COG کوچک fixture وارد object storage شود.
+Upload a small fixture COG to object storage.
 
-DB product ایجاد شود.
+Create its database product.
 
 API:
 
@@ -2525,19 +2525,19 @@ GET /products
 GET /products/{id}
 ```
 
-بسازد.
+Implement these endpoints.
 
-Tile endpoint با asset ID کار کند.
+The tile endpoint must work with an asset ID.
 
 Acceptance:
 
-COG روی MapLibre در محیط لوکال دیده شود.
+The COG must render in local MapLibre.
 
 ---
 
 # 74. Milestone 4 — Real WebGIS MVP UI
 
-بسازد:
+Build:
 
 * LayerPanel
 * Legend
@@ -2550,7 +2550,7 @@ COG روی MapLibre در محیط لوکال دیده شود.
 
 Acceptance:
 
-Velocity/Coherence/Uncertainty fixture قابل تعویض.
+Users can switch between velocity, coherence and uncertainty fixtures.
 
 ---
 
@@ -2564,9 +2564,9 @@ Point panel.
 
 Acceptance:
 
-کلیک روی coordinate معلوم مقدار fixture مورد انتظار برگرداند.
+Selecting known coordinates returns the expected fixture value.
 
-E2E test داشته باشد.
+Cover this with an E2E check.
 
 ---
 
@@ -2582,7 +2582,7 @@ Acceptance:
 
 click point → chart.
 
-URL refresh → selected context حفظ شود.
+URL refresh preserves the selected context.
 
 ---
 
@@ -2601,35 +2601,35 @@ processing version
 quality
 ```
 
-نمایش دهد.
+Display these fields.
 
 Acceptance:
 
-هیچ velocity بدون quality context در detail panel نمایش داده نشود.
+Never display a velocity in the detail panel without quality context.
 
 ---
 
 # 78. Milestone 8 — STAC Publisher
 
-PySTAC اضافه شود.
+Add PySTAC.
 
-Sample product STAC Item تولید شود.
+Generate a STAC Item for the sample product.
 
-STAC validate شود.
+Validate the STAC document.
 
 Acceptance:
 
-هر published product STAC metadata معتبر داشته باشد.
+Every published product has valid STAC metadata.
 
 ---
 
 # 79. Milestone 9 — Sentinel Discovery
 
-حالا وارد science واقعی شو.
+Begin real scientific data work at this stage.
 
 `asf_search` integration.
 
-برای Varamin:
+For Varamin:
 
 ```text
 Sentinel-1
@@ -2639,11 +2639,11 @@ target burst coverage
 1–2 years
 ```
 
-metadata در DB.
+Store metadata in the database.
 
 Acceptance:
 
-query تکراری duplicate ایجاد نکند.
+Repeating a query must not create duplicates.
 
 ---
 
@@ -2658,8 +2658,8 @@ Persist pairs.
 Acceptance:
 
 * deterministic output
-* duplicate pair ندارد
-* disconnected network detect می‌شود
+* no duplicate pairs
+* disconnected networks are detected
 
 ---
 
@@ -2677,19 +2677,19 @@ Checksum.
 
 Acceptance:
 
-حداقل یک pair واقعی کامل end-to-end archive شود.
+Archive at least one real pair through the complete workflow.
 
 ---
 
 # 82. Milestone 12 — Full Varamin HyP3 Stack
 
-تمام pairهای profile تأییدشده پردازش شوند.
+Process every pair in the approved profile.
 
 Failure recovery.
 
 Acceptance:
 
-همه interferogramهای مورد نیاز archive شده باشند.
+All required interferograms must be archived.
 
 ---
 
@@ -2705,7 +2705,7 @@ Output archive.
 
 Acceptance:
 
-برای Varamin خروجی واقعی:
+Produce real Varamin outputs:
 
 ```text
 timeseries
@@ -2714,25 +2714,25 @@ coherence
 geometry
 ```
 
-تولید شود.
+All listed outputs must exist.
 
 ---
 
 # 84. Milestone 14 — Scientific QC
 
-QC report تولید شود.
+Produce the QC report.
 
-run تا زمان manual approval:
+Until manual approval, keep the run in:
 
 ```text
 validation_required
 ```
 
-بماند.
+Do not advance it before approval.
 
 Acceptance:
 
-QC report machine-readable و human-readable داشته باشد.
+Provide machine-readable and human-readable QC reports.
 
 ---
 
@@ -2755,46 +2755,46 @@ publish
 
 Acceptance:
 
-تمام checksumها ثبت.
+Record every checksum.
 
 COG validates.
 
 STAC validates.
 
-Frontend product واقعی را در محیط لوکال نمایش دهد.
+The frontend displays the real product locally.
 
 ---
 
 # 86. Milestone 16 — First Scientific Release
 
-ورامین.
+Varamin.
 
-فقط:
+Only:
 
 ```text
 Descending
 LOS
 ```
 
-Frontend هیچ vertical product نشان ندهد.
+The frontend must not display a vertical product for this release.
 
-یک نسخه release:
+Create a release:
 
 ```text
 Varamin LOS v1
 ```
 
-با processing version ثابت.
+With a fixed processing version.
 
-این لحظه MVP واقعی پروژه است.
+This establishes the actual project MVP.
 
-هرگونه اشاره به release در این مرحله باید به نسخه محلی یا build مشخص پروژه اشاره کند، نه یک دامنه عمومی.
+Release references at this stage identify a local version or specific project build, not a public domain.
 
 ---
 
 # 87. Phase 2 — Automation
 
-بعد از موفقیت Varamin:
+After Varamin succeeds:
 
 new acquisition detection.
 
@@ -2822,13 +2822,13 @@ manual approval
 publish
 ```
 
-در این مرحله Prefect قابل اضافه‌شدن است.
+Prefect may be added at this stage.
 
 ---
 
 # 88. Phase 3 — Multiple Basins
 
-ترتیب پیشنهادی:
+Suggested order:
 
 ```text
 Varamin
@@ -2844,13 +2844,13 @@ Mashhad
 major subsidence basins
 ```
 
-هر AOI profile مستقل داشته باشد.
+Each AOI has an independent profile.
 
 ---
 
 # 89. Phase 4 — Context layers
 
-بعد از معتبرشدن science:
+After scientific acceptance:
 
 ```text
 aquifers
@@ -2864,27 +2864,27 @@ faults
 GNSS
 ```
 
-برای vectorهای کوچک:
+For small vectors:
 
 ```text
 GeoJSON API
 ```
 
-برای national-scale dynamic vector:
+For national dynamic vectors:
 
 ```text
 MVT
 ```
 
-بعداً یک vector tile server مانند Martin قابل اضافه است.
+A vector tile server such as Martin may be added later.
 
-نه در MVP.
+Not in the original MVP.
 
 ---
 
 # 90. Phase 5 — Ascending + Descending
 
-وقتی هر دو track معتبر داریم:
+When both tracks are valid:
 
 ```text
 Ascending LOS
@@ -2894,22 +2894,22 @@ Descending LOS
 decomposition
 ```
 
-محصول احتمالی:
+Possible products:
 
 ```text
 Vertical
 East-West
 ```
 
-فقط با فرض‌ها و uncertainty مشخص.
+Only with explicit assumptions and uncertainty.
 
-اگر فرض negligible north-south استفاده می‌شود، در metadata و UI صریحاً ذکر شود.
+If negligible north-south motion is assumed, state that explicitly in metadata and UI.
 
 ---
 
 # 91. Phase 6 — Infrastructure Risk
 
-مثلاً:
+For example:
 
 ```text
 Railway geometry
@@ -2921,29 +2921,29 @@ intersection / zonal statistics
 risk context
 ```
 
-UI بتواند بگوید:
+The UI may report:
 
 ```text
 18.3 km of railway
 intersects high-deformation zone
 ```
 
-اما «خطر» علمی/مهندسی نباید صرفاً با threshold raster تعریف شود.
+Scientific or engineering risk must not be defined solely by a raster threshold.
 
 ---
 
 # 92. Phase 7 — Alerts
 
-Alert قبل از baseline معتبر ساخته نشود.
+Do not implement alerts before a valid baseline exists.
 
-نه:
+Do not use:
 
 ```text
 if velocity < -50:
   ALERT
 ```
 
-بلکه بعدها:
+Instead, later use:
 
 ```text
 current trend
@@ -2963,9 +2963,9 @@ candidate alert
 validation
 ```
 
-اول alert داخلی برای analyst.
+Start with internal analyst alerts.
 
-Public alert بعد از اعتبارسنجی.
+Public alerts require validation.
 
 ---
 
@@ -2973,25 +2973,25 @@ Public alert بعد از اعتبارسنجی.
 
 Frontend:
 
-* map first interaction باید سریع باشد
+* fast first map interaction
 * route-level code splitting
 * ECharts lazy load
-* deck.gl فقط اگر استفاده شد lazy load
-* پنل‌های غیرضروری lazy
-* تصاویر بزرگ bundle نشوند
+* lazy-load deck.gl only if used
+* lazy-load nonessential panels
+* do not bundle large images
 
 Map:
 
 * tile source
-* نه download کامل raster
-* GeoJSON بسیار بزرگ مستقیماً browser داده نشود
+* do not download entire rasters
+* do not send very large GeoJSON directly to the browser
 
 API:
 
-* point request سریع
+* fast point requests
 * DB indexes
 * tile caching
-* N+1 query ممنوع
+* no N+1 queries
 
 ---
 
@@ -3005,11 +3005,11 @@ Target:
 * current Safari
 * modern Android/iOS browsers
 
-WebGL2 requirement در documentation ذکر شود.
+Document the WebGL2 requirement.
 
-اگر browser WebGL2 ندارد:
+If the browser lacks WebGL2:
 
-یک error page قابل فهم نمایش داده شود.
+Display an understandable error page.
 
 ---
 
@@ -3019,24 +3019,24 @@ WebGL2 requirement در documentation ذکر شود.
 strict = true
 ```
 
-ممنوع:
+Prohibited:
 
 ```text
 any
 ```
 
-مگر با comment توجیهی.
+Unless justified in a comment.
 
-استفاده شود:
+Use:
 
 * discriminated unions
 * Zod at runtime boundaries
 * generated API types
 * exhaustive switch
 
-Componentهای بزرگ شکسته شوند.
+Split oversized components.
 
-Business logic داخل JSX انباشته نشود.
+Do not accumulate business logic inside JSX.
 
 ---
 
@@ -3047,20 +3047,20 @@ Business logic داخل JSX انباشته نشود.
 * Pyright
 * pytest
 * Pydantic boundaries
-* SQLAlchemy models از API مستقیم return نشوند
+* do not return SQLAlchemy models directly from API handlers
 * DB transactions explicit
 * timezone-aware datetime
-* Decimal فقط جایی که واقعاً لازم است
+* use Decimal only when necessary
 
 ---
 
 # 97. Scientific tests
 
-یک golden fixture کوچک داشته باش.
+Maintain a small golden fixture.
 
-مثلاً چند pixel و epoch مشخص.
+For example, a few specified pixels and epochs.
 
-Regression test بررسی کند:
+Regression checks cover:
 
 * dimensions
 * date count
@@ -3070,9 +3070,9 @@ Regression test بررسی کند:
 * nodata
 * unit
 
-در tolerance علمی مشخص.
+Within explicit scientific tolerances.
 
-Science regression test با refactor software نباید بی‌دلیل عوض شود.
+Software refactoring must not change scientific regression expectations without justification.
 
 ---
 
@@ -3084,7 +3084,7 @@ Generated TypeScript client.
 
 CI:
 
-اگر OpenAPI تغییر کرد ولی generated client commit نشده:
+If OpenAPI changes but the generated client is not committed:
 
 FAIL.
 
@@ -3092,35 +3092,35 @@ FAIL.
 
 # 99. Docker image policy
 
-هر production build با tag متغیر `latest` deploy نشود.
+Do not deploy production builds using a mutable `latest` tag.
 
-بعد از تثبیت:
+After stabilization, record:
 
 * exact version
 * lock files
 * image digest
 
-ثبت شوند.
+Preserve these pins.
 
-Scientific run باید container digest داشته باشد.
+Scientific runs must record their container digest.
 
 ---
 
 # 100. Database migration policy
 
-Migrationهای منتشرشده rewrite نشوند.
+Never rewrite published migrations.
 
-هر schema change:
+Every schema change requires:
 
-migration جدید.
+A new migration.
 
-Production startup خودش migration destructive اجرا نکند مگر deployment step صریح.
+Production startup must not run destructive migrations without an explicit deployment step.
 
 ---
 
 # 101. Product versioning
 
-سه نوع version جدا:
+Keep three version types separate:
 
 ```text
 application_version
@@ -3128,7 +3128,7 @@ pipeline_version
 product_version
 ```
 
-مثال:
+Example:
 
 ```text
 app: 0.4.0
@@ -3136,13 +3136,13 @@ pipeline: insar-v2.1.0
 product: varamin-desc-071-2026q3-v1
 ```
 
-این‌ها با هم اشتباه نشوند.
+Do not confuse these versions.
 
 ---
 
 # 102. Provenance JSON
 
-نمونه مفهومی:
+Conceptual example:
 
 ```json
 {
@@ -3167,7 +3167,7 @@ product: varamin-desc-071-2026q3-v1
 
 # 103. Error handling UI
 
-چهار state عمومی:
+Four general states:
 
 ```text
 loading
@@ -3176,61 +3176,61 @@ empty
 success
 ```
 
-هیچ spinner بی‌پایان.
+No endless spinners.
 
 Error message:
 
-* فارسی
-* قابل فهم
-* دارای retry در صورت منطقی بودن
+* Persian
+* understandable
+* retry when appropriate
 
-Technical error در dev console.
+Send technical error details to the development console.
 
 ---
 
 # 104. Offline/degraded behavior
 
-اگر basemap fail شد ولی scientific overlay/API سالم بود، app کامل crash نکند.
+A basemap failure must not crash a healthy scientific overlay or API workflow.
 
-اگر time series fail شد، map همچنان کار کند.
+A time-series failure must leave the map usable.
 
-اگر QC fail شد، velocity value بدون warning نشان داده نشود.
+A QC failure must not leave a velocity value without a warning.
 
-Featureها fault-isolated باشند.
+Isolate failures between features.
 
-در محیط لوکال، خطاهای مربوط به نبودن دامنه یا سرویس خارجی نباید باعث crash کل برنامه شوند؛ وضعیت degraded باید به‌صورت قابل فهم نمایش داده شود.
+Missing domains or external services must not crash the local application. Explain degraded states clearly.
 
 ---
 
 # 105. Search
 
-MVP فقط AOIهای داخلی را search کند:
+The MVP searches internal AOIs only:
 
 ```text
 ورامین
 ```
 
-External geocoder تا زمانی که provider/licensing مشخص نشده اضافه نشود.
+Do not add an external geocoder before provider and licensing are settled.
 
-بعداً geocoding abstraction ساخته شود.
+Add a geocoding abstraction later.
 
 ---
 
 # 106. Localization
 
-تمام UI strings در component hard-code پراکنده نشوند.
+Do not scatter hard-coded UI strings throughout components.
 
-حتی اگر فقط فارسی داریم:
+Even when Persian is the only language, use:
 
 ```text
 messages/fa.ts
 ```
 
-یا i18n structure ساده ساخته شود.
+Or another simple localization structure.
 
-English later قابل اضافه باشد.
+Keep it possible to add English later.
 
-Scientific identifiers ترجمه نشوند:
+Do not translate scientific identifiers:
 
 ```text
 LOS
@@ -3239,13 +3239,13 @@ Descending
 Temporal Coherence
 ```
 
-می‌توانند همراه توضیح فارسی نمایش داده شوند.
+They may be accompanied by Persian explanations.
 
 ---
 
 # 107. ADRs
 
-از ابتدا این ADRها ایجاد شوند:
+Create these ADRs from the start:
 
 ```text
 0001-react-vite-over-next-svelte.md
@@ -3260,13 +3260,13 @@ Temporal Coherence
 0010-localhost-first-development.md
 ```
 
-هر تغییر مهم بعدی ADR بخواهد.
+Every subsequent significant change requires an ADR.
 
 ---
 
 # 108. Things Codex must NOT add
 
-بدون درخواست صریح اضافه نشوند:
+Do not add these without an explicit request:
 
 ```text
 Next.js
@@ -3291,41 +3291,41 @@ deck.gl
 public domain configuration
 ```
 
-برخی بعدها ممکن است مفید شوند، ولی نه پیش‌فرض.
+Some may become useful later, but are not defaults.
 
 ---
 
-# 109. Definition of Done برای هر Milestone
+# 109. Definition of Done for each milestone
 
-Milestone فقط وقتی تمام است که:
+A milestone is complete only when:
 
-1. implementation کامل باشد.
-2. tests pass باشند.
-3. lint pass باشد.
-4. typecheck pass باشد.
-5. docs update شده باشد.
-6. Compose هنوز بالا بیاید.
-7. migrationها سالم باشند.
-8. هیچ secret commit نشده باشد.
-9. acceptance criteria milestone pass باشد.
-10. هیچ TODO بحرانی پنهان نمانده باشد.
-11. قابلیت در محیط لوکال پروژه قابل اجرا و بررسی باشد.
-12. هیچ وابستگی به دامنه‌ای که هنوز وجود ندارد اضافه نشده باشد.
+1. Implementation is complete.
+2. Tests pass.
+3. Lint passes.
+4. Type checking passes.
+5. Documentation is updated.
+6. Compose still starts successfully.
+7. Migrations remain healthy.
+8. No secrets are committed.
+9. Milestone acceptance criteria pass.
+10. No critical TODO is hidden.
+11. The functionality runs and can be reviewed locally.
+12. No dependency on a nonexistent domain has been introduced.
 
 ---
 
-# 110. دستور کاری برای Codex
+# 110. Implementation instructions
 
-Codex باید این پروژه را milestone-by-milestone بسازد.
+Build this project milestone by milestone.
 
-در ابتدای هر milestone:
+At the start of each milestone:
 
-1. فایل‌های مرتبط موجود را بخواند.
-2. acceptance criteria را استخراج کند.
-3. کوچک‌ترین implementation کامل را طراحی کند.
-4. سپس code بزند.
+1. Read the relevant existing files.
+2. Extract acceptance criteria.
+3. Design the smallest complete implementation.
+4. Then implement it.
 
-در پایان:
+At completion, run:
 
 ```text
 lint
@@ -3335,26 +3335,26 @@ integration tests relevant to milestone
 build
 ```
 
-را اجرا کند.
+All relevant checks are required.
 
-اگر test fail شد، milestone تمام‌شده تلقی نشود.
+A failed test means the milestone is not complete.
 
-هر بار dependency جدید اضافه می‌شود توضیح داده شود:
+For each new dependency, explain:
 
 ```text
 why it is needed
 why existing dependencies cannot do it
 ```
 
-Codex نباید فرض کند پروژه روی دامنه عمومی deploy شده است. تمام تست‌ها، لینک‌ها و acceptance criteria فعلی باید با محیط لوکال و نام برند **فرودید | FORUDID** سازگار باشند.
+Do not assume public deployment. Current tests, links and acceptance criteria must work locally and use the **فرودید | FORUDID** brand.
 
 ---
 
-# 111. ترتیب واقعی کار
+# 111. Implementation order
 
-Codex نباید اول HyP3 را پیاده کند.
+Do not implement HyP3 first.
 
-ترتیب صحیح:
+Correct sequence:
 
 ```text
 Repository
@@ -3392,11 +3392,11 @@ Publish
 Varamin v1
 ```
 
-هدف این است که failureهای WebGIS و science با هم مخلوط نشوند.
+The goal is to isolate WebGIS failures from scientific-processing failures.
 
 ---
 
-# 112. معماری نهایی MVP
+# 112. Final MVP architecture
 
 ```text
                         Sentinel-1
@@ -3462,11 +3462,11 @@ Varamin v1
                                                        ECharts
 ```
 
-تمام اجزای این معماری در مرحله فعلی باید ابتدا روی لوکال‌هاست اجرا و اعتبارسنجی شوند. دامنه عمومی، TLS عمومی، CDN و deployment اینترنتی جزو MVP فعلی نیستند.
+First run and validate every component locally. Public domains, public TLS, CDN and internet deployment are outside the current MVP.
 
 ---
 
-# 113. استک نهایی
+# 113. Final stack
 
 ## Frontend
 
@@ -3574,9 +3574,9 @@ No Kubernetes initially
 
 ---
 
-# 114. اولین Processing Target
+# 114. First processing target
 
-تنها target علمی اولیه:
+The only initial scientific target:
 
 ```text
 AOI:
@@ -3603,37 +3603,37 @@ QC
 metadata
 ```
 
-اگر این زنجیره معتبر نشد، هیچ AOI دوم اضافه نشود.
+Do not add a second AOI before this chain is scientifically accepted.
 
 ---
 
 # 115. MVP Final Acceptance Test
 
-نسخه MVP فقط وقتی موفق است که یک کاربر بتواند:
+The MVP succeeds only when a user can:
 
-1. آدرس محلی نقشه، مانند `http://localhost:5173/map`، را باز کند.
-2. برند **فرودید | FORUDID** را ببیند.
-3. ورامین را ببیند.
-4. `LOS Velocity` واقعی را مشاهده کند.
-5. legend با `mm/year` ببیند.
-6. coherence را انتخاب کند.
-7. uncertainty را انتخاب کند.
-8. روی نقطه کلیک کند.
-9. LOS velocity را ببیند.
-10. uncertainty را ببیند.
-11. temporal coherence را ببیند.
-12. تعداد observations را ببیند.
-13. time series واقعی را ببیند.
-14. orbit و track را ببیند.
-15. processing version را ببیند.
-16. reference را ببیند.
-17. URL همان view را copy و reload کند.
-18. metadata/STAC محصول را ببیند.
-19. سیستم هیچ‌جا LOS را به‌اشتباه vertical subsidence معرفی نکند.
-20. محصول دارای QC و provenance باشد.
-21. همان processing run قابل بازتولید و audit باشد.
-22. تمام قابلیت‌های اصلی بدون نیاز به دامنه عمومی در محیط لوکال اجرا شوند.
+1. Open the local map, such as `http://localhost:5173/map`.
+2. See the **فرودید | FORUDID** brand.
+3. View Varamin.
+4. View real `LOS Velocity`.
+5. Read a legend in `mm/year`.
+6. Select coherence.
+7. Select uncertainty.
+8. Select a point.
+9. Read LOS velocity.
+10. Read uncertainty.
+11. Read temporal coherence.
+12. Read observation count.
+13. View a real time series.
+14. Identify orbit and track.
+15. Identify processing version.
+16. Identify the reference.
+17. Copy and reload the same view URL.
+18. Inspect product metadata/STAC.
+19. Encounter no incorrect labeling of LOS as vertical subsidence.
+20. Access product QC and provenance.
+21. Reproduce and audit the same processing run.
+22. Use all core functionality locally without a public domain.
 
-این نقطه، «فرودید نسخه ۱» است.
+This defines FORUDID version one.
 
-هر چیزی فراتر از آن — کل ایران، alert، decomposition، infrastructure risk و automation — مرحله بعدی است.
+Anything beyond it—national coverage, alerts, decomposition, infrastructure risk and automation—belongs to later phases.

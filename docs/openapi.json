@@ -1503,6 +1503,222 @@
         "title": "PopulationMetrics",
         "type": "object"
       },
+      "PopulationPoint": {
+        "properties": {
+          "cell_bounds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Bounds"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          },
+          "population_year": {
+            "title": "Population Year",
+            "type": "integer"
+          },
+          "source_version_id": {
+            "format": "uuid",
+            "title": "Source Version Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "value",
+              "nodata",
+              "outside_extent"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "unit": {
+            "const": "people/pixel",
+            "default": "people/pixel",
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_version_id",
+          "population_year",
+          "lon",
+          "lat",
+          "count",
+          "cell_bounds",
+          "status"
+        ],
+        "title": "PopulationPoint",
+        "type": "object"
+      },
+      "PopulationSource": {
+        "properties": {
+          "bounds": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Bounds",
+            "type": "array"
+          },
+          "cell_size_degrees": {
+            "title": "Cell Size Degrees",
+            "type": "number"
+          },
+          "checksum_sha256": {
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "citation": {
+            "title": "Citation",
+            "type": "string"
+          },
+          "constrained": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Constrained"
+          },
+          "display_scale": {
+            "const": "log1p",
+            "default": "log1p",
+            "title": "Display Scale",
+            "type": "string"
+          },
+          "estimated_total": {
+            "title": "Estimated Total",
+            "type": "number"
+          },
+          "legend_colors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Legend Colors",
+            "type": "array"
+          },
+          "legend_ticks": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Legend Ticks",
+            "type": "array"
+          },
+          "license": {
+            "title": "License",
+            "type": "string"
+          },
+          "maturity": {
+            "title": "Maturity",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "population_year": {
+            "title": "Population Year",
+            "type": "integer"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "source_version_id": {
+            "format": "uuid",
+            "title": "Source Version Id",
+            "type": "string"
+          },
+          "temporal_semantics": {
+            "title": "Temporal Semantics",
+            "type": "string"
+          },
+          "tile_template": {
+            "title": "Tile Template",
+            "type": "string"
+          },
+          "un_adjusted": {
+            "title": "Un Adjusted",
+            "type": "boolean"
+          },
+          "unit": {
+            "const": "people/pixel",
+            "default": "people/pixel",
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_version_id",
+          "source_id",
+          "population_year",
+          "name",
+          "citation",
+          "license",
+          "source_url",
+          "maturity",
+          "un_adjusted",
+          "constrained",
+          "temporal_semantics",
+          "estimated_total",
+          "bounds",
+          "cell_size_degrees",
+          "checksum_sha256",
+          "tile_template",
+          "legend_ticks",
+          "legend_colors"
+        ],
+        "title": "PopulationSource",
+        "type": "object"
+      },
+      "PopulationSources": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PopulationSource"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PopulationSources",
+        "type": "object"
+      },
       "PopulationSummary": {
         "properties": {
           "analysis_run_id": {
@@ -3249,7 +3465,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.3.0-alpha.3"
+    "version": "0.3.0-alpha.4"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -5054,6 +5270,162 @@
         "summary": "Get Series"
       }
     },
+    "/api/v1/population/sources": {
+      "get": {
+        "operationId": "listPopulationSources",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PopulationSources"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Sources",
+        "tags": [
+          "population"
+        ]
+      }
+    },
+    "/api/v1/population/sources/{identity}/point": {
+      "get": {
+        "operationId": "getPopulationPoint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "identity",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Identity",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "required": true,
+            "schema": {
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PopulationPoint"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Point",
+        "tags": [
+          "population"
+        ]
+      }
+    },
     "/api/v1/products": {
       "get": {
         "operationId": "listProducts",
@@ -5612,6 +5984,23 @@
                 }
               ],
               "title": "Region Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "population_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Population Version"
             }
           }
         ],
@@ -6666,6 +7055,103 @@
           }
         },
         "summary": "Ready"
+      }
+    },
+    "/tiles/population/{identity}/{z}/{x}/{y}.png": {
+      "get": {
+        "operationId": "getPopulationTile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "identity",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Identity",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "z",
+            "required": true,
+            "schema": {
+              "maximum": 18,
+              "minimum": 0,
+              "title": "Z",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "x",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "title": "X",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "y",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "title": "Y",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Tile",
+        "tags": [
+          "population"
+        ]
       }
     },
     "/tiles/{asset_id}/{z}/{x}/{y}.png": {

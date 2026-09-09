@@ -1,7 +1,7 @@
-# MapLibre و React
+# MapLibre and React
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-MapLibre 6 و react-map-gl 8 برای raster tile و تعامل React؛ deck.gl تا نیاز واقعی اضافه نمی‌شود.
+MapLibre 6 and react-map-gl 8 provide raster tiles and React interactions. Add deck.gl only when a demonstrated requirement needs it.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

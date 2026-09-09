@@ -4,37 +4,37 @@
 
 ---
 
-# 0. نام محصول
+# 0. Product name
 
-نام رسمی پروژه:
+Official project name:
 
 **FORUDID**
 
-نام فارسی:
+Persian name:
 
 **فرودید**
 
-در کل repository، UI، metadata، documentation، comments، API examples و reports از همین نام استفاده شود.
+Use these names throughout the repository, UI, metadata, documentation, comments, API examples and reports.
 
-نام قدیمی پروژه در هیچ UI جدیدی استفاده نشود.
+Do not use the former project name in new UI.
 
-اگر repository قبلی نام دیگری دارد، rename باید با migration کنترل‌شده انجام شود و history گیت حفظ شود.
+If the existing repository has another name, rename through a controlled migration and preserve Git history.
 
 ---
 
-# 1. این V2 چیست؟
+# 1. What is V2?
 
-FORUDID V1 یک سامانه برای مشاهده و مدیریت داده‌های تغییرشکل زمین است.
+FORUDID V1 is a platform for viewing and managing ground-deformation data.
 
-FORUDID V2 نباید صرفاً چند layer جدید روی همان نقشه اضافه کند.
+FORUDID V2 must do more than add layers to the same map.
 
-V2 محصول را از:
+V2 transforms the product from:
 
 ```text
 Ground deformation viewer
 ```
 
-به:
+into:
 
 ```text
 Ground deformation
@@ -50,56 +50,56 @@ reports
 decision-support platform
 ```
 
-تبدیل می‌کند.
+This is the product transition.
 
-سؤال اصلی V1:
+The main V1 question:
 
-> زمین اینجا چقدر حرکت می‌کند؟
+> How much is the ground moving here?
 
-سؤال اصلی V2:
+The main V2 question:
 
-> این حرکت زمین چه دارایی‌ها، زیرساخت‌ها و جمعیتی را تحت تأثیر قرار می‌دهد و کجا باید اول بررسی شود؟
+> Which assets, infrastructure and populations are exposed to this ground movement, and where should investigation begin?
 
 ---
 
-# 2. اصل اساسی محصول
+# 2. Core product principle
 
-FORUDID نباید برای تکرار محصولاتی مانند COMET Subsidence Portal ساخته شود.
+FORUDID must not simply duplicate products such as the COMET Subsidence Portal.
 
-FORUDID باید **روی داده علمی معتبر موجود ارزش افزوده ایجاد کند**.
+FORUDID must **add value to existing credible scientific data**.
 
-بنابراین در V2:
+Therefore, in V2:
 
-* تولید InSAR مستقل requirement اصلی نیست.
-* HyP3/MintPy pipeline از V1 می‌تواند باقی بماند.
-* ولی V2 نباید برای کارکرد اصلی خود به pipeline اختصاصی InSAR وابسته باشد.
-* هر deformation dataset معتبر باید بتواند از طریق Data Source Adapter وارد FORUDID شود.
+* Independent InSAR production is not the main requirement.
+* The V1 HyP3/MintPy pipeline may remain.
+* Core V2 functionality must not depend on a proprietary InSAR pipeline.
+* Any suitable deformation dataset should be ingestible through a Data Source Adapter.
 
-معماری باید:
+The architecture must be:
 
 ```text
 source agnostic
 ```
 
-باشد.
+Apply this architecture throughout.
 
 ---
 
 # 3. Product Thesis
 
-ارزش FORUDID این نیست:
+The value of FORUDID is not:
 
-> «من هم یک نقشه فرونشست ایران دارم.»
+> “I also have a subsidence map of Iran.”
 
-ارزش آن باید این باشد:
+Its value must be:
 
-> «من می‌توانم مشخص کنم کدام قطعه زیرساخت یا ناحیه شهری با چه نوع تغییرشکلی مواجه است، کیفیت داده چیست، کدام بخش‌ها اولویت بررسی بیشتری دارند و مبنای این نتیجه چه داده‌ای بوده است.»
+> “I can identify which infrastructure segment or urban area is exposed to which type of deformation, describe data quality, prioritize further investigation and show the evidence supporting the result.”
 
 ---
 
-# 4. اصطلاحات علمی اجباری
+# 4. Required scientific terminology
 
-در کد و UI این چهار مفهوم جدا نگه داشته شوند:
+Keep these four concepts separate in code and UI:
 
 ```text
 Hazard
@@ -110,9 +110,9 @@ Risk
 
 ## Hazard
 
-ویژگی فیزیکی تغییرشکل زمین.
+A physical characteristic of ground deformation.
 
-مثال:
+Example:
 
 * vertical velocity
 * LOS velocity
@@ -122,9 +122,9 @@ Risk
 
 ## Exposure
 
-قرار گرفتن یک asset/population داخل hazard.
+An asset or population intersecting a hazard.
 
-مثال:
+Example:
 
 ```text
 12.4 km railway
@@ -133,21 +133,21 @@ intersects high differential-deformation hazard
 
 ## Vulnerability
 
-میزان حساسیت سازه یا سیستم به آن hazard.
+The susceptibility of a structure or system to that hazard.
 
-مثلاً:
+For example:
 
-* نوع روسازی
+* pavement type
 * foundation
 * bridge type
 * maintenance condition
 * building age
 
-FORUDID V2 معمولاً این اطلاعات را ندارد.
+FORUDID V2 generally does not have this information.
 
 ## Risk
 
-Risk فقط زمانی مجاز است که:
+Risk is allowed only when the following are available:
 
 ```text
 Hazard
@@ -157,15 +157,15 @@ Exposure
 Vulnerability / consequence model
 ```
 
-وجود داشته باشد.
+All of these are required.
 
-بنابراین V2 به‌صورت پیش‌فرض **Structural Risk** تولید نمی‌کند.
+Therefore, V2 does not produce **Structural Risk** by default.
 
 ---
 
-# 5. واژه‌های مجاز V2
+# 5. Allowed V2 terminology
 
-استفاده شود:
+Use:
 
 ```text
 Hazard
@@ -177,7 +177,7 @@ Data Confidence
 Scientific Status
 ```
 
-استفاده نشود مگر مدل علمی معتبر داشته باشیم:
+Do not use without a validated scientific model:
 
 ```text
 Safe
@@ -190,17 +190,17 @@ Collapse Risk
 
 ---
 
-# 6. Disclaimer علمی
+# 6. Scientific disclaimer
 
-در تمام reportها و صفحه‌های analysis باید قابل مشاهده باشد:
+All reports and analysis pages must display the following exact Persian UI notice:
 
 > FORUDID یک ابزار پایش و غربالگری مکانی است و جایگزین ارزیابی ژئوتکنیکی، سازه‌ای، نقشه‌برداری زمینی یا بازدید میدانی نیست.
 
-absence of detected deformation نیز به معنی safety نیست.
+Absence of detected deformation does not establish safety.
 
 ---
 
-# 7. معماری V2
+# 7. V2 architecture
 
 ```text
                          DATA SOURCES
@@ -3827,7 +3827,7 @@ FORUDID V2 MVP is achieved when:
 
 The project is successful only if a user can answer something like:
 
-> «کدام قسمت این خط راه‌آهن در محدوده‌ی تغییرشکل قابل توجه قرار دارد، این بخش چند کیلومتر است، داده مربوط به چه دوره‌ای است، کیفیتش چیست و برای بررسی میدانی باید از کجا شروع کنم؟»
+> “Which sections of this railway intersect substantial deformation, how many kilometers are involved, what period does the data represent, how good is it, and where should a field investigation start?”
 
 A colored raster alone does not satisfy V2.
 

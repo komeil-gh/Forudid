@@ -286,7 +286,11 @@ class PopulationSummary(BaseModel):
     operation_id="getPopulationExposure",
 )
 def population_summary(
-    product_id: UUID, db: DB, run_id: UUID | None = None, region_id: UUID | None = None
+    product_id: UUID,
+    db: DB,
+    run_id: UUID | None = None,
+    region_id: UUID | None = None,
+    population_version: UUID | None = None,
 ):
     product(db, product_id)
     query = (
@@ -302,8 +306,16 @@ def population_summary(
     if run_id is not None:
         query = query.where(AnalysisRun.id == run_id)
     query = query.where(PopulationExposureResult.region_id == region_id)
+    if population_version is not None:
+        query = query.where(
+            PopulationExposureResult.population_source_version_id == population_version
+        )
     row = db.execute(
-        query.order_by(AnalysisRun.finished_at.desc(), AnalysisRun.id).limit(1)
+        query.order_by(
+            PopulationExposureResult.population_year.desc(),
+            AnalysisRun.finished_at.desc(),
+            AnalysisRun.id,
+        ).limit(1)
     ).first()
     if row is None:
         raise missing("POPULATION_EXPOSURE_NOT_AVAILABLE")

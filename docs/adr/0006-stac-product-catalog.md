@@ -1,7 +1,7 @@
-# STAC
+# STAC product catalog
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-PySTAC برای Catalog/Collection/Item و اعتبارسنجی schema. pgSTAC و سرویس مستقل فعلاً لازم نیستند.
+Use PySTAC for Catalog, Collection, Item and schema validation. pgSTAC and a separate service are not currently required.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

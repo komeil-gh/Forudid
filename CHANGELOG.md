@@ -1,116 +1,128 @@
-# تغییرات
+# Changelog
 
-## 0.2.9، ۲۰۲۶-۰۹-۰۶
+## 0.3.0-alpha.4 — 2026-09-09
 
-- تکمیل فوتر منابع با نشان‌های مستند ASF، GFZ، AGU و Geofabrik و انتقال ارجاع Geofabrik به تولتیپ نشان آن.
-- نمایش هشت نشان در نوار تک‌خطی آرام با ترکیب «لوگو، جداکننده و شرح کوتاه»، مکث تعاملی و حالت ثابت برای کاهش حرکت.
+- Register the verified WorldPop 2026 R2025A source while retaining reproducible 2020 results.
+- Connect the official COMET Varamin ascending snapshot, with native LOS rates and 323 actual displacement epochs through July 2026; preserve unavailable uncertainty and the provider's validation limitations.
+- Keep population sampling working during deformation-catalog failures, add source-area selection and footprint navigation, and release catalog connections before raster/chunk I/O.
+- Add real population raster tiles, native-cell inspection and shared source-year selection.
+- Publish separate COMET/WorldPop 2026 country and Tehran overlap analyses with signed LOS bands; preserve the original population method and introduce a bounded second version for exact regional quantiles.
+- Preserve the selected source when navigating from the map to regional analysis, prioritize data requests over raster loading, and prevent attribution from covering mobile map controls.
+- Add local geographic context, an OSM city/town index, place and coordinate search, and a distance scale.
+- Translate maintained documentation into English while retaining Persian product UI and exact quotations.
 
-## 0.2.8، ۲۰۲۶-۰۹-۰۵
+## 0.2.9 — 2026-09-06
 
-- انتقال شرح نشان‌های منابع به تولتیپ قابل دسترس با ماوس و صفحه‌کلید و هم‌ترازی ردیف لوگوها.
-- انتقال توضیح استقلال پروژه و ارجاع Geofabrik به ردیف یادداشت‌های پایانی فوتر.
+- Complete source-footer marks with documented ASF, GFZ, AGU and Geofabrik identities; move the Geofabrik reference into its tooltip.
+- Present eight marks in a quiet single-line strip with separators, short descriptions, interactive pause and a static reduced-motion mode.
 
-## 0.2.7، ۲۰۲۶-۰۹-۰۵
+## 0.2.8 — 2026-09-05
 
-- جداسازی فوتر از ستون نامه، افزایش عرض آن و تنظیم فاصلهٔ نشان‌های منابع برای دسکتاپ و موبایل.
-- هم‌ترازی هدر و فوتر، مرکزکردن ناوبری هدر و حذف ارتفاع خالی اجباری انتهای نامه.
+- Move source-mark explanations into mouse- and keyboard-accessible tooltips and align the logo row.
+- Move the project's independence statement and Geofabrik reference into the footer notes.
 
-## 0.2.6، ۲۰۲۶-۰۹-۰۵
+## 0.2.7 — 2026-09-05
 
-- حفظ جزئیات تونال نشان‌های منابع در فوتر با تنظیم تک‌رنگ اختصاصی برای هر لوگو، به‌جای فیلتر سیاه مشترک و مخرب.
+- Separate the footer from the letter column, widen it and adjust source-mark spacing for desktop and mobile.
+- Align header and footer, center header navigation and remove forced empty height below the letter.
 
-## 0.2.5، ۲۰۲۶-۰۹-۰۵
+## 0.2.6 — 2026-09-05
 
-- جایگزینی وردمارک‌های تقلیدی فوتر با نشان‌های واقعی Sentinel-1، Zenodo، Science Advances و OpenStreetMap، همراه با ارجاع مستقل Geofabrik و یکدست‌سازی تک‌رنگ آن‌ها.
-- پالایش هدر تک‌رنگ با سلسله‌مراتب روشن برند، ناوبری و انتخاب زبان و حذف کامل نشان‌های منابع از آن.
-- یکدست‌سازی امضای نامه با XB Zar، نزدیک‌کردن فاصلهٔ سطرها و افزودن توضیح استقلال شخصی فرودید به فوتر.
-- بازطراحی نقل‌قول صفحهٔ درباره به فرم اپیگراف چاپی، بدون خط تزئینی و با نشانه و انتساب روشن‌تر.
+- Preserve each source logo's tonal detail with individual monochrome treatment instead of a destructive shared black filter.
 
-## 0.2.4، ۲۰۲۶-۰۹-۰۵
+## 0.2.5 — 2026-09-05
 
-- بازطراحی صفحهٔ درباره به فرم نامه: حذف عنوان تکراری و خط نقل‌قول، استفاده از XB Zar برای فارسی و Source Serif 4 برای انگلیسی و افزودن واترمارک خاکستری لوگوی منتخب.
-- بازطراحی هدر و واژه‌نشان، نرم‌کردن تغییر زبان با View Transitions و تکمیل فوتر درباره با نشان کوچک، منابع واقعی پروژه و پویانمایی سازگار با reduced motion.
-- کوتاه‌سازی توضیح امضای انگلیسی و تبدیل تاریخ آن به میلادی.
+- Replace imitation footer wordmarks with actual Sentinel-1, Zenodo, Science Advances and OpenStreetMap marks, an independent Geofabrik reference and consistent monochrome treatment.
+- Refine the monochrome header's brand, navigation and language hierarchy; remove source marks from it.
+- Unify the letter signature in XB Zar, tighten line spacing and add the project's personal independence statement to the footer.
+- Redesign the About quotation as a printed epigraph with clearer attribution and no decorative rule.
 
-## 0.2.3، ۲۰۲۶-۰۹-۰۵
+## 0.2.4 — 2026-09-05
 
-- اصلاح لایه‌بندی نشان صفر و یک برای نمایش قطعی در هر دو زبان، کاهش تداخل آن با متن و انتقال امضای برند به فوتر مستقل صفحهٔ درباره.
+- Redesign About as a letter: remove the repeated heading and quote rule, use XB Zar for Persian and Source Serif 4 for English, and add a grey watermark of the selected logo.
+- Redesign header and wordmark, smooth language changes with View Transitions, and complete the About footer with a small mark, actual project sources and reduced-motion-compatible animation.
+- Shorten the English signature description and use its Gregorian date.
 
-## 0.2.2، ۲۰۲۶-۰۹-۰۵
+## 0.2.3 — 2026-09-05
 
-- افزایش وزن و کنتراست بافت صفر و یک در نشان پشت نامه، با حفظ خوانایی متن در موبایل و دسکتاپ.
+- Correct binary-mark layering in both languages, reduce text interference and move the brand signature into a separate About footer.
 
-## 0.2.1، ۲۰۲۶-۰۹-۰۵
+## 0.2.2 — 2026-09-05
 
-- افزودن امضای برند «فرودید | پایش ماهواره‌ای فرونشست ایران زمین» به انتهای نامه و معادل انگلیسی آن.
+- Increase the binary watermark's weight and contrast while preserving letter readability on mobile and desktop.
 
-## 0.2.0، ۲۰۲۶-۰۹-۰۵
+## 0.2.1 — 2026-09-05
 
-- افزودن انتخاب زبان سراسری فارسی و انگلیسی با حفظ زبان انتخاب‌شده، جهت صحیح سند و عنوان محلی‌شده.
-- جایگزینی دکمهٔ کپی نشانی در هدر با نشانگر مینیمال «فا / EN» و اتصال نسخهٔ انگلیسی روش‌شناسی به آن.
-- دوزبانه‌کردن صفحه‌های نقشه، منابع و درباره و کوچک‌کردن امضای نویسنده در پایان نامه.
-- بازسازی نشان خاکستری پشت نامه به‌صورت SVG شفاف که فرم لوگوی اصلی را با بافت صفر و یک می‌سازد.
+- Add the brand signature “فرودید | پایش ماهواره‌ای فرونشست ایران زمین” and its English counterpart below the letter.
 
-## 0.1.9، ۲۰۲۶-۰۹-۰۵
+## 0.2.0 — 2026-09-05
 
-- جایگزینی سربرگ تکراری درباره با نشان خاکستری کم‌رنگ پشت نامه، حذف جداکننده‌ها و یکدست‌سازی فاصله‌ها.
-- تغییر فونت نامه به استعداد و اصلاح شکست متن و دسترسی صفحه‌کلید معرفی افراد.
+- Add persistent Persian/English language selection, correct document direction and localized titles.
+- Replace the header's copy-link button with a minimal “فا / EN” selector and connect the English methodology page.
+- Make map, sources and About bilingual and reduce the author signature size.
+- Rebuild the grey letter watermark as a transparent SVG retaining the original logo shape through a binary texture.
 
-## 0.1.8، ۲۰۲۶-۰۹-۰۵
+## 0.1.9 — 2026-09-05
 
-- استفاده از نشان مشکی منتخب در هدر و سربرگ تقدیم‌نامه.
-- تنظیم تایپوگرافی نسخ، فاصله‌ها، نقل‌قول و امضای صفحهٔ درباره و ساده‌سازی ناوبری.
+- Replace the repeated About masthead with a pale grey watermark, remove separators and normalize spacing.
+- Change the letter font to Estedad and correct wrapping and keyboard access to researcher introductions.
 
-## 0.1.7، ۲۰۲۶-۰۹-۰۵
+## 0.1.8 — 2026-09-05
 
-- گسترش روش‌شناسی دوزبانه با تعریف ضرایب، هندسهٔ LOS، خطا و اعتبارسنجی و تفسیر آبخوان، با هفت منبع.
-- تصحیح وضعیت دادهٔ تاریخی، تفکیک دامنهٔ قله‌تا‌قله از عدم‌قطعیت و تنظیم فرمول‌های بلند در عرض ستون.
+- Use the selected black mark in the header and dedication masthead.
+- Adjust About typography, spacing, quotation and signature; simplify navigation.
 
-## 0.1.6، ۲۰۲۶-۰۹-۰۵
+## 0.1.7 — 2026-09-05
 
-- بازسازی مو‌به‌موی زبان بصری مقالهٔ مرجع در روش‌شناسی: صفحهٔ سفید Letter، عنوان و چکیدهٔ مرکزی، متن دو ستونه، تیترهای درون‌خطی، فرمول‌های حاشیه‌دار و شکل تمام‌عرض.
-- جایگزینی تایپ رابط‌کاربری فارسی با Noto Naskh Arabic متن‌باز برای ظاهر چاپی و دانشگاهی.
-- حفظ کامل موضوع، داده‌ها و منابع واقعی فرودید بدون انتقال محتوای علمی نامرتبط مقالهٔ مرجع.
+- Expand bilingual methodology with coefficient definitions, LOS geometry, error, validation and aquifer interpretation, supported by seven references.
+- Correct historical-data status, separate peak-to-peak amplitude from uncertainty and fit long equations within their columns.
 
-## 0.1.5، ۲۰۲۶-۰۹-۰۵
+## 0.1.6 — 2026-09-05
 
-- بازنویسی روش‌شناسی بر پایهٔ مقاله و مجموعه‌دادهٔ واقعی ثبت‌شده، با تفکیک قرارداد عمومی InSAR از روش منبع.
-- کاهش شکل‌ها به یک نمودار سه‌پنلهٔ کدنویسی‌شده و نزدیک به هندسهٔ برداشت تکراری مرجع.
-- جلوگیری از نمایش محصول‌های fixture در نقشهٔ عمومی و مینیمال‌سازی صفحه‌های درباره و منابع.
+- Match the reference paper's visual structure: white Letter page, centered title and abstract, two columns, inline headings, equations and a full-width figure.
+- Use open-source Noto Naskh Arabic for a printed academic Persian appearance.
+- Preserve FORUDID's actual subject, data and references without importing unrelated scientific content from the visual reference.
 
-## 0.1.4، ۲۰۲۶-۰۹-۰۵
+## 0.1.5 — 2026-09-05
 
-- جایگزینی سه تصویر پیکسلی روش‌شناسی با هشت SVG کدنویسی‌شده، شفاف و مستقل.
+- Rewrite methodology around the registered paper and dataset, separating general InSAR concepts from the provider's actual method.
+- Reduce figures to a coded three-panel diagram approximating the reference acquisition geometry.
+- Hide fixtures from the public map and simplify About and Sources.
 
-## 0.1.3، ۲۰۲۶-۰۹-۰۵
+## 0.1.4 — 2026-09-05
 
-- جایگزینی فونت نسخ صفحه‌های محتوایی با «استعداد» برای خوانایی خشک‌تر و دقیق‌تر متن علمی فارسی.
-- بازآرایی روش‌شناسی به شکل مقالهٔ دوزبانهٔ دو ستونه با معادلات شماره‌دار KaTeX، منابع معتبر و سه شکل علمی.
-- افزودن کارت معرفی مستند برای هشت پژوهشگر نام‌برده در تقدیم‌نامه.
-- حذف خط تیرهٔ بلند از همهٔ متن‌ها و دارایی‌های وب.
+- Replace three raster methodology illustrations with eight independent transparent SVGs.
 
-## 0.1.2 — ۲۰۲۶-۰۹-۰۵
+## 0.1.3 — 2026-09-05
 
-- ساده‌سازی صفحهٔ درباره به فرم یک نامهٔ بی‌پیرایه و خوانا.
-- بازآرایی صفحهٔ روش‌شناسی با ظاهر مقالهٔ علمی، بخش‌های شماره‌دار و شکل‌های ساده.
+- Replace content-page Naskh typography with Estedad for precise Persian scientific reading.
+- Arrange methodology as a bilingual two-column paper with numbered KaTeX equations, references and three scientific figures.
+- Add documented introduction cards for the eight researchers named in the dedication.
+- Remove em dashes from web text and assets.
 
-## 0.1.1 — ۲۰۲۶-۰۹-۰۵
+## 0.1.2 — 2026-09-05
 
-- بازطراحی صفحهٔ روش‌شناسی با ساختار علمی زنجیرهٔ InSAR، مرز روشن LOS و وضعیت دادهٔ ساختگی.
-- افزودن دو تصویر توضیحی برای هندسهٔ برداشت تکراری و مسیر فاز تا سری زمانی.
-- افزودن فونت self-hosted «Noto Naskh Arabic Variable» برای متن‌های علمی فارسی.
-- بازنویسی صفحهٔ درباره با متن تقدیم، نقل‌قول ابوریحان بیرونی و ارجاع چاپی ارائه‌شده.
-- افزودن آزمون محتوایی برای محدودیت علمی، تصاویر و متن تقدیم.
+- Simplify About into a plain, readable letter.
+- Reorganize methodology as a scientific paper with numbered sections and simple figures.
 
-## 0.1.0 — ۲۰۲۶-۰۹-۰۵
+## 0.1.1 — 2026-09-05
 
-نسخهٔ اولیهٔ محلی با دادهٔ ساختگی ورامین؛ هنوز نسخهٔ علمی MVP نیست.
+- Redesign methodology around the InSAR processing chain, the LOS boundary and explicit fixture status.
+- Add repeat-pass geometry and phase-to-time-series illustrations.
+- Add self-hosted Noto Naskh Arabic Variable for Persian scientific prose.
+- Rewrite About using the dedication, Biruni quotation and supplied print reference.
+- Add content checks for scientific limitations, figures and dedication text.
 
-- نقشهٔ فارسی و RTL، انتخاب لایه، شفافیت، URL قابل بازیابی و نمایش موبایل.
-- PostGIS، ذخیره‌سازی خصوصی S3، COG واقعی، tile بر پایهٔ asset منتشرشده و نمونه‌برداری نقطه.
-- نمودار LOS با تاریخ گمشده، عدم قطعیت، مرجع، QC و برچسب صریح دادهٔ ساختگی.
-- کاتالوگ STAC معتبر، provenance و خروجی immutable با checksum.
-- قرارداد OpenAPI و کلاینت تولیدشده، migration، Compose و بررسی‌های خودکار.
+## 0.1.0 — 2026-09-05
 
-پذیرش کامل Compose/E2E هنوز باقی است. دادهٔ واقعی، HyP3/MintPy، QC علمی و انتشار محصول
-واقعی اجرا نشده‌اند. جزئیات شواهد در [وضعیت اجرا](docs/operations/milestones.md) است.
+Initial local release with a synthetic Varamin fixture; not a scientifically accepted MVP.
+
+- Persian/RTL map, layer selection, opacity, restorable URLs and mobile display.
+- PostGIS, private S3, actual COGs, published-asset tiles and point sampling.
+- LOS chart with a missing date, uncertainty, reference, QC and explicit fixture labeling.
+- Valid STAC catalog, provenance and immutable checksummed outputs.
+- OpenAPI/generated client, migrations, Compose and automated checks.
+
+At this release, full Compose/E2E acceptance remained incomplete. Real data,
+HyP3/MintPy processing, scientific QC and real-product publication had not been
+performed. See the historical [milestone evidence](docs/operations/milestones.md).

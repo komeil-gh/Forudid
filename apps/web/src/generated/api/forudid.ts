@@ -430,6 +430,53 @@ export interface PopulationMetrics {
   region?: RegionMetrics | null;
 }
 
+export type PopulationPointStatus = typeof PopulationPointStatus[keyof typeof PopulationPointStatus];
+
+
+export const PopulationPointStatus = {
+  value: 'value',
+  nodata: 'nodata',
+  outside_extent: 'outside_extent',
+} as const;
+
+export interface PopulationPoint {
+  cell_bounds: number[] | null;
+  count: number | null;
+  lat: number;
+  lon: number;
+  population_year: number;
+  source_version_id: string;
+  status: PopulationPointStatus;
+  unit?: 'people/pixel';
+}
+
+export interface PopulationSource {
+  bounds: number[];
+  cell_size_degrees: number;
+  checksum_sha256: string;
+  citation: string;
+  constrained: boolean | null;
+  display_scale?: 'log1p';
+  estimated_total: number;
+  legend_colors: string[];
+  legend_ticks: number[];
+  license: string;
+  maturity: string;
+  name: string;
+  population_year: number;
+  source_id: string;
+  source_url: string;
+  source_version_id: string;
+  temporal_semantics: string;
+  tile_template: string;
+  un_adjusted: boolean;
+  unit?: 'people/pixel';
+}
+
+export interface PopulationSources {
+  items: PopulationSource[];
+}
+
 export type PopulationSummaryInputs = { [key: string]: unknown };
 
 export interface PopulationSummary {
@@ -954,6 +1001,19 @@ lat: number;
 run_id: string;
 };
 
+export type GetPopulationPointParams = {
+/**
+ * @minimum -180
+ * @maximum 180
+ */
+lon: number;
+/**
+ * @minimum -90
+ * @maximum 90
+ */
+lat: number;
+};
+
 export type ListProductsParams = {
 aoi?: string;
 kind?: Kind | null;
@@ -1000,6 +1060,7 @@ export type GetMetadata200 = { [key: string]: unknown };
 export type GetPopulationExposureParams = {
 run_id?: string | null;
 region_id?: string | null;
+population_version?: string | null;
 };
 
 export type GetProvenance200 = { [key: string]: unknown };
@@ -3046,6 +3107,223 @@ export function useGetTimeSeries<TData = Awaited<ReturnType<typeof getTimeSeries
 
 
 
+export const getListPopulationSourcesUrl = () => {
+
+
+
+
+  return `/api/v1/population/sources`
+}
+
+/**
+ * @summary Sources
+ */
+export const listPopulationSources = async ( options?: Parameters<typeof apiFetch>[1]): Promise<PopulationSources> => {
+
+  return apiFetch<PopulationSources>(getListPopulationSourcesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPopulationSourcesQueryKey = () => {
+    return [
+    `/api/v1/population/sources`
+    ] as const;
+    }
+
+
+export const getListPopulationSourcesQueryOptions = <TData = Awaited<ReturnType<typeof listPopulationSources>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPopulationSourcesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPopulationSources>>> = ({ signal }) => listPopulationSources({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListPopulationSourcesQueryResult = NonNullable<Awaited<ReturnType<typeof listPopulationSources>>>
+export type ListPopulationSourcesQueryError = ErrorResponse
+
+
+export function useListPopulationSources<TData = Awaited<ReturnType<typeof listPopulationSources>>, TError = ErrorResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listPopulationSources>>,
+          TError,
+          Awaited<ReturnType<typeof listPopulationSources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListPopulationSources<TData = Awaited<ReturnType<typeof listPopulationSources>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listPopulationSources>>,
+          TError,
+          Awaited<ReturnType<typeof listPopulationSources>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListPopulationSources<TData = Awaited<ReturnType<typeof listPopulationSources>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Sources
+ */
+
+export function useListPopulationSources<TData = Awaited<ReturnType<typeof listPopulationSources>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listPopulationSources>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListPopulationSourcesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetPopulationPointUrl = (identity: string,
+    params: GetPopulationPointParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/population/sources/${identity}/point?${stringifiedParams}` : `/api/v1/population/sources/${identity}/point`
+}
+
+/**
+ * @summary Point
+ */
+export const getPopulationPoint = async (identity: string,
+    params: GetPopulationPointParams, options?: Parameters<typeof apiFetch>[1]): Promise<PopulationPoint> => {
+
+  return apiFetch<PopulationPoint>(getGetPopulationPointUrl(identity,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPopulationPointQueryKey = (identity: string,
+    params?: GetPopulationPointParams,) => {
+    return [
+    `/api/v1/population/sources/${identity}/point`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetPopulationPointQueryOptions = <TData = Awaited<ReturnType<typeof getPopulationPoint>>, TError = ErrorResponse>(identity: string,
+    params: GetPopulationPointParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPopulationPointQueryKey(identity,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPopulationPoint>>> = ({ signal }) => getPopulationPoint(identity,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: identity !== null && identity !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPopulationPointQueryResult = NonNullable<Awaited<ReturnType<typeof getPopulationPoint>>>
+export type GetPopulationPointQueryError = ErrorResponse
+
+
+export function useGetPopulationPoint<TData = Awaited<ReturnType<typeof getPopulationPoint>>, TError = ErrorResponse>(
+ identity: string,
+    params: GetPopulationPointParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationPoint>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationPoint>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationPoint<TData = Awaited<ReturnType<typeof getPopulationPoint>>, TError = ErrorResponse>(
+ identity: string,
+    params: GetPopulationPointParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationPoint>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationPoint>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationPoint<TData = Awaited<ReturnType<typeof getPopulationPoint>>, TError = ErrorResponse>(
+ identity: string,
+    params: GetPopulationPointParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Point
+ */
+
+export function useGetPopulationPoint<TData = Awaited<ReturnType<typeof getPopulationPoint>>, TError = ErrorResponse>(
+ identity: string,
+    params: GetPopulationPointParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationPoint>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPopulationPointQueryOptions(identity,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getListProductsUrl = (params?: ListProductsParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -4998,6 +5276,131 @@ export function useGetReadiness<TData = Awaited<ReturnType<typeof getReadiness>>
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetReadinessQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetPopulationTileUrl = (identity: string,
+    z: number,
+    x: number,
+    y: number,) => {
+
+
+
+
+  return `/tiles/population/${identity}/${z}/${x}/${y}.png`
+}
+
+/**
+ * @summary Tile
+ */
+export const getPopulationTile = async (identity: string,
+    z: number,
+    x: number,
+    y: number, options?: Parameters<typeof apiFetch>[1]): Promise<void> => {
+
+  return apiFetch<void>(getGetPopulationTileUrl(identity,z,x,y),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPopulationTileQueryKey = (identity: string,
+    z: number,
+    x: number,
+    y: number,) => {
+    return [
+    `/tiles/population/${identity}/${z}/${x}/${y}.png`
+    ] as const;
+    }
+
+
+export const getGetPopulationTileQueryOptions = <TData = Awaited<ReturnType<typeof getPopulationTile>>, TError = ErrorResponse>(identity: string,
+    z: number,
+    x: number,
+    y: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPopulationTileQueryKey(identity,z,x,y);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPopulationTile>>> = ({ signal }) => getPopulationTile(identity,z,x,y, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: identity !== null && identity !== undefined && z !== null && z !== undefined && x !== null && x !== undefined && y !== null && y !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPopulationTileQueryResult = NonNullable<Awaited<ReturnType<typeof getPopulationTile>>>
+export type GetPopulationTileQueryError = ErrorResponse
+
+
+export function useGetPopulationTile<TData = Awaited<ReturnType<typeof getPopulationTile>>, TError = ErrorResponse>(
+ identity: string,
+    z: number,
+    x: number,
+    y: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationTile>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationTile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationTile<TData = Awaited<ReturnType<typeof getPopulationTile>>, TError = ErrorResponse>(
+ identity: string,
+    z: number,
+    x: number,
+    y: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPopulationTile>>,
+          TError,
+          Awaited<ReturnType<typeof getPopulationTile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPopulationTile<TData = Awaited<ReturnType<typeof getPopulationTile>>, TError = ErrorResponse>(
+ identity: string,
+    z: number,
+    x: number,
+    y: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Tile
+ */
+
+export function useGetPopulationTile<TData = Awaited<ReturnType<typeof getPopulationTile>>, TError = ErrorResponse>(
+ identity: string,
+    z: number,
+    x: number,
+    y: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPopulationTile>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPopulationTileQueryOptions(identity,z,x,y,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

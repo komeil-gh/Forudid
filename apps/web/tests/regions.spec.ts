@@ -6,7 +6,7 @@ test.beforeEach(async ({}) => test.skip(!process.env.FORUDID_POPULATION_TESTS, '
 test('real country and historical-region population results preserve selection and provenance', async ({ page, request, isMobile }) => {
   const errors: string[] = []
   page.on('pageerror', e => errors.push(e.message))
-  await page.goto('/regions')
+  await page.goto('/regions?populationVersion=488059d8-d3f6-5064-af66-131da47742e3')
   await expect(page.getByTestId('population-total')).toHaveText('۸۰٬۳۸۲٬۵۲۱')
   await page.getByRole('combobox', { name: 'محدوده', exact: true }).selectOption({ label: 'تهران' })
   await expect(page).toHaveURL(/region=/)

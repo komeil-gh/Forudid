@@ -15,6 +15,25 @@
 .mode-panel h2 { font-size: 17px; }
 .rank-asset { border: 0; padding: 4px; min-height: 44px; background: none; font: inherit; color: #176e79; text-align: start; cursor: pointer; text-decoration: underline; }
 .mode-display > summary { padding: 18px; cursor: pointer; }
+.population-source-note { font-size: 12px; line-height: 1.9; color: #526571; }
+.population-selection { min-width: 0; }
+.population-cell-value { font-size: 24px; font-weight: 650; margin-block: 8px; }
+.population-point { min-height: 150px; }
+.population-legend strong { font-family: inherit; line-height: 1.7; text-align: start; }
+.maplibregl-ctrl-scale { margin-bottom: 4px !important; }
+.maplibregl-ctrl-attrib-inner { max-height: 120px; overflow-y: auto; }
+.map-place-label { white-space: nowrap; color: #344746; font: 500 12px/1.5 'Vazirmatn Variable', sans-serif; text-shadow: 0 1px 2px #fff, 1px 0 2px #fff, -1px 0 2px #fff; pointer-events: none; }
+.map-place-label.capital { font-weight: 750; font-size: 13px; }
+.map-country-label { white-space: nowrap; color: #6b7779; font: 600 15px/1.5 'Vazirmatn Variable', sans-serif; text-shadow: 0 1px 3px #fff; pointer-events: none; }
+.map-place-search { position: absolute; top: 72px; left: 20px; width: min(290px, calc(100% - 84px)); z-index: 2; }
+.map-place-search label { display: flex; align-items: center; gap: 8px; min-height: 44px; padding-inline: 12px; background: #fff; border: 1px solid #bdcbd0; border-radius: 7px; box-shadow: 0 2px 8px #253b4412; }
+.map-place-search input { width: 100%; min-width: 0; border: 0; background: transparent; min-height: 42px; font-size: 12px; }
+.place-results { background: #fff; border: 1px solid var(--border); max-height: min(320px, 40dvh); overflow-y: auto; border-radius: 6px; box-shadow: 0 5px 20px #253b4430; }
+.place-results button { width: 100%; min-height: 48px; padding: 8px 12px; border: 0; border-bottom: 1px solid #e8edef; display: flex; flex-direction: column; align-items: start; font-size: 12px; background: #fff; }
+.place-results button:hover, .place-results button:focus-visible { background: #eef6f6; }
+.place-results small, .place-results p { color: #63767b; font-size: 11px; }
+.place-results p { padding: 12px; }
+.maplibregl-ctrl-top-right { top: 8px; right: 8px; }
 .map-guidance { position: absolute; inset-inline: 20px; bottom: calc(var(--attribution-height, 20px) + 10px); display: flex; align-items: end; justify-content: space-between; gap: 12px; pointer-events: none; }
 [dir=rtl] .map-guidance { flex-direction: row-reverse; }
 .map-guidance > .legend, .map-guidance > .map-hint { position: static; pointer-events: auto; flex-shrink: 0; }
@@ -25,6 +44,8 @@
   .map-guidance > .map-hint { max-width: 288px; }
 }
 @media (max-width: 760px) {
+  .map-place-search { left: 12px; top: 70px; }
+  .maplibregl-ctrl-top-right { top: 119px; right: 2px; }
   .map-page { height: calc(100dvh - 64px); }
   .map-modes { gap: 2px; padding-inline: 8px; }
   .map-modes button { flex: 1; min-width: 0; padding-inline: 4px; font-size: 12px; }
@@ -32,3 +53,6 @@
   .map-guidance { inset-inline: 12px; }
   .map-guidance > .map-hint { max-width: 100%; }
 }
+
+.map-warning { top: 124px; z-index: 4; max-height: 180px; overflow-y: auto; }
+.map-warning p { margin: 0 0 8px; }

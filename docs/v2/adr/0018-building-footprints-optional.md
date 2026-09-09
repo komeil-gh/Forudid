@@ -1,16 +1,11 @@
-# 0018 — ساختمان پس از پایلوت زیرساخت
+# 0018 — Buildings after the infrastructure pilot
 
-وضعیت: تصمیم پذیرفته‌شده؛ خارج از MVP و مربوط به V2.1.
+Status: accepted; outside the MVP, scheduled for V2.1.
 
-## تصمیم
+## Decision
 
-فهرست ساختمان سراسری، مدل vulnerability و امتیاز ریسک از footprint ساخته نمی‌شود.
-پس از پذیرش کریدور، واردات یک محدودهٔ کوچک می‌تواند با source/date/license روشن و
-coverage audit اضافه شود. Microsoft footprints صرفاً گزینهٔ منبع است، نه پوشش ملی
-تأییدشده. hydrogeology نیز منبع ملی مفروض ندارد.
+Do not derive a national building inventory, vulnerability model or risk score from footprints. After corridor acceptance, a bounded import may be added with explicit source, date, license and a coverage audit. Microsoft footprints are a source candidate, not verified national coverage. No national hydrogeology source is assumed.
 
-## پذیرش آینده
+## Future acceptance
 
-coverage_status، known_gaps و source_date کنار شمارش و مساحت باشند. نداشتن footprint
-به معنی نبود ساختمان نیست. نقشهٔ بزرگ از MVT و حداقل zoom استفاده کند. هیچ schema،
-dependency یا download ساختمان در مرحلهٔ صفر ایجاد نمی‌شود.
+Show `coverage_status`, `known_gaps` and `source_date` beside counts and areas. Missing footprints do not establish absence of buildings. Large maps use MVT and a minimum zoom. Stage zero creates no building schema, dependency or download.

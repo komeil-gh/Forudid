@@ -1,24 +1,13 @@
-# 0010 — تحلیل مواجهه به‌عنوان محور V2
+# 0010 — Exposure analysis as the focus of V2
 
-وضعیت: رجیستری و انتشار مجموعهٔ تاریخی پیاده‌سازی شده؛ تحلیل مواجهه در ادامه است.
+Status: the source registry and historical product publication are implemented. See the dated acceptance records for subsequent exposure delivery.
 
-## مسئله و تصمیم
+## Problem and decision
 
-وابستگی هر محصول به run داخلی LOS مانع ورود dataset منتشرشده است. V2 باید مشاهده،
-مواجهه و اطمینان داده را توضیح دهد. کاتالوگ منشأ داخلی/خارجی را صریح ثبت می‌کند؛ تحلیل
-از pipeline تولید InSAR جداست و V1 حفظ می‌شود. محصول خارجی مجبور به ساخت run علمی
-جعلی، uncertainty یا سری زمانی نمی‌شود.
+Requiring every product to originate in an internal LOS run prevents published datasets from entering the catalog. V2 must explain observation, exposure and data confidence. Record internal or external provenance explicitly; separate analysis from InSAR production while preserving V1. Never invent a scientific run, uncertainty or time series for an external product.
 
-در مرحلهٔ ۳، ارتباط اختیاری source version و metadata مؤلفه/روش با migration افزایشی
-به Product اضافه شده است. پیاده‌سازی، run واقعی تبدیل و کنترل COG را نگه می‌دارد؛
-`processing_profile=published-source-cog-normalization` اجرای HyP3 یا تولید InSAR نیست.
-این انتخاب، provenance و دروازهٔ انتشار موجود را حفظ می‌کند و نیاز به nullable کردن
-run را برای این مسیر برطرف می‌کند. شمارهٔ ترک برای موزاییک چندترکی nullable است.
-APIهای V1 در دورهٔ گذار حفظ می‌شوند؛ fixture در تنظیم پیش‌فرض قابل مشاهده نیست.
+Stage 3 adds source-version and component/method metadata through an additive migration. The implementation retains a real conversion and COG-validation run: `processing_profile=published-source-cog-normalization` does not mean HyP3 or InSAR processing. This preserves provenance and publication gates without making the run nullable for this path. Track numbers may be null for mosaics spanning multiple tracks. V1 APIs remain available during transition; fixtures are hidden by default.
 
-## پیامد و پذیرش
+## Consequences and acceptance
 
-ADR 0008 V1 دیگر محدودیت همهٔ محصولات به LOS نیست؛ تبدیل خودسرانهٔ LOS همچنان ممنوع
-است. vertical projection، decomposition و GNSS referencing جدا نمایش داده می‌شوند.
-پذیرش: یک dataset خارجی بدون اجرای HyP3 نمایش و نمونه‌برداری شود، با دوره و روش صریح.
-MVP همچنان localhost است؛ سرویس ابری، ML و مدل ایمنی سازه اضافه نمی‌شوند.
+V1 ADR 0008 no longer restricts every product to LOS. Arbitrary LOS conversion remains prohibited. Distinguish vertical projection, decomposition and GNSS referencing. Acceptance requires displaying and sampling one external dataset without running HyP3, with explicit dates and method. The MVP remains local; this decision adds no cloud service, ML or structural-safety model.

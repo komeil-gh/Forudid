@@ -1,41 +1,21 @@
-# 0017 — برآورد مواجههٔ جمعیت از منبع نسخه‌دار
+# 0017 — Population exposure from a versioned source
 
-وضعیت: محصول و روش انتخاب شده‌اند؛ انتشار هر خروجی به بررسی فایل و اجرای واقعی وابسته است.
+Status: source products and method selected. Publication requires verified files and actual computation.
 
-## تصمیم
+## Decision
 
-اولویت WorldPop است؛ GHSL فقط با دلیل و metadata همان محصول جایگزین می‌شود.
-[API رسمی WorldPop](https://www.worldpop.org/sdi/introapi/) برای کشف metadata است؛
-dataset، سال، resolution، method، license و citation دقیق قبل از ingest ثبت می‌شوند.
-خروجی «برآورد جمعیت در معرض» است و سرشماری رسمی نامیده نمی‌شود.
+Prefer WorldPop; substitute GHSL only with a documented reason and product-specific metadata. The [official WorldPop API](https://www.worldpop.org/sdi/introapi/) supports metadata discovery. Record the exact dataset, year, resolution, method, license and citation before ingestion. Describe outputs as population estimates, never official census counts.
 
-## محصول منتخب
+## Selected products
 
-[WorldPop record 31792](https://hub.worldpop.org/geodata/summary?id=31792)، ایران، سال
-۲۰۲۰، خانوادهٔ unconstrained individual countries 2000–2020، نسخهٔ یک کیلومتر،
-بدون تعدیل به جمعیت سازمان ملل؛ DOI `10.5258/SOTON/WP00670` و مجوز CC BY 4.0.
-تاریخ تولید ۲۰۲۰-۰۶-۲۲ است. شبکه WGS84 با گام ۳۰ ثانیهٔ قوسی و واحد نفر/سلول است؛
-روش ارائه‌دهنده Random Forest dasymetric redistribution است.
+As of 2026-09-09, the default is [WorldPop record 77712](https://hub.worldpop.org/geodata/summary?id=77712): Iran 2026, constrained 30 arc-second counts, R2025A v1, adjusted to UN WPP 2024 totals. DOI `10.5258/SOTON/WP00840`, CC BY 4.0. It is an alpha modelled estimate/projection, not a 2026 census. Preserve release status, model year and publication date separately. See [population exposure](../population-exposure.md) for acquisition and publication evidence.
 
-محصول ۱۰۰ متری تقریباً یک گیگابایت است و دریافت آن قطع شد. فایل ناقص حفظ می‌شود؛
-محصول رسمی یک کیلومتری با حجم ۱۰٬۵۳۶٬۰۷۲ بایت برای این مرحله انتخاب شده است.
-این انتخاب دقت مکانی تازه‌ای ایجاد نمی‌کند: توزیع درون هر سلول جمعیت یکنواخت فرض
-می‌شود و هیچ نتیجه‌ای با ادعای دقت ۱۰۰ متر برای جمعیت منتشر نمی‌شود.
+The original selection remains independently addressable: [record 31792](https://hub.worldpop.org/geodata/summary?id=31792), Iran 2020, unconstrained individual countries 2000–2020, 1 km, not UN-adjusted. DOI `10.5258/SOTON/WP00670`, CC BY 4.0, produced 2020-06-22. Its WGS84 grid uses 30 arc-second people-per-cell counts from Random Forest dasymetric redistribution. The approximately 1 GB 100 m acquisition was interrupted and remains incomplete; the verified 10,536,072-byte official 1 km product was used instead. This does not create 100 m population precision.
 
-`ellipsoid-cell-overlap-1` تعداد جمعیت را با مساحت هم‌پوشانی سلول‌ها حفظ می‌کند.
-برای چندضلعی، تصویر هم‌مساحت EPSG:6933 و متراکم‌سازی لبه‌های WGS84 با طول حداکثر
-۰٫۰۰۲ درجه استفاده می‌شود؛ این تقریب هندسی در منشأ نتیجه ثبت می‌شود. سلول‌های مرزی
-با تقاطع چندضلعی بریده می‌شوند. آمار نرخ منطقه با وزن مساحت و فقط پیکسل معتبر است.
-روش آزمایشی است؛ آزمون عددی معادل اعتبارسنجی علمی مستقل نیست.
+`ellipsoid-cell-overlap-1` conserves counts through ellipsoidal cell-overlap areas. Polygon analysis uses equal-area EPSG:6933 with WGS84 edges densified to at most 0.002 degrees. Record that geometric approximation in provenance. Clip boundary cells by actual intersections; calculate regional rate statistics using valid-pixel area weights. The method remains experimental. Numerical checks are not independent scientific validation.
 
-count، density و نرخ، semantics متفاوت دارند. دو grid نامنطبق مستقیم ضرب نمی‌شوند.
-alignment شامل CRS، overlap، NoData و روش حفظ جرم است. تغییر سال run جدید می‌سازد؛
-سال جمعیت و دورهٔ تاریخی deformation هر دو در UI/report آشکارند.
+Counts, density and rates have different semantics. Never multiply unaligned grids directly. Alignment includes CRS, overlap, NoData and count conservation. Assume uniform population within each native source cell. A new year produces a new run. Show both population year and historical deformation period in UI and reports; the 2020 and 2026 grids and modelling assumptions differ.
 
-## پذیرش و وابستگی
+## Acceptance and dependencies
 
-NumPy/Rasterio/PyProj موجود در پشته بررسی و فقط dependency مستقیم مصرف‌شده در
-package تحلیل اعلام شود. کتابخانهٔ تحلیل population موازی پیشاپیش اضافه نمی‌شود.
-آزمون جرم قبل/بعد از alignment، clipping جزئی، NoData و count/density اجباری است.
-تا روش hazard معتبر نیست، جمعیت به تفکیک band توصیفی گزارش می‌شود؛ ستون hazard
-ناموجود null است و نام low/high علمی نمی‌گیرد.
+Use the existing NumPy, Rasterio and PyProj stack; declare directly consumed dependencies in the analysis package. Do not add a parallel population library in advance. Check conservation before/after alignment, partial clipping, NoData and count/density rejection. Until hazard methods are validated, report population in descriptive numeric bands. Missing hazard values remain null and receive no scientific low/high labels.

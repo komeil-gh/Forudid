@@ -1,7 +1,7 @@
 # React + Vite
 
-وضعیت: پذیرفته‌شده طبق سند اصلی.
+Status: accepted under the master specification.
 
-SPA ایستا با React 19 و Vite 8؛ SSR و Next.js نیاز این محصول نیستند.
+A static SPA uses React 19 and Vite 8. SSR and Next.js are not required for this product.
 
-تغییر این تصمیم نیازمند ADR جدید با شواهد و اثر بر قراردادهای فعلی است.
+Changing this decision requires a new ADR describing the evidence and impact on existing contracts.

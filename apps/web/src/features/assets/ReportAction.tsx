@@ -21,7 +21,9 @@ export function ReportAction({ request }: { request: ReportRequest }) {
       {job?.status === 'failed' ? (en ? 'Retry report' : 'تلاش دوبارهٔ گزارش') : (en ? 'Create Persian screening PDF' : 'ساخت گزارش غربالگری فارسی')}
     </Button>}
     <p role="status" aria-live="polite">{job?.status === 'queued' ? (en ? 'Report queued.' : 'گزارش در صف ساخت است.') : job?.status === 'processing' ? (en ? 'Preparing report…' : 'گزارش در حال آماده‌سازی است…') : job?.status === 'failed' ? (en ? 'Report generation failed; the analysis remains available.' : 'ساخت گزارش ناموفق بود؛ تحلیل همچنان در دسترس است.') : ''}</p>
-    {create.isError && <Status error retry={() => create.mutate({ data: request })} />}
+    {create.isError && (request.scope === 'region' && create.error instanceof Error && create.error.message === 'HTTP 404'
+      ? <p role="status">{en ? 'The combined report requires published population, railway and road analyses for this source and region.' : 'گزارش کامل به تحلیل منتشرشدهٔ جمعیت، راه‌آهن و راه برای همین منبع و محدوده نیاز دارد.'}</p>
+      : <Status error retry={() => create.mutate({ data: request })} />)}
     {report.isError && <Status error retry={() => void report.refetch()} />}
     {job?.checksum_sha256 && <details><summary>{en ? 'PDF checksum' : 'checksum فایل PDF'}</summary><p style={{ overflowWrap: 'anywhere' }}><bdi>{job.checksum_sha256}</bdi></p></details>}
   </section>
