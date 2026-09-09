@@ -28,7 +28,7 @@ services:
       timeout: 5s
       retries: 20
   initialize:
-    build: {context: ., dockerfile: infra/docker/api.Dockerfile}
+    build: {context: ., dockerfile: infra/docker/api.Dockerfile, target: api}
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -39,7 +39,7 @@ services:
       postgres: {condition: service_healthy}
       object-storage: {condition: service_healthy}
   api:
-    build: {context: ., dockerfile: infra/docker/api.Dockerfile}
+    build: {context: ., dockerfile: infra/docker/api.Dockerfile, target: api}
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -54,7 +54,7 @@ services:
       retries: 10
   worker:
     profiles: ["tools"]
-    build: {context: ., dockerfile: infra/docker/api.Dockerfile}
+    build: {context: ., dockerfile: infra/docker/api.Dockerfile, target: api}
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -63,6 +63,21 @@ services:
     depends_on:
       postgres: {condition: service_healthy}
       object-storage: {condition: service_healthy}
+  report-worker:
+    build: {context: ., dockerfile: infra/docker/api.Dockerfile, target: report-worker}
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      S3_ENDPOINT: http://object-storage:9000
+    init: true
+    restart: unless-stopped
+    cpus: 0.5
+    mem_limit: 768m
+    shm_size: 128m
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
   martin:
     image: ghcr.io/maplibre/martin:1.15.0
     user: "10001:10001"

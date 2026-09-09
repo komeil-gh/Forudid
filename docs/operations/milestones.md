@@ -2,6 +2,45 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Local unveiling preparation — 2026-09-10
+
+The target remains local; no domain or deployment host has been supplied.
+Version `0.3.0-alpha.6` fixes source-aware infrastructure navigation, the map's
+invalid-product reset, mobile About-page overflow, and Persian LOS labels.
+Asset and regional periods now use the actual selected product and the selected
+language's calendar. New Persian PDFs also localize dates, retaining original
+machine dates and the final rendered HTML in immutable report artifacts.
+
+Published exposure reads now recheck the source product in the shared resolver,
+so withdrawing a product hides its profile, segments and all download formats.
+The report queue reclaims interrupted processing only while holding its exclusive
+session lock. Its metadata session closes before object reads and rendering.
+A dedicated, resource-limited Compose report worker has been added; final
+container acceptance is pending the dependency-image build.
+
+About and methodology content now load on demand. The production entry JavaScript
+fell from 739.36 kB (228.77 kB gzip) to 404.41 kB (125.43 kB gzip). This is an
+artifact-size measurement, not a measured page-load latency. Map and chart chunks
+still exceed the build warning threshold. CI's historical population ingestion
+now explicitly requests 2020, preventing the new 2026 default from being written
+under the old source directory.
+
+The real API run passed 43 tests; two optional checks were skipped. The separate
+real Martin check then passed, including denied private-table reads and writes.
+All 11 numerical tests and 17 frontend unit tests passed. The three real report
+tests passed again after date localization; archived localized HTML and its
+checksum passed a further assertion. TypeScript, ESLint, Ruff, Pyright and the
+production frontend build passed; Alembic reported no schema drift.
+The final combined browser run passed all 50 desktop/mobile cases in 2.3 minutes
+against the production frontend build, local API, restricted Martin, PostGIS/S3
+and host report worker. It covers actual source/asset/region navigation, real
+pixels and epochs, date changes, URL reload, unavailable sources, tile failures
+and PDF checksums. The event contract test uses isolated browser responses;
+the real event-catalog test confirms the catalog is empty. Desktop/mobile map,
+methodology, About and PDF pages were visually inspected. This does not replace
+the pending container-worker acceptance. Public release, scientific validation
+and V3 milestone completion remain separate gates in the coverage ledger.
+
 ## Current data and map update — 2026-09-09
 
 WorldPop 2026 R2025A v1 is registered with verified originals and lossless base-pixel COG conversion. Country and all 31 historical-region results are published. The map renders the selected population raster, supports independently addressable 2020 results, native-cell inspection and real local city/coordinate search. Six real population browser cases and four map-mode/region cases passed on desktop and mobile; screenshots were inspected. Population inspection remains available when the deformation catalog fails. See [population evidence](../v2/population-exposure.md). This is a modelled population estimate, not a census.

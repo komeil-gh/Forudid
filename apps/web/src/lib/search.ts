@@ -26,6 +26,7 @@ export const searchSchema = z.object({
 export type MapSearch = z.infer<typeof searchSchema>
 export const defaultSearch = searchSchema.parse({})
 export const assetSearchSchema = z.object({
+  aoi: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/).catch('iran'),
   product: z.uuid().optional(), type: z.enum(['railway', 'road']).catch('railway'),
   q: z.union([z.string(), z.number().finite()]).transform(String).pipe(z.string().max(80)).optional(),
   sort: z.enum(['max_abs_velocity', 'p95_velocity', 'mean_velocity', 'valid_length_m', 'coverage_fraction']).catch('max_abs_velocity'),

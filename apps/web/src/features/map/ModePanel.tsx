@@ -57,7 +57,7 @@ export function ModePanel({ state, product, population, update, selectAsset }: {
           <div className="source-pagination"><Button disabled={state.rankOffset === 0} onClick={() => update({ rankOffset: Math.max(0, state.rankOffset-10) })}>{fa ? 'قبلی' : 'Previous'}</Button>
             <Button disabled={ranking.data.next_offset === null} onClick={() => update({ rankOffset: ranking.data!.next_offset! })}>{fa ? 'بعدی' : 'Next'}</Button></div>
         </>}
-        <Link to="/assets" search={{ ...defaultAssetSearch, product: product.id, type }}>{fa ? 'فهرست کامل و دریافت داده' : 'Full list and downloads'}</Link>
+        <Link to="/assets" search={{ ...defaultAssetSearch, aoi: product.aoi_slug, product: product.id, type }}>{fa ? 'فهرست کامل و دریافت داده' : 'Full list and downloads'}</Link>
       </>}
     </>}
   </div>

@@ -395,6 +395,7 @@ def published_summary(
     ).first()
     if row is None:
         raise missing("EXPOSURE_NOT_AVAILABLE")
+    product(db, row[1].product_id)
     return row
 
 

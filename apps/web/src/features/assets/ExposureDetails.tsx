@@ -8,6 +8,7 @@ import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
 import { apiBase } from '../../lib/api'
+import { formatDate, formatObservationPeriod } from '../../lib/date'
 import { ReportAction } from './ReportAction'
 
 registerCharts([LineChart, GridComponent, TooltipComponent, DataZoomComponent, AriaComponent, CanvasRenderer])
@@ -103,8 +104,8 @@ export function ExposureDetails({ assetId, productId, runId, onInspect, selected
     </details>
     <details><summary>{en ? 'Analysis provenance' : 'شناسنامهٔ تحلیل'}</summary>
       <p><bdi>{data.analysis_run_id}</bdi></p><p><bdi>{data.method_version}</bdi></p>
-      <p>{en ? 'Infrastructure snapshot' : 'تاریخ snapshot زیرساخت'}: <bdi>{String(data.inputs.infrastructure_data_date)}</bdi></p>
-      <p>{en ? 'Deformation period' : 'بازهٔ تغییرشکل'}: <bdi>{Array.isArray(data.inputs.deformation_period) ? data.inputs.deformation_period.join('–') : '—'}</bdi></p>
+      <p>{en ? 'Infrastructure snapshot' : 'تاریخ دادهٔ زیرساخت'}: <bdi>{typeof data.inputs.infrastructure_data_date === 'string' ? formatDate(data.inputs.infrastructure_data_date, language) : '—'}</bdi></p>
+      <p>{en ? 'Deformation period' : 'بازهٔ تغییرشکل'}: <bdi>{formatObservationPeriod(data.inputs.deformation_period, language)}</bdi></p>
       <p>{en ? 'Pixel uncertainty and structural validation are unavailable.' : 'عدم‌قطعیت پیکسلی و اعتبارسنجی سازه‌ای موجود نیست.'}</p>
     </details>
     <p>{data.disclaimer}</p>

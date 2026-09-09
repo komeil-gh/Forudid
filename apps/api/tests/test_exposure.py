@@ -16,7 +16,14 @@ def test_real_profile_publication_idempotence_pagination_and_visibility():
     from sqlalchemy.orm import Session
 
     from forudid_api.analyze import analyze
-    from forudid_api.db import AnalysisRun, AssetExposureSummary, ExposureSegment, engine, session
+    from forudid_api.db import (
+        AnalysisRun,
+        AssetExposureSummary,
+        ExposureSegment,
+        Product,
+        engine,
+        session,
+    )
     from forudid_api.ingest_osm import VERSION_ID
     from forudid_api.main import app
     from forudid_api.storage import read_json
@@ -86,6 +93,18 @@ def test_real_profile_publication_idempotence_pagination_and_visibility():
                 == 404
             )
             assert client.get(f"{base}/profile").status_code == 404
+            record.status = "published"
+            db.get(Product, product).status = "draft"
+            db.flush()
+            for endpoint in (
+                f"/api/v1/assets/{identity}/exposure?run_id={run}",
+                f"{base}/profile",
+                f"{base}/segments",
+                f"{base}/download",
+                f"{base}/profile.csv",
+                f"{base}/segments.geojson",
+            ):
+                assert client.get(endpoint).status_code == 404, endpoint
         finally:
             app.dependency_overrides.pop(session)
             db.rollback()

@@ -74,7 +74,7 @@ export default function MapPage() {
         selectedGeometry={showAsset ? interval?.geometry ?? asset.data?.geometry : undefined} />
       {state.mode !== 'population' && (products.isPending ? <div className="map-message"><Status /></div> : products.isError ?
         <div className="map-message"><Status error retry={() => void products.refetch()} /></div> : !product ?
-        <div className="map-message"><p>{m.empty}</p><Button onClick={() => update(defaultSearch)}>{m.reset}</Button></div> :
+        <div className="map-message"><p>{m.empty}</p><Button onClick={() => void navigate({ search: defaultSearch, replace: true })}>{m.reset}</Button></div> :
         legend.isError && <div className="map-message"><Status error retry={() => void legend.refetch()} /></div>)}
       {(state.mode === 'population' ? population : product) && <>
           <div className="map-guidance">

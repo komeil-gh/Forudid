@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 
-test.skip(!process.env.FORUDID_REPORT_TESTS, 'Requires real analyses and the foreground report worker')
+test.skip(!process.env.FORUDID_REPORT_TESTS, 'Requires real analyses and a running report worker')
 
 test('real Persian report survives request failure and downloads the immutable PDF', async ({ page }, info) => {
   await page.goto('/assets/29cbefaf-1ef9-594a-9957-68060bf45846?product=744b6536-b9a7-56c5-85b1-66a629a78b91&analysis=f30d71aa-bda6-5098-b050-eed1f9657f0f')
@@ -32,7 +32,9 @@ test('real Persian report survives request failure and downloads the immutable P
 test('regional report pins the selected real population and infrastructure analyses', async ({ page }, info) => {
   test.skip(!process.env.FORUDID_REGION_REPORT_TESTS, 'Requires published real regional results')
   const region = '637d5b9a-e103-54e0-8379-60beb1b21b40'
+  const populationResponse = page.waitForResponse(response => response.url().includes('/population-exposure?') && response.ok())
   await page.goto(`/regions?region=${region}&product=744b6536-b9a7-56c5-85b1-66a629a78b91`)
+  const population = await (await populationResponse).json()
   await expect(page.getByTestId('population-total')).toBeVisible()
   const report = page.getByRole('region', { name: 'گزارش غربالگری فارسی' })
   const created = page.waitForResponse(response => response.url().endsWith('/api/v1/reports') && response.request().method() === 'POST')
@@ -40,7 +42,8 @@ test('regional report pins the selected real population and infrastructure analy
   const job = await (await created).json()
   expect(job.scope).toBe('region')
   expect(job.region_id).toBe(region)
-  expect(job.analysis_run_id).toBe('9af897e3-7f1b-5fa9-83ca-65e30b8d9f94')
+  expect(population.population_year).toBe(2026)
+  expect(job.analysis_run_id).toBe(population.analysis_run_id)
   const link = report.getByRole('link', { name: 'دانلود گزارش غربالگری فارسی (PDF)' })
   await expect(link).toBeVisible({ timeout: 30000 })
   const downloading = page.waitForEvent('download')

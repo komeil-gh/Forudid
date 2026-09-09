@@ -2,7 +2,7 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useListAreas, useListProducts, useListRegions, useListPopulationSources, useGetPopulationExposure, useGetRegionalInfrastructureExposure, type PopulationSummary } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { useLanguage } from '../i18n'
-import { formatDateRange } from '../lib/date'
+import { formatDateRange, formatObservationPeriod } from '../lib/date'
 import { apiBase } from '../lib/api'
 import { ReportAction } from '../features/assets/ReportAction'
 import { PopulationSelection } from '../features/map/PopulationLayer'
@@ -22,7 +22,7 @@ function PopulationResult({ result }: { result: PopulationSummary }) {
     <h2 id="population-heading">{fa ? 'برآورد جمعیت در پوشش دادهٔ تغییرشکل' : 'Estimated population within deformation coverage'}</h2>
     <p>{fa ? 'سال جمعیت (میلادی):' : 'Population year:'} <bdi>{new Intl.NumberFormat(fa ? 'fa-IR' : 'en-US', { useGrouping: false }).format(result.population_year)}</bdi> · WorldPop · {fa ? 'حدود یک کیلومتر' : 'approximately 1 km'}</p>
     <p>{fa ? 'برآورد مدل جمعیت است، نه شمار سرشماری. درون هر سلول جمعیت، توزیع یکنواخت فرض شده است.' : 'A population-model estimate, not a census count. Population is assumed uniformly distributed within each native cell.'}</p>
-    <p className="population-source-note">{fa ? 'دورهٔ تغییرشکل مستقل از سال جمعیت است:' : 'Deformation period is independent of population year:'} <bdi dir="ltr">{Array.isArray(result.inputs.deformation_period) ? result.inputs.deformation_period.join(' — ') : '—'}</bdi></p>
+    <p className="population-source-note">{fa ? 'دورهٔ تغییرشکل مستقل از سال جمعیت است:' : 'Deformation period is independent of population year:'} <bdi>{formatObservationPeriod(result.inputs.deformation_period, language)}</bdi></p>
     {result.inputs.measurement_component === 'los' && <p>{fa ? 'نرخ در راستای دید ماهواره (LOS) است؛ مقدار منفی یعنی حرکت دور از ماهواره. این نرخ، مؤلفهٔ قائم یا اندازهٔ فرونشست نیست.' : 'Line-of-sight (LOS) rate: negative means motion away from the satellite. This is not a vertical rate or a subsidence magnitude.'}</p>}
     <dl className="region-metrics">
       <div><dt>{fa ? 'کل جمعیت برآوردی محدوده' : 'Total estimated population'}</dt><dd data-testid="population-total">{number.format(m.estimated_total)}</dd></div>

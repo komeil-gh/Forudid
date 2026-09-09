@@ -15,9 +15,10 @@ recheck the underlying published product and nondeprecated analysis method.
 
 Additive migration `f741b309dc82` stores report state separately from analysis
 state. A worker uses the shared advisory lock and processes one job at a time.
-Failures are retained as a report error and do not change the analysis. A stopped
-processing job requires an explicit retry; it is not silently reclaimed while a
-worker might still be active. Failed attempts retain any archived objects under
+Failures are retained as a report error and do not change the analysis. A restarted
+queue worker can reclaim an interrupted processing job only after acquiring the
+shared session advisory lock, which excludes a live worker. A failed job still
+requires an explicit retry. Failed attempts retain any archived objects under
 separate attempt IDs. Downgrade refuses to remove existing report records.
 
 ## Local operation
@@ -27,16 +28,30 @@ uv run --project apps/api python -m forudid_api.report_worker --watch
 ```
 
 For one job, replace `--watch` with `--report REPORT_UUID`; add `--retry` only to
-retry that named failed/interrupted job. Omitting both selects one queued job.
+retry that named failed/interrupted job. Omitting both selects one queued or
+interrupted processing job under the shared lock.
 Stop the foreground worker when finished. It does not restart Docker or launch
 other analysis workers. Browser processes use an isolated temporary profile and
 are closed after rendering, including failure/timeout cleanup.
 
 The local worker uses Node and the project's installed Playwright package with
-Chrome/Chromium. `REPORT_CHROME_BINARY` may select a local executable. The API
-image includes the small template/font resources for queue identity, but does not
-bundle a rendering browser or Node; a containerized rendering worker has not yet
-been accepted. No additional library was introduced for PDF generation.
+Chrome/Chromium. `REPORT_CHROME_BINARY` may select a local executable. Compose now
+includes a dedicated `report-worker` with Node 22.22.3, Playwright 1.62.1 and Debian
+Chromium. It runs as UID 10001 with dropped capabilities, a single queue consumer,
+0.5 CPU and a 768 MiB memory limit. The API image remains browser-free. Both
+images contain the identical template, renderer and font files used for queue
+identity. Actual browser versions remain recorded in each immutable manifest.
+
+```sh
+docker compose build report-worker
+docker compose up -d report-worker
+docker compose logs --tail 30 report-worker
+docker compose stop report-worker
+```
+
+The shared lock reserves one database connection. Artifact metadata is resolved
+in a short separate session that closes before S3 reads and PDF rendering.
+Interrupted attempts use a fresh object prefix; existing PDFs remain immutable.
 
 ## Content and reproducibility
 
@@ -45,6 +60,14 @@ SVG figures. No interactive React screenshot, remote resource or report-supplied
 URL is fetched. The rendering browser is offline, JavaScript is disabled, and
 external strings are HTML-escaped. Persian text is RTL; Latin identifiers,
 coordinates, source attribution and checksums have explicit directional handling.
+
+New reports format human-facing dates using Chromium's native Persian calendar
+and Persian digits. Generation timestamps retain an explicit UTC label; a
+Gregorian source year is displayed as its full overlapping Jalali year range.
+The renderer archives the final localized HTML, whose checksum is stored beside
+the PDF checksum. Original ISO dates remain in `time` attributes and the input
+manifest. Source citations and version identifiers are preserved verbatim.
+Previously completed report artifacts are not rewritten.
 
 The infrastructure report includes the real geometry, valid/missing lengths,
 coverage, weighted rates, all archived exposure segments, source dates, licenses,

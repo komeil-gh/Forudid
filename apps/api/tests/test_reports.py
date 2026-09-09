@@ -2,6 +2,7 @@ import copy
 import hashlib
 import os
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -17,9 +18,10 @@ def test_real_report_queue_failure_isolation_pdf_and_immutable_download(monkeypa
     from sqlalchemy.orm import Session
 
     from forudid_api import report_worker
+    from forudid_api.config import settings
     from forudid_api.db import ScreeningReport, engine, now
     from forudid_api.main import app
-    from forudid_api.storage import read_json
+    from forudid_api.storage import read_json, s3
 
     client = TestClient(app)
     payload = {
@@ -58,7 +60,17 @@ def test_real_report_queue_failure_isolation_pdf_and_immutable_download(monkeypa
             ).status_code
             == 200
         )
-        assert report_worker.run_report(identity, retry=True) == identity
+        with Session(engine()) as db, db.begin():
+            interrupted = db.get(ScreeningReport, identity)
+            created_at = interrupted.created_at
+            interrupted.status = "processing"
+            interrupted.created_at = datetime(1970, 1, 1, tzinfo=UTC)
+        try:
+            # The session lock excludes a live worker; restart reclaims its orphaned job.
+            assert report_worker.run_report() == identity
+        finally:
+            with Session(engine()) as db, db.begin():
+                db.get(ScreeningReport, identity).created_at = created_at
     completed = client.get(base).json()
     assert completed["status"] == "completed" and completed["generated_at"]
     pdf = client.get(base + "/download")
@@ -81,6 +93,16 @@ def test_real_report_queue_failure_isolation_pdf_and_immutable_download(monkeypa
         manifest = read_json(stored.object_key.replace("report.pdf", "manifest.json"))
         assert manifest["html_sha256"] == completed["html_sha256"]
         assert manifest["inputs"]["analysis_json_sha256"]
+        response = s3().get_object(
+            Bucket=settings().s3_bucket, Key=stored.object_key.replace("report.pdf", "report.html")
+        )
+        with response["Body"] as body:
+            archived_html = body.read()
+        assert hashlib.sha256(archived_html).hexdigest() == completed["html_sha256"]
+        assert 'datetime="2014" data-report-end="2020">۱۳۹۲ – ۱۳۹۹</time>' in (
+            archived_html.decode()
+        )
+        assert completed["generated_at"][:10] not in extracted
         inputs = copy.deepcopy(stored.inputs)
     inputs["asset"]["name"] = '<script>alert("unsafe")</script>'
     from forudid_api.exposure import published_summary

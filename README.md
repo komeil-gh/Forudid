@@ -79,6 +79,10 @@ The initialization script generates random local credentials and preserves an
 existing `.env`. Never commit credentials or `.env`; `.env.example` lists settings.
 The one-shot `initialize` service runs forward migrations and creates the private
 bucket. It does not automatically seed fixtures. The API does not migrate on startup.
+The independent `report-worker` consumes PDF requests without a host terminal or
+host browser. It renders one job at a time, with 0.5 CPU and 768 MiB limits.
+Build services sequentially on memory-constrained machines; do not run heavy
+analysis during browser-image installation.
 
 After the stack is ready:
 
@@ -212,8 +216,9 @@ The [original specification](docs/MASTER_SPEC.md), [architecture](docs/architect
 [milestones](docs/operations/milestones.md), [scientific requirements](docs/science/validation.md)
 and [ADRs](docs/adr/) retain the full requirements and historical decisions.
 
-Real HyP3/MintPy processing, the isolated scientific environment, HDF5/Zarr
-publication and a real Varamin LOS v1 product are not completed. Fixture track 071
+Real HyP3/MintPy processing and the isolated scientific environment are not
+completed. Provider-native COMET HDF5/Zarr publication is implemented, but it is
+not an independently processed and reviewed Forudid LOS product. Fixture track 071
 is not evidence for a real track choice. A scientific product needs a completed
 profile, QC and recorded manual review before publication. Operational V3 source
 measurements, evidence review and action workflows remain distinct requirements;

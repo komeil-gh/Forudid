@@ -6,12 +6,12 @@ import { useLanguage, type Language } from '../i18n'
 import { Button } from '../components/ui/button'
 import { Status } from '../components/Status'
 import { Boundary } from '../components/Boundary'
-import MethodologyPage from '../routes/methodology'
-import AboutPage from '../routes/about'
 import './navigation.css'
 import { formatDateRange } from '../lib/date'
 
 const MapPage = lazy(() => import('../routes/map'))
+const MethodologyPage = lazy(() => import('../routes/methodology'))
+const AboutPage = lazy(() => import('../routes/about'))
 const SourcesPage = lazy(() => import('../routes/sources'))
 const RegionsPage = lazy(() => import('../routes/regions'))
 const AssetsPage = lazy(() => import('../routes/assets'))
@@ -64,8 +64,8 @@ function Home() { const { language } = useLanguage(); return <main className="ar
     <p>The initial map is the published Haghshenas Haghighi and Motagh dataset for 2014 to 2020; it does not describe current ground conditions.</p>
     <Button asChild><Link to="/map" search={defaultSearch}>Open the map of Iran</Link></Button></>}</main> }
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home })
-const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: MethodologyPage })
-const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: AboutPage })
+const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: () => <Suspense fallback={<Status />}><MethodologyPage /></Suspense> })
+const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: () => <Suspense fallback={<Status />}><AboutPage /></Suspense> })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',
   component: () => <Suspense fallback={<Status />}><SourcesPage /></Suspense> })
 const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events',

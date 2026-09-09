@@ -195,7 +195,7 @@
   .about-page[dir='ltr'] .biruni-quote blockquote { font-size: 17px; line-height: 1.7; }
   .about-page[dir='ltr'] .about-letter p { font-size: 16.5px; line-height: 1.72; }
   .about-page .signature { margin-top: 34px; }
-  .about-site-footer { margin: 0 24px; padding: 28px 0; grid-template-columns: 1fr; gap: 30px; }
+  .about-site-footer { margin: 0 24px; padding: 28px 0; grid-template-columns: minmax(0, 1fr); gap: 30px; }
   .source-group { gap: 18px; padding-inline-end: 18px; }
   .source-mark { width: 205px; gap: 10px; }
   .source-mark > span { width: 92px; flex-basis: 92px; }

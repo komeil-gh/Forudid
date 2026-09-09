@@ -51,7 +51,7 @@ jobs:
       - name: Register real population and boundaries and compute country and Tehran
         run: |
           uv run --project apps/api python -m forudid_api.ingest_regions data/sources/geoboundaries/IRN-ADM1-17685810
-          uv run --project apps/api python -m forudid_api.ingest_population data/sources/worldpop-iran/2020-wpgp-31792
+          uv run --project apps/api python -m forudid_api.ingest_population data/sources/worldpop-iran/2020-wpgp-31792 --year 2020
           uv run --project apps/api python - <<'PY'
           from pathlib import Path
           from uuid import UUID, uuid5

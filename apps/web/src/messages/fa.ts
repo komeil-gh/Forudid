@@ -27,6 +27,6 @@ export const fa = {
 } as const
 export const layerLabels = {
   velocity_vertical: 'نرخ فرونشست قائم برآوردشده', seasonal_amplitude: 'دامنهٔ فصلی قله‌تا‌قله',
-  velocity_los: 'LOS Velocity', temporal_coherence: 'Temporal Coherence',
+  velocity_los: 'نرخ در راستای دید ماهواره', temporal_coherence: 'همدوسی زمانی',
   velocity_uncertainty: 'Velocity Uncertainty',
 } as const

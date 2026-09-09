@@ -22,6 +22,16 @@ def number(value, digits=2):
     return f"{value:,.{digits}f}".translate(str.maketrans("0123456789,.", "۰۱۲۳۴۵۶۷۸۹٬٫"))
 
 
+def report_date(start, end=None):
+    if start is None:
+        return esc(None)
+    end = start if end is None else end
+    return (
+        f'<time datetime="{esc(start)}" data-report-end="{esc(end)}">'
+        f"{esc(start)}{' — ' + esc(end) if end != start else ''}</time>"
+    )
+
+
 def band_label(index, edges):
     if index is None:
         return "فاقد داده"
@@ -139,7 +149,7 @@ def build_html(report_id, inputs, analysis, generated_at: datetime):
 <h2>{esc(asset["name"] or asset["external_id"])}</h2>
 <p>{"راه‌آهن" if asset["type"] == "railway" else "راه اصلی"} · <bdi>{esc(asset["external_id"])}</bdi>
 · کلاس منبع: <bdi>{esc(asset["class"])}</bdi></p>
-<p>زمان تولید (UTC): <bdi>{esc(generated_at.isoformat())}</bdi></p>
+<p>زمان تولید (UTC): {report_date(generated_at.isoformat())}</p>
 <p>این قطعه در {number(summary["coverage_fraction"] * 100)} درصد از طول خود دادهٔ معتبر نرخ دارد.
 باقی طول فاقد داده است و پایداری زمین را اثبات نمی‌کند.
 مقادیر زیر مواجههٔ مکانی با دادهٔ تاریخی را توصیف می‌کنند.</p>
@@ -154,7 +164,7 @@ def build_html(report_id, inputs, analysis, generated_at: datetime):
 <p class="small">پوش کمینه و بیشینهٔ نرخ در ۶۰۰ بازهٔ نمایشی؛ اتصال یا درون‌یابی شکاف‌ها انجام نشده است.
 نوار خاکستری وجود دادهٔ گمشده در آن بازه را نشان می‌دهد.
 پروفایل کامل در دانلود CSV تحلیل موجود است.</p>
-<p>دورهٔ دادهٔ تغییرشکل: <bdi>{esc(period[0])} — {esc(period[1])}</bdi>.
+<p>دورهٔ دادهٔ تغییرشکل: {report_date(*period)}.
 تاریخ OSM تاریخ ثبت منبع است و تاریخ ساخت زیرساخت نیست؛
 هم‌زمانی هندسه با دورهٔ ماهواره تأیید نشده است.</p>
 <p>فاصلهٔ نمونه‌برداری: {number(analysis["sample_spacing_m"])} متر؛ کمترین عرض پیکسل بررسی‌شده:
@@ -261,7 +271,8 @@ def build_region_html(report_id, inputs, documents, generated_at):
 {number(area["p95_mm_year"])} میلی‌متر/سال.</p>"""
     period = inputs["analysis_inputs"]["deformation_period"]
     caption = (
-        f"مرز تاریخی {esc(inputs.get('boundary_year'))}؛ مرجع رسمی کنونی یا نقشهٔ تراکم جمعیت نیست."
+        f"مرز تاریخی {report_date(inputs.get('boundary_year'))}؛ "
+        "مرجع رسمی کنونی یا نقشهٔ تراکم جمعیت نیست."
         if regional
         else "کادر گسترهٔ رستر جمعیت؛ مرز کشور یا پوشش پیکسل‌های معتبر نیست."
     )
@@ -275,13 +286,13 @@ def build_region_html(report_id, inputs, documents, generated_at):
         f"<li>{esc(reason)}</li>" for reason in inputs.get("product_quality", {}).get("reasons", [])
     )
     return f"""{document_start()}<h1>{title}</h1><h2>{esc(inputs["name"])}</h2>
-<p>زمان تولید (UTC): <bdi>{esc(generated_at.isoformat())}</bdi></p>
+<p>زمان تولید (UTC): {report_date(generated_at.isoformat())}</p>
 {boundary_svg(inputs["geometry"])}<p class="small">{caption}</p>
 <h2>جمعیت و پوشش داده</h2><table>{totals}</table>
 <p>برآورد مدل WorldPop برای سال
-{number(inputs["analysis_inputs"]["population_year"], 0).replace("٬", "")}؛
+{report_date(inputs["analysis_inputs"]["population_year"])}؛
 شمار سرشماری یا جمعیت امروز نیست. مقدارها برای نمایش گرد شده‌اند.</p>
-<p>دورهٔ تغییرشکل: <bdi>{esc(period[0])} — {esc(period[1])}</bdi>.
+<p>دورهٔ تغییرشکل: {report_date(*period)}.
 نبود داده به معنای پایداری زمین نیست.</p><p class="note">{NOTE}</p>
 <section class="page"><h2>جمعیت در بازه‌های نرخ تاریخی</h2>
 <table><thead><tr><th>بازهٔ نرخ (میلی‌متر/سال)</th><th>نفر (برآورد)</th></tr></thead>
@@ -329,7 +340,7 @@ def document_end(report_id, inputs):
         f"<p class='ltr'>{esc(source['attribution'])} · {esc(source['license'])}</p>"
         f'<p class="ltr">{esc(source["citation"])}</p>'
         f"<p>نسخه: <bdi>{esc(source['version'])}</bdi> · تاریخ داده: "
-        f"<bdi>{esc(source['data_date'])}</bdi></p>"
+        f"{report_date(source['data_date'])}</p>"
         f'<p class="ltr">{esc(source["homepage"])}<br>{esc(source["license_url"])}</p>'
         f"<p>شناسهٔ نسخه: <bdi>{esc(source['version_id'])}</bdi></p>"
         f'<p class="hash">SHA-256: {esc(source["sha256"])}</p></section>'

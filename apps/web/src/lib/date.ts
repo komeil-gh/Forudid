@@ -50,3 +50,8 @@ export function formatDateRangesInText(value: string, language: Language) {
   return value.replace(/\b(\d{4})[–-](\d{4})\b/g,
     (_match, start: string, end: string) => formatDateRange(start, end, language, 'year'))
 }
+
+export function formatObservationPeriod(value: unknown, language: Language) {
+  if (!Array.isArray(value) || value.length !== 2 || !value.every(item => typeof item === 'string')) return '—'
+  return formatDateRange(value[0], value[1], language, value.every(item => /^\d{4}$/.test(item)) ? 'year' : 'day')
+}

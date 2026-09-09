@@ -10,7 +10,7 @@ test('map worker loads while the catalog is unavailable', async ({ page }, testI
   await expect(page.locator('.map-message').getByRole('alert')).toBeVisible()
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await expect(page.getByRole('button', { name: 'بازگشت به نمای ایران' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'نمای کامل منبع' })).toBeVisible()
   await mkdir('/tmp/forudid-qa', { recursive: true })
   await page.screenshot({ path: `/tmp/forudid-qa/${testInfo.project.name}-offline.png` })
 })
@@ -78,9 +78,12 @@ test('historical metadata identifies the actual source and projection', async ({
 test('invalid URL and empty product states are recoverable', async ({ page }) => {
   await page.goto('/map?lat=NaN&z=900&opacity=-1&layer=vertical')
   await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
-  await page.goto('/map?orbit=ascending')
+  await page.goto('/map?product=00000000-0000-0000-0000-000000000000')
   await expect(page.getByText('هنوز محصول علمی واقعی و منتشرشده‌ای برای این محدوده وجود ندارد.')).toBeVisible()
   await page.locator('.map-message').getByRole('button', { name: 'بازگشت به نمای ایران' }).click()
+  await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
+  await expect(page).not.toHaveURL(/product=/)
+  await page.reload()
   await expect(page.locator('.legend')).toContainText('نرخ فرونشست قائم برآوردشده')
 })
 test('unavailable time series is never requested or fabricated', async ({ page }) => {

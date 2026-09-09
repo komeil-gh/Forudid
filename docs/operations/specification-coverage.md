@@ -7,6 +7,11 @@ validation.
 
 ## Delivery decision — 2026-09-10
 
+The current unveiling target is local. The alpha.6 implementation and acceptance
+record is in [delivery status](milestones.md#local-unveiling-preparation--2026-09-10).
+It closes concrete navigation, date, responsive-layout, publication-visibility
+and report-queue defects. It does not complete the open V3 milestones below.
+
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.

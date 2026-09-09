@@ -2,8 +2,8 @@ import type { Legend as LegendData } from '../../generated/api/forudid'
 import { presentation, format } from '../../lib/units'
 import { useLanguage } from '../../i18n'
 export function Legend({ data }: { data: LegendData }) {
-  const { language } = useLanguage(), en = language === 'en'
-  const translated = (value: string) => en ? ({
+  const { language, layerLabels } = useLanguage(), en = language === 'en'
+  const translated = (value: string) => value === 'LOS Velocity' ? layerLabels.velocity_los : en ? ({
     'نرخ فرونشست قائم برآوردشده': 'Estimated vertical subsidence rate',
     'دامنهٔ قله‌تا‌قلهٔ فصلی': 'Peak-to-peak seasonal amplitude',
     'بدون داده: شفاف': 'No data: transparent',

@@ -137,11 +137,13 @@ def run_report(report_id: UUID | None = None, *, retry=False):
                 if report_id:
                     query = query.where(ScreeningReport.id == report_id)
                 else:
-                    query = query.where(ScreeningReport.status == "queued")
+                    # Holding the session lock proves no other compliant worker is active.
+                    # A processing row left after a crash can safely start a new attempt.
+                    query = query.where(ScreeningReport.status.in_(("queued", "processing")))
                 report = db.scalar(query.limit(1).with_for_update())
                 if report is None or report.status == "completed":
                     return None
-                if report.status != "queued" and not retry:
+                if report_id and report.status != "queued" and not retry:
                     return None
                 identity, inputs = report.id, report.inputs
                 report.status, report.error_code = "processing", None
@@ -152,18 +154,19 @@ def run_report(report_id: UUID | None = None, *, retry=False):
                     report = db.get(ScreeningReport, identity)
                     if report is None:
                         raise ValueError("Report job disappeared")
-                    documents = {}
-                    for role, (key, expected) in report_artifacts(db, report).items():
-                        response = s3().get_object(Bucket=settings().s3_bucket, Key=key)
-                        with response["Body"] as body:
-                            if response["ContentLength"] > 100 * 1024 * 1024:
-                                raise ValueError("Report analysis exceeds the 100 MiB input limit")
-                            raw = body.read()
-                        if hashlib.sha256(raw).hexdigest() != expected or (
-                            role == "analysis" and expected != inputs["analysis_json_sha256"]
-                        ):
-                            raise ValueError("Archived analysis checksum mismatch")
-                        documents[role] = json.loads(raw)
+                    artifacts = report_artifacts(db, report)
+                documents = {}
+                for role, (key, expected) in artifacts.items():
+                    response = s3().get_object(Bucket=settings().s3_bucket, Key=key)
+                    with response["Body"] as body:
+                        if response["ContentLength"] > 100 * 1024 * 1024:
+                            raise ValueError("Report analysis exceeds the 100 MiB input limit")
+                        raw = body.read()
+                    if hashlib.sha256(raw).hexdigest() != expected or (
+                        role == "analysis" and expected != inputs["analysis_json_sha256"]
+                    ):
+                        raise ValueError("Archived analysis checksum mismatch")
+                    documents[role] = json.loads(raw)
                 generated_at = now()
                 markup = (
                     build_region_html(identity, inputs, documents, generated_at)
@@ -175,6 +178,7 @@ def run_report(report_id: UUID | None = None, *, retry=False):
                     work = Path(temp).resolve()
                     pdf = work / "report.pdf"
                     runtime = render_pdf(markup, pdf, work)
+                    markup = (work / "report.html").read_text(encoding="utf-8")
                     checksum, _ = put_file(f"{prefix}/report.pdf", pdf, "application/pdf")
                     html_sha, _ = put_immutable(
                         f"{prefix}/report.html", markup.encode(), "text/html"
