@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useListAreas, useListProducts, useListRegions, useListPopulationSources, useGetPopulationExposure, useGetRegionalInfrastructureExposure, type PopulationSummary } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { useLanguage } from '../i18n'
+import { formatDateRange } from '../lib/date'
 import { apiBase } from '../lib/api'
 import { ReportAction } from '../features/assets/ReportAction'
 import { PopulationSelection } from '../features/map/PopulationLayer'
@@ -109,7 +110,6 @@ export default function RegionsPage() {
   const product = velocities.find(p => p.id === selectedProduct) ?? velocities[0]
   const region = regions.data?.items.find(r => r.id === selected)
   const invalidSelection = Boolean(selected && !region) || Boolean(selectedProduct && !velocities.some(p => p.id === selectedProduct))
-  const date = (value: string) => fa ? value.replace(/[0-9]/g, digit => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]) : value
   return <main className="sources-page regions-page"><header><h1>{fa ? 'جمعیت و مناطق' : 'Population and regions'}</h1>
     <p>{fa ? 'مواجههٔ توصیفی با دادهٔ تاریخی تغییرشکل زمین؛ همراه با سال جمعیت، منبع مرز و محدودیت پوشش.' : 'Descriptive exposure to historical ground deformation, with population year, boundary source, and coverage limitations.'}</p></header>
     {regions.isPending || products.isPending ? <Status /> : regions.isError || products.isError ? <Status error retry={() => { void regions.refetch(); void products.refetch() }} /> : invalidSelection ? <p role="status">{fa ? 'محدوده یا محصول انتخاب‌شده در دسترس نیست.' : 'The selected region or product is unavailable.'} <Link to="/regions">{fa ? 'بازگشت به انتخاب محدوده' : 'Choose a region'}</Link></p> : <>
@@ -118,10 +118,10 @@ export default function RegionsPage() {
         <option value="">{fa ? 'کل محدودهٔ دادهٔ جمعیت ایران' : 'Entire Iran population dataset footprint'}</option>
         {regions.data.items.map(r => <option key={r.id} value={r.id}>{fa ? r.name_fa : r.name_en}</option>)}</select></label>
         <label>{fa ? 'محصول تغییرشکل' : 'Deformation product'}<select value={product?.id ?? ''} onChange={e => void navigate({ search: { ...search, product: e.target.value || undefined } })}>
-          {velocities.map(p => <option key={p.id} value={p.id}>{date(p.start_date)} — {date(p.end_date)} · {p.kind === 'velocity_vertical' ? (fa ? 'قائمِ برآوردی' : 'Projected vertical') : 'LOS'}</option>)}</select></label>
+          {velocities.map(p => <option key={p.id} value={p.id}>{formatDateRange(p.start_date, p.end_date, language, p.time_precision)} · {p.kind === 'velocity_vertical' ? (fa ? 'قائمِ برآوردی' : 'Projected vertical') : 'LOS'}</option>)}</select></label>
         <PopulationSelection value={search.populationVersion} onChange={populationVersion => void navigate({ search: { ...search, populationVersion } })} /></div>
       {region && <section className="source-version"><h2>{fa ? region.name_fa : region.name_en}</h2>
-        <p>{fa ? 'مرز تاریخی ۲۰۱۷ از geoBoundaries / OpenStreetMap؛ این مرز مرجع رسمیِ وضعیت کنونی نیست.' : 'Historical 2017 boundary from geoBoundaries / OpenStreetMap; not an official current administrative boundary.'}</p>
+        <p>{fa ? `مرز تاریخی ${formatDateRange('2017', '2017', language, 'year')} از geoBoundaries / OpenStreetMap؛ این مرز مرجع رسمیِ وضعیت کنونی نیست.` : 'Historical 2017 boundary from geoBoundaries / OpenStreetMap; not an official current administrative boundary.'}</p>
         <p>{fa ? 'فرادادهٔ منبع ۳۳ واحد اعلام کرده، اما فایل ۳۲ هندسه و ۳۱ نام یکتا دارد. دو بخش مازندران با حفظ شناسه‌های اصلی یکپارچه شده‌اند.' : 'Provider metadata reports 33 units; the file contains 32 geometries and 31 unique names. The two Mazandaran parts were merged with original identifiers preserved.'}</p>
         <a href={`${apiBase}/api/v1/regions/${region.id}`} download={`${region.name_en}.geojson`}>{fa ? 'دریافت مرز و فراداده (GeoJSON)' : 'Download boundary and metadata (GeoJSON)'}</a> · <a href="https://www.openstreetmap.org/copyright">ODbL 1.0</a></section>}
       {product ? <div key={`${product.id}/${selected}`}>{population && <PopulationExposure product={product.id} region={region?.id} populationVersion={population.source_version_id} />}

@@ -7,6 +7,7 @@ import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Boundary } from '../../components/Boundary'
 import { Button } from '../../components/ui/button'
+import { formatDate } from '../../lib/date'
 const Chart = lazy(() => import('../timeseries/TimeSeriesChart'))
 export function PointPanel({ state, product, close }: { state: MapSearch; product: ProductInfo; close: () => void }) {
   const { language, messages: m, layerLabels } = useLanguage(), en = language === 'en'
@@ -27,7 +28,7 @@ export function PointPanel({ state, product, close }: { state: MapSearch; produc
           <div><dt>{m.uncertainty}</dt><dd>{point.velocity_uncertainty.value === null ? (en ? 'Not provided' : 'ارائه نشده') : <>±{localized(presentation(point.velocity_uncertainty.value, point.velocity_uncertainty.unit))}<small> mm/year</small></>}</dd></div>
           <div><dt>{m.coherence}</dt><dd className={point.temporal_coherence === null ? undefined : 'technical'}>{point.temporal_coherence === null ? (en ? 'Not provided' : 'ارائه نشده') : localized(point.temporal_coherence, 2)}</dd></div>
           <div><dt>{m.observations}</dt><dd>{point.observations ?? (en ? 'Not provided' : 'ارائه نشده')}</dd></div>
-        </dl>{point.reference ? <p className="reference-info">{m.referenceDate}: <bdi>{point.reference.date}</bdi><br />
+        </dl>{point.reference ? <p className="reference-info">{m.referenceDate}: <time dateTime={point.reference.date}>{formatDate(point.reference.date, language)}</time><br />
           {m.reference}: <bdi>{point.reference.coordinate.lon.toFixed(5)}, {point.reference.coordinate.lat.toFixed(5)}</bdi></p> : <p className="reference-info">{point.reference_description}</p>}
       </>}
     </div>

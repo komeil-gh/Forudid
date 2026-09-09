@@ -6,6 +6,7 @@ import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
 import { MapCanvas } from '../features/map/MapCanvas'
 import { defaultSearch, type MapSearch } from '../lib/search'
+import { formatDate, formatDateRange } from '../lib/date'
 import { useGetEvent, useGetEventEvidence, useGetEventObservations, useGetEventTimeline, useListEvents } from '../generated/api/forudid'
 import type { EventInfo, MultiPolygonGeometry } from '../generated/api/forudid'
 import './events.css'
@@ -32,7 +33,7 @@ function useText() {
   const number = (value: number | null, digits = 1) => value === null ? t('در دسترس نیست', 'Unavailable')
     : new Intl.NumberFormat(fa ? 'fa-IR' : 'en-GB', { maximumFractionDigits: digits }).format(value)
   const date = (value: string | null) => value === null ? t('مشخص نشده', 'Not specified')
-    : new Date(value).toLocaleDateString(fa ? 'fa-IR' : 'en-GB')
+    : formatDate(value, language)
   return { t, label, number, date }
 }
 
@@ -58,7 +59,7 @@ export default function EventsPage() {
     {query.isPending ? <Status /> : query.isError ? <Status error retry={() => void query.refetch()} /> : <>
       {!query.data.items.length && <section className="event-empty" role="status">
         <h2>{t('هنوز رخداد واقعی منتشرشده‌ای وجود ندارد.', 'No real event has been published yet.')}</h2>
-        <p>{t('دادهٔ تاریخی ۲۰۱۴ تا ۲۰۲۰، مشاهدهٔ تازه یا نشانهٔ تغییر روند امروز نیست. رخدادها پس از ورود مشاهدات زمانی و بررسی شواهد در این صفحه ظاهر می‌شوند.', 'The 2014–2020 historical data are not a new observation or evidence of a present-day trend change. Events appear here after temporal observations are ingested and their evidence is reviewed.')}</p>
+        <p>{t(`دادهٔ تاریخی ${formatDateRange('2014', '2020', 'fa', 'year')}، مشاهدهٔ تازه یا نشانهٔ تغییر روند امروز نیست. رخدادها پس از ورود مشاهدات زمانی و بررسی شواهد در این صفحه ظاهر می‌شوند.`, 'The 2014–2020 historical data are not a new observation or evidence of a present-day trend change. Events appear here after temporal observations are ingested and their evidence is reviewed.')}</p>
         <Link to="/sources">{t('دیدن منابع موجود', 'View available sources')}</Link>
       </section>}
       {query.data.items.map(event => <article className="event-card" key={event.id}>

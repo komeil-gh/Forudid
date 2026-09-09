@@ -9,6 +9,7 @@ import { Boundary } from '../components/Boundary'
 import MethodologyPage from '../routes/methodology'
 import AboutPage from '../routes/about'
 import './navigation.css'
+import { formatDateRange } from '../lib/date'
 
 const MapPage = lazy(() => import('../routes/map'))
 const SourcesPage = lazy(() => import('../routes/sources'))
@@ -57,7 +58,7 @@ export const mapRoute = createRoute({ getParentRoute: () => rootRoute, path: '/m
 })
 function Home() { const { language } = useLanguage(); return <main className="article"><h1>فرودید | FORUDID</h1>
   {language === 'fa' ? <><p>مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، همراه با منبع، نسخه و محدودیت‌های اندازه‌گیری.</p>
-    <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای سال‌های ۲۰۱۴ تا ۲۰۲۰ است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
+    <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای بازهٔ {formatDateRange('2014', '2020', language, 'year')} است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
     <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button></> : <>
     <p>Explore historical land-deformation data for Iran with its source, version, and measurement limitations.</p>
     <p>The initial map is the published Haghshenas Haghighi and Motagh dataset for 2014 to 2020; it does not describe current ground conditions.</p>

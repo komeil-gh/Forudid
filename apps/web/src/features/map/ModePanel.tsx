@@ -6,6 +6,7 @@ import { useLanguage } from '../../i18n'
 import { Status } from '../../components/Status'
 import { Button } from '../../components/ui/button'
 import { PopulationSelection } from './PopulationLayer'
+import { formatDateRange } from '../../lib/date'
 
 export function ModePanel({ state, product, population, update, selectAsset }: {
   state: MapSearch; product?: ProductInfo; update: (next: Partial<MapSearch>) => void;
@@ -27,7 +28,7 @@ export function ModePanel({ state, product, population, update, selectAsset }: {
       {regions.data?.items.map(r => <option key={r.id} value={r.id}>{fa ? r.name_fa : r.name_en}</option>)}
     </select></label>
     {regions.isError && <Status error retry={() => void regions.refetch()} />}
-    {state.region && <p>{fa ? 'مرز تاریخی ۲۰۱۷؛ geoBoundaries / OpenStreetMap، با مجوز ODbL. مرجع رسمی کنونی نیست.' : 'Historical 2017 boundary; geoBoundaries / OpenStreetMap, ODbL. Not a current official boundary.'}</p>}
+    {state.region && <p>{fa ? `مرز تاریخی ${formatDateRange('2017', '2017', language, 'year')}؛ geoBoundaries / OpenStreetMap، با مجوز ODbL. مرجع رسمی کنونی نیست.` : 'Historical 2017 boundary; geoBoundaries / OpenStreetMap, ODbL. Not a current official boundary.'}</p>}
     {state.mode === 'population' ? <><PopulationSelection value={state.populationVersion} onChange={populationVersion => update({ populationVersion, panel: 'none', pointLon: undefined, pointLat: undefined })} />
       {!product && <p>{fa ? 'دادهٔ تغییرشکل در دسترس نیست؛ نقشه و شمار جمعیت قابل بررسی‌اند، اما تحلیل مواجهه در دسترس نیست.' : 'Deformation data are unavailable. Population mapping and sampling remain available; exposure analysis is unavailable.'}</p>}
       {product && population && <><PopulationExposure product={product.id} region={state.region} populationVersion={population.source_version_id} />

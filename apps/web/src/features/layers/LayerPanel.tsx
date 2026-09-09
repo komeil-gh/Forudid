@@ -4,6 +4,7 @@ import type { MapSearch } from '../../lib/search'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
 import { Status } from '../../components/Status'
+import { formatDate, formatDateRange, formatDateRangesInText } from '../../lib/date'
 const icons = { velocity_los: Activity, temporal_coherence: Grid2X2, velocity_uncertainty: Sigma,
   velocity_vertical: Activity, seasonal_amplitude: Activity }
 export function LayerPanel({ state, product, products, update, onMetadata }:
@@ -16,7 +17,7 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
   const layer = product?.kind ?? state.layer
   return <div className="layer-panel">
     <div className="area-heading"><h1>{area ? (en ? area.name_en : area.name_fa) : state.aoi}</h1>
-      {product && <span><bdi>{product.start_date} – {product.end_date}</bdi></span>}</div>
+      {product && <span>{formatDateRange(product.start_date, product.end_date, language, product.time_precision)}</span>}</div>
     <label className="field-label">{en ? 'Deformation source area' : 'محدودهٔ منبع تغییرشکل'}
       <select value={state.aoi} onChange={event => {
         const selected = areas.data?.find(a => a.slug === event.target.value)
@@ -33,7 +34,7 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
     <label className="field-label">{m.product}<select value={product?.id || ''}
       onChange={e => { const chosen = products.find(p => p.id === e.target.value);
         if (chosen) update({ product: chosen.id, run: chosen.processing_run_id, layer: chosen.kind as MapSearch['layer'], orbit: chosen.orbit_direction }) }}>
-      {products.filter(p => p.kind === layer).map(p => <option value={p.id} key={p.id}>{p.product_version}</option>)}
+      {products.filter(p => p.kind === layer).map(p => <option value={p.id} key={p.id}>{formatDateRangesInText(p.product_version, language)}</option>)}
     </select></label>
     {state.mode === 'deformation' && <fieldset className="layer-options"><legend>{m.layers}</legend>
       {(Object.keys(layerLabels) as (keyof typeof layerLabels)[]).filter(kind => products.some(p => p.kind === kind)).map(kind => {
@@ -59,12 +60,12 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
     {product && <><dl className="metadata-list">
       <div><dt>{m.orbit}</dt><dd className="technical">{product.orbit_direction === 'descending' ? 'Descending' : 'Ascending'}</dd></div>
       <div><dt>{m.track}</dt><dd>{product.relative_orbit === null ? (en ? 'Multi-track mosaic' : 'موزاییک چند ترک') : String(product.relative_orbit).padStart(3, '0')}</dd></div>
-      <div><dt>{m.period}</dt><dd className="technical dates">{product.start_date}<br />{product.end_date}</dd></div>
-      <div><dt>{en ? 'Time precision' : 'دقت زمانی'}</dt><dd>{product.time_precision === 'year' ? (en ? 'Calendar year' : 'سال میلادی') : (en ? 'Calendar day' : 'روز میلادی')}</dd></div>
+      <div><dt>{m.period}</dt><dd className="dates">{formatDateRange(product.start_date, product.end_date, language, product.time_precision)}</dd></div>
+      <div><dt>{en ? 'Time precision' : 'دقت زمانی'}</dt><dd>{product.time_precision === 'year' ? (en ? 'Calendar year' : 'سال تقویمی') : (en ? 'Calendar day' : 'روز تقویمی')}</dd></div>
       {Array.isArray(product.resolution_metadata?.pixel_size_degrees) && <div><dt>{en ? 'Pixel size' : 'اندازهٔ پیکسل'}</dt>
         <dd><bdi>{product.resolution_metadata.pixel_size_degrees.map(value => Number(value).toPrecision(5)).join(' × ')}</bdi> {en ? 'degrees' : 'درجه'}</dd></div>}
       <div><dt>{m.version}</dt><dd className="technical">{product.processing_version}</dd></div>
-      <div><dt>{m.lastAcquisition}</dt><dd>{product.last_acquisition ?? (en ? 'Exact date not provided' : 'تاریخ دقیق ارائه نشده')}</dd></div>
+      <div><dt>{m.lastAcquisition}</dt><dd>{product.last_acquisition ? formatDate(product.last_acquisition, language) : (en ? 'Exact date not provided' : 'تاریخ دقیق ارائه نشده')}</dd></div>
     </dl><Button className="metadata-button" onClick={onMetadata}><FileText size={17} />{m.metadata}</Button>
       <p className="scientific-note">{product.measurement_method === 'descending_los_projection' ? (en ? 'Vertical estimate from descending line of sight, assuming negligible horizontal motion. These historical data do not show current ground conditions.' : 'برآورد قائم از راستای دید نزولی، با فرض ناچیزبودن حرکت افقی. این دادهٔ تاریخی وضعیت کنونی زمین را نشان نمی‌دهد.') : m.scientificNote}</p></>}
   </div>

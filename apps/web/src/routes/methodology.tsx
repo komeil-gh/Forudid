@@ -2,6 +2,7 @@ import { type ReactNode } from 'react'
 import katex from 'katex'
 import { RepeatPassGeometry } from './methodology-figures'
 import { useLanguage } from '../i18n'
+import { formatDateRange } from '../lib/date'
 
 const references = [
   ['[1]', 'Ferretti, A., Monti-Guarnieri, A., Prati, C., Rocca, F., and Massonnet, D. (2007). InSAR Principles: Guidelines for SAR Interferometry Processing and Interpretation. ESA TM-19.', 'https://www.esa.int/esapub/tm/tm19/TM-19_ptA.pdf'],
@@ -11,6 +12,9 @@ const references = [
   ['[5]', 'MintPy contributors. Small-baseline time-series workflow and phase-closure diagnostics.', 'https://mintpy.readthedocs.io/en/latest/'],
   ['[6]', 'U.S. Geological Survey. Aquifer Compaction due to Groundwater Pumping.', 'https://www.usgs.gov/centers/land-subsidence-in-california/science/aquifer-compaction-due-groundwater-pumping'],
   ['[7]', 'Galloway, D., Jones, D. R., and Ingebritsen, S. E., editors (1999). Land Subsidence in the United States. USGS Circular 1182.', 'https://pubs.usgs.gov/circ/circ1182/'],
+  ['[8]', 'COMET. LiCS Land Subsidence Portal: Technical Information.', 'https://comet-subsidencedb.org/technical-information'],
+  ['[9]', 'COMET. Varamin region 000001, ascending frame 028A_05385_191813.', 'https://comet-subsidencedb.org/region/000001'],
+  ['[10]', 'LiCSBAS contributors. Reviewed measurement-contract source revision a145e6c.', 'https://github.com/comet-licsar/LiCSBAS/commit/a145e6c4217b29eb7348ea95630454a099809098'],
 ] as const
 
 function Equation({ number, children }: { number: number, children: string }) {
@@ -29,6 +33,26 @@ function Figure({ children, label, caption }: { children: ReactNode, label: stri
 function References({ title }: { title: string }) {
   return <footer className="paper-references"><h2>{title}</h2><ol>{references.map(([number, citation, href]) =>
     <li key={href}><a href={href} target="_blank" rel="noreferrer"><span>{number}</span> {citation}</a></li>)}</ol></footer>
+}
+
+function ProductContract({ english = false }: { english?: boolean }) {
+  const language = english ? 'en' : 'fa'
+  const historical = formatDateRange('2014', '2020', language, 'year')
+  const comet = formatDateRange('2014-10-19', '2026-07-31', language)
+  return <section className="product-contract" aria-labelledby="product-contract-title">
+    <h2 id="product-contract-title">{english ? 'Product contracts currently published by Forudid' : 'قرارداد محصولات منتشرشده در فرودید'}</h2>
+    <div className="product-contract-scroll" tabIndex={0} role="region" aria-label={english ? 'Comparison of deformation products' : 'مقایسهٔ محصولات تغییرشکل'}>
+      <table><thead><tr><th scope="col">{english ? 'Property' : 'ویژگی'}</th><th scope="col">{english ? 'Nationwide historical product' : 'محصول تاریخی سراسری'}</th><th scope="col">{english ? 'COMET Varamin pilot' : 'پایلوت ورامین COMET'}</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">{english ? 'Observation period' : 'بازهٔ مشاهده'}</th><td>{historical}</td><td>{comet}</td></tr>
+          <tr><th scope="row">{english ? 'Measured component' : 'مؤلفهٔ اندازه‌گیری'}</th><td>{english ? 'Positive subsidence magnitude projected to vertical from descending LOS' : 'بزرگی مثبت فرونشست؛ تصویرشده از LOS نزولی به قائم'}</td><td>{english ? 'Ascending LOS; positive toward the satellite and negative away' : 'LOS صعودی؛ مثبت به‌سوی ماهواره و منفی دور از آن'}</td></tr>
+          <tr><th scope="row">{english ? 'Temporal product' : 'محصول زمانی'}</th><td>{english ? 'Annual rate and peak-to-peak seasonal amplitude; no pixel time series' : 'نرخ سالانه و دامنهٔ فصلی قله‌تا‌قله؛ بدون سری زمانی پیکسل'}</td><td>{english ? 'Velocity plus 323 dated displacement epochs' : 'سرعت به‌همراه ۳۲۳ برداشت تاریخ‌دار جابه‌جایی'}</td></tr>
+          <tr><th scope="row">{english ? 'Reference and correction' : 'مرجع و تصحیح'}</th><td>{english ? 'Patchwise reference and atmospheric correction reported by the source' : 'مرجع و تصحیح جوی قطعه‌ای، مطابق گزارش منبع'}</td><td>{english ? 'One source reference pixel; unfiltered, with no GACOS correction' : 'یک پیکسل مرجع منبع؛ بدون فیلتر و بدون تصحیح GACOS'}</td></tr>
+          <tr><th scope="row">{english ? 'Uncertainty status' : 'وضعیت عدم‌قطعیت'}</th><td>{english ? 'No distributed pixel uncertainty' : 'عدم‌قطعیت پیکسلی توزیع نشده است'}</td><td>{english ? 'No pixel velocity or displacement uncertainty; mean coherence is not temporal coherence' : 'عدم‌قطعیت پیکسلی سرعت و جابه‌جایی ارائه نشده؛ همدوسی میانگین، همدوسی زمانی نیست'}</td></tr>
+        </tbody></table>
+    </div>
+    <p>{english ? 'These products must not be differenced, merged, or treated as independent confirmation without harmonising component, sign, reference frame, observation period, spatial support, and corrections. COMET describes the portal data as not independently verified [8–10].' : 'این دو محصول بدون همسان‌سازی مؤلفه، علامت، چارچوب مرجع، بازهٔ مشاهده، گسترهٔ مکانی و تصحیحات نباید از هم کم، با هم ادغام یا تأیید مستقل یکدیگر تلقی شوند. COMET داده‌های درگاه را فاقد اعتبارسنجی مستقل معرفی می‌کند [۸–۱۰].'}</p>
+  </section>
 }
 
 function InterpretationNotes({ english = false }: { english?: boolean }) {
@@ -54,15 +78,18 @@ function InterpretationNotes({ english = false }: { english?: boolean }) {
 }
 
 function PersianPaper() {
+  const historical = formatDateRange('2014', '2020', 'fa', 'year')
   return <article className="paper" lang="fa" dir="rtl">
     <aside className="paper-stamp" aria-hidden="true">FORUDID · METHODS NOTE · ۱۴۰۵</aside>
     <header className="paper-header">
-      <h1>روش و حدود تفسیر دادهٔ سراسری فرونشست ایران، ۲۰۱۴ تا ۲۰۲۰</h1>
+      <h1>روش، منشأ و حدود تفسیر محصولات تغییرشکل زمین فرودید</h1>
       <p className="paper-author">کمیل</p>
       <p className="paper-affiliation">پروژهٔ فرودید، طهران، ایران</p>
       <section className="paper-abstract" aria-label="چکیده">
-        <p>این یادداشت مبنای اندازه‌گیری، روش پردازش و حدود تفسیر دادهٔ تاریخی فرونشست ایران را بررسی می‌کند. مجموعه‌دادهٔ نسخهٔ ۱٫۰٫۰ حق‌شناس حقیقی و معتق از بیش از ۶۰۰۰ صحنهٔ Sentinel-1 در ده مسیر نزولی طی سال‌های ۲۰۱۴ تا ۲۰۲۰ ساخته شده است [۳، ۴]. فرودید نرخ فرونشست قائم برآوردشده و دامنهٔ فصلی این منبع را با حفظ قرارداد و واحد ناشر عرضه می‌کند. در ادامه، مشاهدهٔ فاز از مدل جابه‌جایی، دامنهٔ فصلی از عدم‌قطعیت، و تغییرشکل اندازه‌گیری‌شده از تفسیر آب‌زمین‌شناختی تفکیک می‌شود.</p></section>
+        <p>این یادداشت مبنای اندازه‌گیری، روش پردازش و حدود تفسیر دو خانوادهٔ داده را بررسی می‌کند: محصول تاریخی سراسری با پوشش تقویمی {historical} و پایلوت سری زمانی LOS ورامین. محصول تاریخی از بیش از ۶۰۰۰ صحنهٔ Sentinel-1 در ده مسیر نزولی ساخته شده است [۳، ۴]. فرودید قرارداد مؤلفه، علامت، واحد، مرجع و تاریخ هر منبع را جدا نگه می‌دارد. در ادامه، مشاهدهٔ فاز از مدل جابه‌جایی، دامنهٔ فصلی از عدم‌قطعیت، و تغییرشکل اندازه‌گیری‌شده از تفسیر آب‌زمین‌شناختی تفکیک می‌شود.</p></section>
     </header>
+
+    <ProductContract />
 
     <div className="paper-body">
       <section><h2>دامنهٔ داده.</h2>
@@ -105,15 +132,18 @@ function PersianPaper() {
 }
 
 function EnglishPaper() {
+  const historical = formatDateRange('2014', '2020', 'en', 'year')
   return <article className="paper paper-en" lang="en" dir="ltr">
     <aside className="paper-stamp" aria-hidden="true">FORUDID · METHODS NOTE · 2026</aside>
     <header className="paper-header">
-      <h1>Method and Interpretation Limits of the Nationwide Iran Subsidence Dataset, 2014 to 2020</h1>
+      <h1>Method, Provenance, and Interpretation Limits of Forudid Ground-Deformation Products</h1>
       <p className="paper-author">Komeil</p>
       <p className="paper-affiliation">Forudid Project, Tehran, Iran</p>
       <section className="paper-abstract" aria-label="Abstract">
-        <p>This note examines the measurement basis, processing method, and interpretation limits of historical land subsidence in Iran. Version 1.0.0 of the Haghshenas Haghighi and Motagh dataset derives from more than 6,000 Sentinel-1 scenes on ten descending tracks between 2014 and 2020 [3, 4]. Forudid presents the estimated vertical subsidence rate and seasonal amplitude with the publisher's conventions and units. The discussion distinguishes phase observations from displacement models, seasonal amplitude from uncertainty, and measured deformation from hydrogeological interpretation.</p></section>
+        <p>This note examines the measurement basis, processing method, and interpretation limits of two data families: the nationwide historical product covering {historical}, and the Varamin LOS time-series pilot. The historical product derives from more than 6,000 Sentinel-1 scenes on ten descending tracks [3, 4]. Forudid keeps each source's component, sign, unit, reference, and dates separate. The discussion distinguishes phase observations from displacement models, seasonal amplitude from uncertainty, and measured deformation from hydrogeological interpretation.</p></section>
     </header>
+
+    <ProductContract english />
 
     <div className="paper-body">
       <section><h2>Data scope.</h2>

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0-alpha.5 — 2026-09-09
+
+- Render UI dates with the Persian calendar and Persian digits in Persian, and with the Gregorian calendar and Latin digits in English.
+- Apply one date contract across map metadata, source records, infrastructure, population, events and point time series while retaining ISO Gregorian values in provenance records.
+- Expand methodology with an explicit comparison of the nationwide projected-vertical product and the COMET Varamin ascending-LOS pilot, including reference, correction, uncertainty and comparison limits.
+
 ## 0.3.0-alpha.4 — 2026-09-09
 
 - Register the verified WorldPop 2026 R2025A source while retaining reproducible 2020 results.

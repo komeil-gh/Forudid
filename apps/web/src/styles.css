@@ -155,6 +155,14 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
 .paper-en .paper-affiliation { font-size: 12px; }
 .paper-abstract { max-width: 790px; margin: 0 auto 27px; text-align: justify; }
 .paper-abstract p { margin: 0; }
+.product-contract { max-width: 900px; margin: 0 auto 26px; }
+.product-contract h2 { margin: 0 0 8px; font-size: 13px; font-weight: 650; }
+.product-contract-scroll { overflow-x: auto; border-block: 1px solid var(--paper-rule); }
+.product-contract table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 10.5px; line-height: 1.45; text-align: start; }
+.product-contract th, .product-contract td { padding: 7px 9px; border-bottom: 1px solid #ddd; vertical-align: top; text-align: start; }
+.product-contract thead th { color: var(--paper-muted); font-weight: 650; }
+.product-contract tbody th { width: 17%; font-weight: 650; }
+.product-contract p { margin: 8px 0 0; font-size: 10.5px; line-height: 1.55; text-align: justify; }
 .paper-body { column-count: 2; column-gap: 30px; column-rule: 0; text-align: justify; }
 .paper-body section { margin: 0 0 .5em; }
 .paper-body h2 { display: inline; margin: 0 .35em 0 0; font: 500 1em/1.62 'Noto Naskh Arabic Variable', serif; break-after: avoid; }

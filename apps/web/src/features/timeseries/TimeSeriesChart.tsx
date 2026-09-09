@@ -8,6 +8,7 @@ import type { TimeSeries } from '../../generated/api/forudid'
 import { presentation, format } from '../../lib/units'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
+import { formatDate, formatMonth } from '../../lib/date'
 registerCharts([LineChart, CustomChart, GridComponent, TooltipComponent, DataZoomComponent,
   MarkLineComponent, AriaComponent, CanvasRenderer])
 const bandRenderer: CustomSeriesRenderItem = (_params, api) => {
@@ -35,7 +36,7 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
     instance.setOption({ animation: false, aria: { enabled: true, label: { description: m.chartSummary } },
       grid: { left: 54, right: 16, top: 24, bottom: 60 },
       tooltip: { trigger: 'axis', valueFormatter: (value: number) => `${format(value, 1, en ? 'en-US' : 'fa-IR')} mm` },
-      xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: '{yyyy}-{MM}', color: '#6b7c87' },
+      xAxis: { type: 'time', axisLabel: { hideOverlap: true, formatter: (value: number) => formatMonth(value, language), color: '#6b7c87' },
         axisLine: { lineStyle: { color: '#c4d0d8' } } },
       yAxis: { type: 'value', name: 'mm', axisLabel: { color: '#6b7c87' },
         splitLine: { lineStyle: { color: '#e7edf0' } } },
@@ -50,7 +51,7 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
     const observer = new ResizeObserver(() => instance.resize())
     observer.observe(container.current)
     return () => { observer.disconnect(); instance.dispose(); chart.current = null }
-  }, [data, en, m.chartSummary])
+  }, [data, en, language, m.chartSummary])
   return <div className="chart-section">
     <div className="chart-heading"><h3>{m.timeSeries}</h3><Button variant="ghost" onClick={() =>
       chart.current?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })}>{m.resetZoom}</Button></div>
@@ -58,7 +59,7 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
     <p className="chart-caption">{m.chartSummary}</p>
     <details className="series-table"><summary>{m.values}</summary><table><thead><tr>
       <th>{m.date}</th><th>{m.displacement}</th></tr></thead><tbody>{data.series.map(epoch =>
-      <tr key={epoch.date}><td className="technical">{epoch.date}</td>
+      <tr key={epoch.date}><td><time dateTime={epoch.date}>{formatDate(epoch.date, language)}</time></td>
         <td className="technical">{format(presentation(epoch.displacement, data.unit), 1, en ? 'en-US' : 'fa-IR')}</td></tr>)}</tbody></table></details>
   </div>
 }
