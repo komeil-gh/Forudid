@@ -1,6 +1,93 @@
 import { test, expect } from '@playwright/test'
 import { createHash } from 'node:crypto'
 
+test('independent point comparison preserves real values, native pixels, periods and NoData', async ({ page, request, isMobile }) => {
+  test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires both published real deformation sources')
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const comet = '5323cc4f-57ec-5347-a85d-14f4887e5d27', historical = '744b6536-b9a7-56c5-85b1-66a629a78b91'
+  await page.goto(`/map?aoi=varamin-comet&product=${comet}&layer=velocity_los&orbit=ascending&panel=point&pointLon=51.70033&pointLat=35.3`)
+  const coordinateBox = await page.locator('.point-details .coordinate').boundingBox()
+  const comparisonBox = await page.getByRole('link', { name: 'مقایسهٔ منابع در این نقطه' }).boundingBox()
+  expect(comparisonBox!.y).toBeGreaterThanOrEqual(coordinateBox!.y + coordinateBox!.height)
+  await page.getByRole('link', { name: 'مقایسهٔ منابع در این نقطه' }).click()
+  await expect(page.getByRole('heading', { name: 'مقایسهٔ منابع', exact: true })).toBeVisible()
+  const first = page.getByRole('region', { name: 'منبع اول', exact: true })
+  const second = page.getByRole('region', { name: 'منبع دوم', exact: true })
+  await second.getByRole('combobox', { name: 'محصول نرخ تغییرشکل' }).selectOption(historical)
+  for (const [region, product] of [[first, comet], [second, historical]] as const) {
+    const response = await request.get(`/api/v1/points/summary?product_id=${product}&lon=51.70033&lat=35.3`)
+    expect(response.ok()).toBe(true)
+    const point = await response.json()
+    const value = point.measurement.value
+    expect(point.measurement.unit).toBe(product === comet ? 'm/year' : 'cm/year')
+    const millimetres = value * (product === comet ? 1000 : 10)
+    await expect(region.getByTestId('comparison-value')).toHaveText(value === null ? 'بدون داده' : `${millimetres.toLocaleString('fa-IR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm/year`)
+    await expect(region.getByText(`${point.sampled_coordinate.lon.toFixed(6)}, ${point.sampled_coordinate.lat.toFixed(6)}`, { exact: true })).toBeVisible()
+  }
+  await expect(first.getByTestId('comparison-period')).toContainText('۹ مرداد ۱۴۰۵')
+  await expect(second.getByTestId('comparison-period')).not.toContainText('۱۴۰۵')
+  await expect(page.locator('.comparison-notice')).toContainText('مستقیماً قابل تفریق نیستند')
+  await page.reload()
+  await expect(first.getByTestId('comparison-value')).toBeVisible()
+  await expect(second.getByTestId('comparison-value')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.screenshot({ path: `/tmp/forudid-qa/comparison-${isMobile ? 'mobile' : 'desktop'}.png`, fullPage: true })
+  const input = page.getByRole('textbox', { name: 'طول، عرض جغرافیایی' })
+  await input.fill('181, 90')
+  await page.getByRole('button', { name: 'بررسی نقطه', exact: true }).click()
+  await expect(input).toHaveAttribute('aria-invalid', 'true')
+  await expect(page).toHaveURL(/lon=51.70033/)
+  await input.fill('۰، ۰')
+  await page.getByRole('button', { name: 'بررسی نقطه', exact: true }).click()
+  await expect(first.getByTestId('comparison-value')).toHaveText('بدون داده')
+  await expect(second.getByTestId('comparison-value')).toHaveText('بدون داده')
+  await page.reload()
+  await page.getByRole('button', { name: 'EN', exact: true }).click()
+  await expect(page.getByTestId('comparison-value')).toHaveText(['No data', 'No data'])
+  await expect(page.getByTestId('comparison-period').first()).toContainText('31 July 2026')
+  await expect(page.getByTestId('comparison-period').last()).toHaveText('2014–2020')
+  const englishSecond = page.getByRole('region', { name: 'Second source', exact: true })
+  await englishSecond.getByRole('combobox', { name: 'Source area' }).selectOption('varamin-comet')
+  await expect(englishSecond.getByTestId('comparison-value')).toHaveCount(0)
+  await englishSecond.getByRole('combobox', { name: 'Deformation-rate product' }).selectOption(comet)
+  await expect(page.getByText('Both selections are the same product; no independent source is selected.')).toBeVisible()
+  await englishSecond.getByRole('link', { name: 'Open map and available time series' }).click()
+  await expect(page).toHaveURL(/aoi=varamin-comet/)
+  await expect(page).toHaveURL(/pointLon=0/)
+  expect(errors).toEqual([])
+})
+
+test('comparison rejects non-rate products and isolates one source failure', async ({ page, request }) => {
+  test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires both published real deformation sources')
+  const comet = '5323cc4f-57ec-5347-a85d-14f4887e5d27', historical = '744b6536-b9a7-56c5-85b1-66a629a78b91'
+  const catalog = await request.get('/api/v1/products?aoi=iran')
+  const amplitude = (await catalog.json()).find((p: { kind: string }) => p.kind === 'seasonal_amplitude')
+  await page.goto(`/compare?lon=51.70033&lat=35.3&a=${amplitude.id}&b=${comet}`)
+  const first = page.getByRole('region', { name: 'منبع اول', exact: true })
+  const second = page.getByRole('region', { name: 'منبع دوم', exact: true })
+  await expect(first.getByRole('alert')).toContainText('این محصول نرخ تغییرشکل نیست')
+  await expect(first.getByTestId('comparison-value')).toHaveCount(0)
+  await expect(second.getByTestId('comparison-value')).toBeVisible()
+  let failing = true
+  await page.route('**/api/v1/points/summary?**', route => {
+    if (failing && new URL(route.request().url()).searchParams.get('product_id') === historical)
+      return route.fulfill({ status: 503, json: { detail: 'Source temporarily unavailable' } })
+    return route.continue()
+  })
+  await first.getByRole('combobox', { name: 'محصول نرخ تغییرشکل' }).selectOption(historical)
+  await expect(first.getByRole('alert')).toBeVisible()
+  await expect(second.getByTestId('comparison-value')).toBeVisible()
+  failing = false
+  await first.getByRole('alert').getByRole('button').click()
+  await expect(first.getByTestId('comparison-value')).toBeVisible()
+  for (const coordinate of ['999', '', 'null', 'true']) {
+    await page.goto(`/compare?lon=${coordinate}&lat=35.3&a=${historical}&b=${comet}`)
+    await expect(page.getByText('برای دریافت اندازه‌گیری، مختصات معتبر وارد کنید.')).toBeVisible()
+    await expect(page.getByTestId('comparison-value')).toHaveCount(0)
+  }
+})
+
 test('published COMET source selection, LOS value and 323 real epochs survive reload', async ({ page, request, isMobile }) => {
   test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires the verified and published COMET Varamin source')
   const errors: string[] = [], tiles: string[] = []
@@ -9,6 +96,9 @@ test('published COMET source selection, LOS value and 323 real epochs survive re
   const catalog = await request.get('/api/v1/products?aoi=varamin-comet')
   expect(catalog.ok(), await catalog.text()).toBe(true)
   const product = (await catalog.json()).find((p: { kind: string }) => p.kind === 'velocity_los')
+  await page.goto('/')
+  await page.getByRole('link', { name: 'پایلوت سری زمانی ورامین', exact: true }).click()
+  await expect(page).toHaveURL(/aoi=varamin-comet/)
   await page.goto('/map')
   if (isMobile) await page.locator('.mobile-layer-button').click()
   await page.getByRole('combobox', { name: 'محدودهٔ منبع تغییرشکل' }).selectOption('varamin-comet')
@@ -44,7 +134,7 @@ test('published COMET source selection, LOS value and 323 real epochs survive re
   expect(errors).toEqual([])
 })
 
-test('COMET population selection links to the matching regional dashboard', async ({ page, isMobile }) => {
+test('COMET population selection opens complete regional exposure and a real PDF', async ({ page, request, isMobile }) => {
   test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires the published real COMET population analyses')
   await page.goto('/map?aoi=varamin-comet&mode=population&layer=velocity_los&orbit=ascending')
   if (isMobile) await page.locator('.mobile-layer-button').click()
@@ -59,8 +149,45 @@ test('COMET population selection links to the matching regional dashboard', asyn
   await expect(page.getByTestId('population-covered')).toHaveText('۱٬۶۳۶٬۶۶۲')
   await expect(page.getByText(/نرخ در راستای دید ماهواره/)).toBeVisible()
   await expect(page.getByText(/دورهٔ تغییرشکل مستقل از سال جمعیت است:/)).toContainText('۹ مرداد ۱۴۰۵')
+  for (const type of ['railway', 'road']) {
+    const response = await request.get(`/api/v1/products/5323cc4f-57ec-5347-a85d-14f4887e5d27/infrastructure-exposure?asset_type=${type}&region_id=637d5b9a-e103-54e0-8379-60beb1b21b40`)
+    expect(response.ok()).toBe(true)
+    const metrics = (await response.json()).metrics
+    await expect(page.getByTestId(`regional-${type}-valid`)).toHaveText((metrics.valid_length_m / 1000).toLocaleString('fa-IR', { maximumFractionDigits: 1 }))
+  }
   await page.getByRole('button', { name: 'ساخت گزارش غربالگری فارسی', exact: true }).click()
-  await expect(page.getByText('گزارش کامل به تحلیل منتشرشدهٔ جمعیت، راه‌آهن و راه برای همین منبع و محدوده نیاز دارد.')).toBeVisible()
+  const report = page.getByRole('link', { name: 'دانلود گزارش غربالگری فارسی (PDF)', exact: true })
+  await expect(report).toBeVisible({ timeout: 30_000 })
+  const pdf = await request.get((await report.getAttribute('href'))!)
+  expect(pdf.ok()).toBe(true)
+  const body = await pdf.body()
+  expect(body.subarray(0, 5).toString()).toBe('%PDF-')
+  expect(createHash('sha256').update(body).digest('hex')).toBe(pdf.headers().etag.replaceAll('"', ''))
+  await page.screenshot({ path: `/tmp/forudid-qa/comet-region-${isMobile ? 'mobile' : 'desktop'}.png`, fullPage: true })
+})
+
+test('COMET regional coverage distinguishes missing measurements from uncomputed data in both population years', async ({ page, request }) => {
+  test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires complete COMET regional pairs')
+  const product = '5323cc4f-57ec-5347-a85d-14f4887e5d27'
+  const regions = (await (await request.get('/api/v1/regions?limit=100')).json()).items
+  const outside = regions.find((r: { name_en: string }) => !['Tehran', 'Semnan', 'Qom'].includes(r.name_en))
+  await page.goto(`/regions?aoi=varamin-comet&product=${product}&region=${outside.id}`)
+  await expect(page.getByTestId('population-covered')).toHaveText('۰')
+  await expect(page.getByTestId('regional-railway-valid')).toHaveText('۰')
+  await expect(page.getByTestId('regional-road-valid')).toHaveText('۰')
+  await page.getByRole('combobox', { name: 'سال و نسخهٔ جمعیت' }).selectOption('488059d8-d3f6-5064-af66-131da47742e3')
+  await expect(page.getByTestId('population-covered')).toHaveText('۰')
+  const semnan = regions.find((r: { name_en: string }) => r.name_en === 'Semnan')
+  await page.getByRole('combobox', { name: 'محدوده', exact: true }).selectOption(semnan.id)
+  const response = await request.get(`/api/v1/products/${product}/population-exposure?region_id=${semnan.id}&population_version=488059d8-d3f6-5064-af66-131da47742e3`)
+  expect(response.ok()).toBe(true)
+  const data = await response.json()
+  expect(data.population_year).toBe(2020)
+  expect(data.metrics.estimated_valid_coverage).toBeGreaterThan(0)
+  await expect(page.getByTestId('population-covered')).toHaveText(data.metrics.estimated_valid_coverage.toLocaleString('fa-IR', { maximumFractionDigits: 0 }))
+  await page.reload()
+  await expect(page.getByRole('combobox', { name: 'سال و نسخهٔ جمعیت' })).toHaveValue('488059d8-d3f6-5064-af66-131da47742e3')
+  await expect(page.getByTestId('population-covered')).toHaveText(data.metrics.estimated_valid_coverage.toLocaleString('fa-IR', { maximumFractionDigits: 0 }))
 })
 
 test('COMET asset links retain the source and actual period without borrowing historical exposure', async ({ page, request }) => {

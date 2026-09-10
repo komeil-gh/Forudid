@@ -1,8 +1,9 @@
 import { z } from 'zod'
+const numeric = z.union([z.number(), z.string().trim().min(1)]).transform(Number).pipe(z.number().finite())
 const number = (min: number, max: number, fallback: number) =>
-  z.coerce.number().finite().min(min).max(max).catch(fallback)
-const optionalCoordinate = (min: number, max: number) =>
-  z.coerce.number().finite().min(min).max(max).optional().catch(undefined)
+  numeric.pipe(z.number().min(min).max(max)).catch(fallback)
+export const optionalCoordinate = (min: number, max: number) =>
+  numeric.pipe(z.number().min(min).max(max)).optional().catch(undefined)
 const id = z.uuid().optional().catch(undefined)
 export const searchSchema = z.object({
   mode: z.enum(['deformation', 'infrastructure', 'population']).catch('deformation'),

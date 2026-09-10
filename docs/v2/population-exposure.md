@@ -12,9 +12,9 @@ The retained historical input is the official [WorldPop Iran 2020, 1 km product]
 
 For an administrative polygon, only its bounding windows are read. Interior cells use a mask; boundary cells use actual polygon intersections. Grid parallels and meridians remain rectangles in the [ellipsoidal cylindrical equal-area projection](https://proj.org/en/stable/operations/projections/cea.html), EPSG:6933. Source polygon edges are densified to at most 0.002 degrees before projection. The resulting polygon approximation and native grid resolution remain limitations. Holes and multiple parts are retained.
 
-The result separates total estimated population, population with valid deformation values, population without deformation data, and population outside the deformation raster extent. Valid zero is retained. Numeric bands use `[0, 50, 100, 200, 400]` mm/year, lower-inclusive and upper-exclusive, with explicit underflow/overflow bins. They are not hazard classes. `hazard_population` is null.
+The result separates total estimated population, population with valid deformation values, population without deformation data, and population outside the deformation raster extent. Valid zero is retained. The historical projected-vertical product uses numeric bands `[0, 50, 100, 200, 400]` mm/year; COMET LOS uses signed bands `[-150, -100, -50, 0, 25]` mm/year. Both are lower-inclusive and upper-exclusive, with explicit underflow/overflow bins. Negative LOS means motion away from the satellite, not vertical subsidence. These bands are not hazard classes. `hazard_population` is null.
 
-Regional deformation mean, median and p95 are area-weighted over valid native cells, independent of population coverage. Exact quantiles retain at most 100,000 distinct rate values; inputs exceeding that ceiling fail explicitly. NoData is excluded from rate statistics and remains visible in area/population coverage.
+Regional deformation mean, median and p95 are area-weighted over valid native cells, independent of population coverage. The original `ellipsoid-cell-overlap-1` method retains at most 100,000 distinct rates for exact quantiles. COMET regional runs use the separately archived `ellipsoid-cell-overlap-2` capacity of 500,000; allocation and exact quantile calculations are unchanged. Inputs exceeding their version's ceiling fail explicitly. NoData is excluded from rate statistics and remains visible in area/population coverage. Existing method files and published results remain immutable.
 
 The single-worker command shares the analysis lock with line analysis. A signature pins method code, ellipsoid, projection, region geometry and source versions, raster checksums, population year, bands and runtime versions. Objects are immutable; the API serves only published runs whose method has not been deprecated. The method is experimental, without independent scientific validation.
 
@@ -64,3 +64,22 @@ Tehran run `fbc3b5cc-553e-5bcf-9659-bc7de05434bb` estimates 15,464,734.358 peopl
 `GET /api/v1/population/sources` lists verified versions, newest model year first. The population map displays the selected source's actual raster. `/api/v1/population/sources/{id}/point` returns a native cell count and bounds; it does not invent a population at a coordinate. Tiles use nearest sampling and a documented logarithmic display scale. Browser selection and the `populationVersion` URL parameter also select the matching published regional analysis. The ingestion CLI defaults to 2026; use `--year 2020` explicitly for historical reproduction.
 
 Real API checks passed for source identity, native sampling, PNG tiles, rejected untrusted queries, conservation and independent 2020 retrieval. Tile regression checks also establish that catalog connections are released before raster I/O. Desktop and 390px mobile Chrome flows passed for raster/year agreement, Persian city and coordinate search, native values, year switching and reload. Four additional map-mode/region cases passed with real infrastructure results. Two further desktop/mobile cases verified recovery from a failed tile while native sampling and camera state remained usable. Screenshots were inspected. These checks do not establish independent scientific validation or completion of every master-specification requirement.
+
+## Complete COMET population pairs, 2026-09-10
+
+Both source years now have 32 published COMET LOS results: the country footprint
+and all 31 registered historical regions. Previously published 2026 country and
+Tehran results were reused. The new 2020 country run is
+`747eb08a-3446-549f-a5fc-085a4dc2a13d`; its Tehran run is
+`d46964d4-a032-5cac-8451-35dd6f74cf14`. Product identity, population source year
+and native raster checksums remain independently pinned.
+
+The real API acceptance traversed all 64 population pairs and all 64 matching
+infrastructure aggregates. It verified population and band conservation, exact
+scope/version identity, and agreement of each population total with the same
+population source and boundary in the historical deformation analysis. Only
+Tehran, Qom and Semnan intersect the COMET raster extent; other regions retain
+their estimated population and return zero valid deformation coverage and null
+mean rate. These are complete missing-coverage results, not absent calculations.
+The all-scope acceptance passed in 5.01 seconds after the sequential batches
+finished; no scientific validation or nationwide recent deformation is implied.

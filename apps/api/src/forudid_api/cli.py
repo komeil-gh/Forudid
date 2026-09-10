@@ -36,7 +36,10 @@ def parser():
             command.add_argument("--population-version", type=UUID, required=True)
             command.add_argument("--population-raster", type=Path, required=True)
             command.add_argument("--velocity-raster", type=Path, required=True)
-            command.add_argument("--region", type=UUID)
+            scope = command.add_mutually_exclusive_group()
+            scope.add_argument("--region", type=UUID)
+            scope.add_argument("--all-regions", action="store_true",
+                               help="Sequentially analyze country scope and all registered regions")
         else:
             command.add_argument("--source-version", type=UUID, required=True)
             command.add_argument("--raster", type=Path)
@@ -49,7 +52,10 @@ def parser():
                 command.add_argument("--asset-type", choices=["road", "railway"], required=True)
     region = analysis.add_parser("region", help="Clip a published infrastructure run to a region")
     region.add_argument("--upstream-run", type=UUID, required=True)
-    region.add_argument("--region", type=UUID, help="Omit for the complete imported OSM snapshot")
+    scope = region.add_mutually_exclusive_group()
+    scope.add_argument("--region", type=UUID, help="Omit for the complete imported OSM snapshot")
+    scope.add_argument("--all-regions", action="store_true",
+                       help="Sequentially analyze country scope and all registered regions")
     reports = groups.add_parser("report").add_subparsers(dest="command", required=True)
     for name in ("asset", "region"):
         report = reports.add_parser(name, help="Queue an immutable Persian screening report")
@@ -111,6 +117,19 @@ def execute(args):
             acquire(args.directory, args.year)
             print(register(args.directory, args.year))
     elif args.group == "analyze":
+        if getattr(args, "all_regions", False):
+            from sqlalchemy import select
+            from sqlalchemy.orm import Session
+
+            from forudid_api.db import Region, engine
+
+            with Session(engine()) as db:
+                regions = list(db.scalars(select(Region.id).order_by(Region.id)))
+            for region_id in [None, *regions]:
+                print(f"Scope: {region_id or 'country'}", flush=True)
+                execute(argparse.Namespace(**{**vars(args), "all_regions": False,
+                                              "region": region_id}))
+            return
         if args.command in ("asset", "infrastructure"):
             from forudid_api.analyze import analyze
 

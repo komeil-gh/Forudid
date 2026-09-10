@@ -24,6 +24,19 @@ describe('shareable state and scientific units', () => {
     expect(value.pointLon).toBe(51.6452)
     expect(searchSchema.parse(JSON.parse(JSON.stringify(value)))).toEqual(value)
   })
+  it('rejects empty and structured coordinates without discarding real zero', () => {
+    for (const coordinate of ['', '   ', null, false, true, [], [35], {}]) {
+      const value = searchSchema.parse({ lon: coordinate, lat: coordinate, pointLon: coordinate, pointLat: coordinate })
+      expect(value.lon).toBe(defaultSearch.lon)
+      expect(value.lat).toBe(defaultSearch.lat)
+      expect(value.pointLon).toBeUndefined()
+      expect(value.pointLat).toBeUndefined()
+    }
+    for (const coordinate of [0, '0']) {
+      const value = searchSchema.parse({ lon: coordinate, lat: coordinate, pointLon: coordinate, pointLat: coordinate })
+      expect([value.lon, value.lat, value.pointLon, value.pointLat]).toEqual([0, 0, 0, 0])
+    }
+  })
   it('restores registered source slugs without accepting paths or oversized input', () => {
     expect(searchSchema.parse({ aoi: 'varamin-comet' }).aoi).toBe('varamin-comet')
     for (const aoi of ['../secret', 'x'.repeat(65), 'Iran?run=x']) expect(searchSchema.parse({ aoi }).aoi).toBe('iran')

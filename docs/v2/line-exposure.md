@@ -101,3 +101,20 @@ ways after a resumable sequential run. Summed way length is 142,796,850.033 m;
 segments, including NoData. These are summed OSM-way lengths, not a deduplicated
 road-network inventory. The earlier road interruption retained its completed
 records; resumption used the same analysis identity and completed the expected count.
+
+## COMET LOS road completion, 2026-09-10
+
+Run `4c4708a2-afcb-5e50-b57a-aacdf473d08d` published all 120,393 major-road ways
+against the native COMET Varamin LOS raster. Of those ways, 1,719 have valid
+samples. Summed way length is 142,796,850.03291076 m; valid length is
+1,210,383.4092125613 m. The 120,738 archived contiguous segments retain numeric
+band transitions and NoData. The complete railway pair remains
+`e8e610a9-7950-5871-a087-ed70b2cbc82b` (12,722 ways, 244 with valid samples).
+
+Both pairs use the unchanged `geodesic-midpoint-1` method and signed descriptive
+edges `[-150, -100, -50, 0, 25]` mm/year. Negative LOS values mean motion away from
+the satellite, not vertical subsidence. Real API checks compared every returned
+profile sample for a ranked road and railway with the native COG, preserving
+missing uncertainty and null hazard classifications. The CLI/recovery and COMET
+API run passed 17 checks in 4.71 seconds. The country-wide asset evaluation does
+not expand the Varamin measurement footprint or establish current asset condition.

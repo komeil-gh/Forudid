@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useListSources, useListSourceVersions } from '../generated/api/forudid'
 import type { SourceInfo } from '../generated/api/forudid'
 import { Status } from '../components/Status'
@@ -57,7 +58,7 @@ export default function SourcesPage() {
   const sources = useListSources({ limit: 10, cursor })
   const { language } = useLanguage(), text = copy[language]
   return <main className="sources-page">
-    <header><h1>{text.title}</h1><p>{text.intro}</p></header>
+    <header><h1>{text.title}</h1><p>{text.intro}</p><Link to="/compare" search={{ areaA: 'iran', areaB: 'iran' }}>{language === 'fa' ? 'مقایسهٔ منابع در یک نقطه' : 'Compare sources at a point'}</Link></header>
     {sources.isPending ? <Status /> : sources.isError ? <Status error retry={() => void sources.refetch()} /> :
       <>{sources.data.items.length === 0 ? <p role="status">{text.noSources}</p> : sources.data.items.map(source => <SourceCard key={source.id} source={source} language={language} />)}
         <div className="source-pagination">{cursor && <Button onClick={() => setCursor(undefined)}>{text.firstSources}</Button>}

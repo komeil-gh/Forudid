@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { z } from 'zod'
 import { createRootRoute, createRoute, createRouter, Link, Outlet } from '@tanstack/react-router'
-import { defaultSearch, searchSchema, assetSearchSchema, defaultAssetSearch } from '../lib/search'
+import { defaultSearch, searchSchema, assetSearchSchema, defaultAssetSearch, optionalCoordinate } from '../lib/search'
 import { useLanguage, type Language } from '../i18n'
 import { Button } from '../components/ui/button'
 import { Status } from '../components/Status'
@@ -13,6 +13,7 @@ const MapPage = lazy(() => import('../routes/map'))
 const MethodologyPage = lazy(() => import('../routes/methodology'))
 const AboutPage = lazy(() => import('../routes/about'))
 const SourcesPage = lazy(() => import('../routes/sources'))
+const ComparePage = lazy(() => import('../routes/compare'))
 const RegionsPage = lazy(() => import('../routes/regions'))
 const AssetsPage = lazy(() => import('../routes/assets'))
 const EventsPage = lazy(() => import('../routes/events'))
@@ -59,15 +60,28 @@ export const mapRoute = createRoute({ getParentRoute: () => rootRoute, path: '/m
 function Home() { const { language } = useLanguage(); return <main className="article"><h1>فرودید | FORUDID</h1>
   {language === 'fa' ? <><p>مشاهدهٔ دادهٔ تاریخی تغییرشکل زمین ایران، همراه با منبع، نسخه و محدودیت‌های اندازه‌گیری.</p>
     <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای بازهٔ {formatDateRange('2014', '2020', language, 'year')} است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
-    <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button></> : <>
+    <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button>
+    <p>پایلوت ورامین، سری زمانی جداگانه‌ای در راستای دید ماهواره دارد؛ پوشش آن محلی است و مؤلفهٔ قائم محسوب نمی‌شود.</p>
+    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>پایلوت سری زمانی ورامین</Link></Button></> : <>
     <p>Explore historical land-deformation data for Iran with its source, version, and measurement limitations.</p>
     <p>The initial map is the published Haghshenas Haghighi and Motagh dataset for 2014 to 2020; it does not describe current ground conditions.</p>
-    <Button asChild><Link to="/map" search={defaultSearch}>Open the map of Iran</Link></Button></>}</main> }
+    <Button asChild><Link to="/map" search={defaultSearch}>Open the map of Iran</Link></Button>
+    <p>The Varamin pilot provides a separate satellite line-of-sight time series. Its coverage is local and its measurements are not a vertical component.</p>
+    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>Varamin time-series pilot</Link></Button></>}</main> }
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home })
 const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: () => <Suspense fallback={<Status />}><MethodologyPage /></Suspense> })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: () => <Suspense fallback={<Status />}><AboutPage /></Suspense> })
 const sourcesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/sources',
   component: () => <Suspense fallback={<Status />}><SourcesPage /></Suspense> })
+const compareRoute = createRoute({ getParentRoute: () => rootRoute, path: '/compare',
+  validateSearch: raw => z.object({
+    lon: optionalCoordinate(-180, 180),
+    lat: optionalCoordinate(-85, 85),
+    a: z.uuid().optional().catch(undefined), b: z.uuid().optional().catch(undefined),
+    areaA: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/).catch('iran'),
+    areaB: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/).catch('iran'),
+  }).parse(raw),
+  component: () => <Suspense fallback={<Status />}><ComparePage /></Suspense> })
 const eventsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events',
   component: () => <Suspense fallback={<Status />}><EventsPage /></Suspense> })
 const eventDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/events/$eventId',
@@ -82,6 +96,6 @@ const assetDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/
   validateSearch: raw => z.object({ product: z.uuid().optional(), analysis: z.uuid().optional(), segment: z.coerce.number().int().min(0).max(200000).optional().catch(undefined) }).parse(raw),
   component: () => <Suspense fallback={<Status />}><AssetDetailPage /></Suspense> })
 export const router = createRouter({ routeTree: rootRoute.addChildren([
-  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, regionsRoute, assetsRoute, assetDetailRoute, eventsRoute, eventDetailRoute,
+  homeRoute, mapRoute, methodologyRoute, aboutRoute, sourcesRoute, compareRoute, regionsRoute, assetsRoute, assetDetailRoute, eventsRoute, eventDetailRoute,
 ]) })
 declare module '@tanstack/react-router' { interface Register { router: typeof router } }

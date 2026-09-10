@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { Link } from '@tanstack/react-router'
 import { X, MapPin } from 'lucide-react'
 import { useGetPointSummary, useGetTimeSeries, type ProductInfo } from '../../generated/api/forudid'
 import type { MapSearch } from '../../lib/search'
@@ -20,6 +21,7 @@ export function PointPanel({ state, product, close }: { state: MapSearch; produc
     <Button variant="ghost" className="close-point" aria-label={m.close} onClick={close}><X size={18} /></Button>
     <div className="point-details"><h2><MapPin size={17} />{m.point}</h2>
       <p className="coordinate technical">{lon.toFixed(5)}, {lat.toFixed(5)}</p>
+      {(product.kind === 'velocity_los' || product.kind === 'velocity_vertical') && <Link className="point-comparison-link" to="/compare" search={{ lon, lat, a: product.id, areaA: product.aoi_slug, areaB: 'iran' }}>{en ? 'Compare sources at this point' : 'مقایسهٔ منابع در این نقطه'}</Link>}
       {summary.isPending ? <Status /> : summary.isError ? <Status error retry={() => void summary.refetch()} /> : point && <>
         <p className={`quality quality-${point.quality}`}>{m.quality[point.quality]}</p>
         <p className="quality-reason">{point.quality_reasons.join(' ')}</p>

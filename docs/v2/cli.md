@@ -63,6 +63,13 @@ published line run; compute regional population separately with `analyze
 population --region`. The workers preserve their existing global lock,
 checksums, publication guards and resume rules. Run one heavy command at a time.
 
+Both `analyze population` and `analyze region` also accept `--all-regions`
+instead of `--region`. This runs country scope first, followed by every registered
+historical region in stable ID order, using the same single-region workers.
+It stops at the first failure and prints each scope before processing. Rerunning
+reuses already published results. The two scope flags are mutually exclusive;
+the batch option introduces no numerical or source-version changes.
+
 Reports queue by default and print a JSON job record. `--render` runs that named
 job using the local renderer and prints the resulting status. If another worker
 holds the shared lock, the report remains queued; a queued result is not a

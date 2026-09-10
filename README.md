@@ -29,6 +29,13 @@ It covers one frame, remains independently unvalidated, and has no supplied
 pixel uncertainty or temporal coherence. Its redistribution terms remain an
 explicit public-deployment gate.
 
+The home page links directly to the Varamin pilot as well as the historical
+nationwide map. `/compare`, available from a selected point or the source catalog,
+shows two separately selected rate products at the same coordinate. Native
+pixels, dates, components, signs, references and source identities remain visible.
+There is no subtraction or fusion, and shared satellite observations are not
+treated as independent error evidence.
+
 The imported OSM snapshot contains 12,722 railway ways and 120,393 major-road
 ways. Both complete line analyses are published. Martin serves vector tiles;
 `/assets` provides search, ranking, shareable details, profiles, segment selection
@@ -45,12 +52,18 @@ browser cases passed on desktop and mobile. Historical
 2020 country and all 31 regional results remain reproducible. See [population
 methods and evidence](docs/v2/population-exposure.md) and [regions](docs/v2/regions.md).
 
-Two further WorldPop 2026 analyses use the COMET LOS product independently:
+Both WorldPop years now have separate COMET LOS analyses for the country and
+all 31 historical regions (64 population results). WorldPop 2026 estimates
 1,657,239.329 estimated people within valid source coverage across the country,
 and 1,636,661.777 within the historical Tehran boundary. Signed numerical bands
 retain LOS meaning. These counts are not hazard populations. The regional result
 uses the separately versioned `ellipsoid-cell-overlap-2` method; existing
 `ellipsoid-cell-overlap-1` code and results remain unchanged.
+COMET also has its own complete road and railway analyses and all 64 regional
+infrastructure aggregates. Outside its footprint, completed results retain
+population and asset totals while explicitly reporting missing deformation
+coverage. The `--all-regions` CLI runs scopes sequentially and reuses published
+results.
 
 Experimental full-raster gradients and a real Payne-paper example have been run;
 [gradient](docs/v2/gradient-proxy.md) and [research comparison](docs/v2/payne-2025-research.md)
@@ -81,6 +94,9 @@ The one-shot `initialize` service runs forward migrations and creates the privat
 bucket. It does not automatically seed fixtures. The API does not migrate on startup.
 The independent `report-worker` consumes PDF requests without a host terminal or
 host browser. It renders one job at a time, with 0.5 CPU and 768 MiB limits.
+Reports and heavy analyses share the resource lock, so queued PDFs wait for an
+active analysis to finish. The UI explains this while keeping data inspection
+available.
 Build services sequentially on memory-constrained machines; do not run heavy
 analysis during browser-image installation.
 

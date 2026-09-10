@@ -7,9 +7,10 @@ validation.
 
 ## Delivery decision — 2026-09-10
 
-The current unveiling target is local. Alpha.7 adds repeatable pinned COMET
-ingestion and the missing real railway exposure pair; its acceptance record is
-in [delivery status](milestones.md#comet-acquisition-and-railway-exposure--2026-09-10).
+The current unveiling target is local. Alpha.8 completes COMET major-road
+exposure, all regional infrastructure and both WorldPop-year pairs, real regional
+PDFs and read-only point comparison. Its acceptance record is in
+[delivery status](milestones.md#complete-comet-exposure-and-source-comparison--2026-09-10).
 Alpha.6's navigation, date, responsive-layout, publication-visibility and
 report-queue fixes remain accepted. The open V3 milestones below are not complete.
 
@@ -18,7 +19,7 @@ report-queue fixes remain accepted. The open V3 milestones below are not complet
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.
   They improve population freshness and temporal inspection without changing the
   historical nationwide deformation period.
-- Private asset uploads, multi-source comparison, buildings, hydrogeology and
+- Private asset uploads, harmonized multi-source comparison, buildings, hydrogeology and
   automatic source updates are V2.1/V3 candidates in
   [V2 section 163](../v2/MASTER_SPEC.md#163-v21--v3-candidates). They are not
   missing V2 MVP acceptance criteria.
@@ -54,8 +55,8 @@ not establish infrastructure condition, failure probability or structural safety
 | --- | --- | --- |
 | Population | WorldPop 2026 R2025A v1, exact source identity, unchanged native values, lossless COG conversion, Iran and 31 historical regions; 2020 remains independently selectable | Modelled population rather than a census; 2017 boundaries; the population year does not update the deformation period |
 | COMET Varamin | Official ascending-frame HDF5 snapshot, native LOS rate, 323 epochs through 2026-07-31, immutable HDF5/COG/Zarr, real HTTP range recovery and repeatable CLI ingestion; September 10 headers still match the reviewed August 13 file | One unfiltered pilot; new source versions require review; no supplied pixel uncertainty, temporal coherence or scheduled update worker |
-| Cross-product exposure | Separate COMET/WorldPop 2026 country and Tehran analyses; all 12,722 railway ways evaluated with signed LOS bands, 244 ways with valid data, and country/Tehran railway aggregates | Exposure is descriptive; the COMET major-road pair remains unpublished, so complete regional reports remain unavailable |
-| Map | True raster layers, source footprints, local Persian/English place search, coordinate parsing, native point inspection, failure recovery and URL restoration | A missing product/analysis combination remains unavailable rather than borrowing another product's result |
+| Cross-product exposure | COMET analyses cover all 12,722 railway and 120,393 major-road ways, all 64 country/regional infrastructure aggregates, and 64 WorldPop 2026/2020 population results; country and Tehran PDFs for both years passed download/hash checks | Only the Varamin footprint has recent deformation measurements; outside coverage is explicit NoData, and exposure remains descriptive |
+| Map | True rasters, source footprints, local Persian/English place search, native point inspection, source comparison, direct Varamin entry, failure recovery and URL restoration | Comparisons preserve separate grids, periods and components; they do not establish scientific agreement or independent errors |
 
 Detailed evidence is in [population exposure](../v2/population-exposure.md),
 [COMET Varamin](../v2/comet-varamin.md),
@@ -71,9 +72,9 @@ only when their input and decision value exist.
 | Candidate | State | Gate before implementation or publication |
 | --- | --- | --- |
 | Additional COMET/source versions | The pinned snapshot has repeatable acquisition, checksum verification, partial-download recovery and a provider-change gate | A changed snapshot needs a separately reviewed adapter/version; confirm redistribution terms before public distribution |
-| Additional source/product exposure pairs | Historical road/rail and WorldPop pairs plus COMET/WorldPop 2026 and COMET railway exist | Finish the separate COMET major-road pair; preserve component, sign, period and reference for every pair |
+| Additional source/product exposure pairs | Historical and COMET road/rail plus both WorldPop years have complete country and 31-region results; the real all-scope API check passed for every COMET pair | Any future source/version needs its own verified analysis; preserve component, sign, period and reference rather than reusing another product's result |
 | Private corridor import | Admin/CLI-only import is allowed by V2 section 24 but is not implemented | A real owner and corridor, authentication, organization scope, ownership checks, audit history and bounded geometry processing |
-| Multi-source comparison | Source switching exists; harmonized comparison does not | Explicit temporal, component, viewing-geometry and reference compatibility; incompatible values remain separate |
+| Multi-source comparison | Read-only `/compare` displays two independently selected published rate products at one coordinate, with native pixels, source versions, periods, components, signs, orbits and references; desktop/mobile and failure-recovery checks passed | No subtraction, fusion, common-grid resampling or independent-validation claim; quantitative harmonization still requires scientific review |
 | Differential hazard | Gradient and Payne-style artifacts are experimental | Resolve the measured reproduction discrepancy and obtain independent review of the method, corpus, products and tolerances before any validated class |
 | Buildings, hydrogeology and GNSS | Not implemented as present-day coverage | Verified source coverage, exact license/version, a bounded pilot and a documented scientific method |
 
@@ -122,3 +123,9 @@ field outcomes.
 The V3.0 MVP is not complete. Empty event, case, inspection, sensor, model and
 outcome datasets are truthful system states. They must not be filled with fixtures
 outside transaction-isolated software tests.
+
+On 2026-09-10 the project owner confirmed that no Earthdata account and no
+organization/asset field pilot are available. NISAR measurement acquisition and
+real private case/inspection acceptance therefore lack their required external
+inputs. This confirmation does not close those requirements or prevent work on
+the existing public-source workflows.

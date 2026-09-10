@@ -1,10 +1,43 @@
 import json
 import os
+from unittest.mock import MagicMock
 from uuid import UUID
 
 import pytest
 
 from forudid_api.cli import execute, parser
+
+
+@pytest.mark.parametrize("kind", ["population", "region"])
+def test_cli_all_regions_runs_sequentially_and_stops_on_failure(kind, monkeypatch):
+    from sqlalchemy import orm
+
+    from forudid_api import analyze_population, analyze_regions, db
+
+    identities = [UUID(int=1), UUID(int=2)]
+    session = MagicMock()
+    session.__enter__.return_value.scalars.return_value = identities
+    monkeypatch.setattr(orm, "Session", lambda _: session)
+    monkeypatch.setattr(db, "engine", lambda: None)
+    calls = []
+
+    def analyze(*args):
+        calls.append(args[-1])
+        if args[-1] == identities[0]:
+            raise ValueError("Interrupted scope")
+        return UUID(int=3)
+
+    monkeypatch.setattr(analyze_population if kind == "population" else analyze_regions,
+                        "analyze", analyze)
+    options = (["--product", str(identities[0]), "--population-version", str(identities[1]),
+                "--population-raster", "population.tif", "--velocity-raster", "velocity.tif"]
+               if kind == "population" else ["--upstream-run", str(identities[0])])
+    command = ["analyze", kind, *options, "--all-regions"]
+    with pytest.raises(ValueError, match="Interrupted scope"):
+        execute(parser().parse_args(command))
+    assert calls == [None, identities[0]]
+    with pytest.raises(SystemExit):
+        parser().parse_args([*command, "--region", str(identities[0])])
 
 
 def test_cli_routes_exact_asset_inputs_and_rejects_unavailable_hazard(monkeypatch, capsys):

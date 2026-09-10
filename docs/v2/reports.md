@@ -144,3 +144,32 @@ SHA-256 `2fc8c059d7487ec80fdb124c614d2690bad50fa7c5465cd16887aed298bafd52`.
 The enforced limits and exact local-image packaging provenance are recorded in
 [delivery status](../operations/milestones.md#local-unveiling-preparation--2026-09-10).
 Scientific angular-distortion validation remains open; these PDFs do not enable it.
+
+## Complete COMET regional reports, 2026-09-10
+
+Alpha.8 completed the missing road, regional infrastructure and population pairs.
+The container worker generated country and Tehran reports for both WorldPop
+years, pinning the COMET product, exact population analysis and both matching
+infrastructure aggregates. Every downloaded PDF SHA-256 matched its report record
+and immutable manifest; archived HTML hashes and all input pins also matched.
+
+| Population year / scope | Report ID | PDF SHA-256 |
+| --- | --- | --- |
+| 2026 / country | `4645dc0d-62c3-5b48-bc9c-6fcecb177a3b` | `a880ab5a59d75d41889aaf53713feb930ca2636a48d8f1693d4fe104d64f10da` |
+| 2020 / country | `f38361b3-3a7f-575a-a28f-946cf6a3814e` | `b985af611d61ce4c4099e40835afa13b1f63b282c5caa7399a2961b6d80fee60` |
+| 2026 / Tehran | `45e70cf6-84bc-5b26-8bba-6ce7942d207e` | `e1f9ee52a4bd2917081a580b2bca498e0ed536354d514cf03db6b74541164fee` |
+| 2020 / Tehran | `73e28105-24fb-57b6-ae75-15442629006c` | `d037d667ed5bf2b1ae87488c3395a826834dae9607922c41b4d8dcc522311add` |
+
+All four PDFs contain six pages of extractable text. All six rendered pages of
+the 2026 Tehran report were visually inspected: historical boundary geometry,
+Jalali dates, signed bands, valid/missing lengths, references and identifiers
+remain readable. The renderer manifest records Chromium `152.0.7977.82`, Node
+`v22.22.3` and Playwright `1.62.1`.
+
+Desktop/mobile COMET dashboard-to-PDF checks passed within the 14-case COMET
+suite. The four existing asset/regional report cases then passed in 9.7 seconds,
+including request failure/retry and immutable downloads. Their earlier timeout
+occurred while the full road analysis held the shared resource lock; those jobs
+were queued, not failed. Analysis batches and report rendering were subsequently
+run sequentially. The UI now explains that queued reports can wait for an active
+analysis. No external renderer or new scientific classification was introduced.

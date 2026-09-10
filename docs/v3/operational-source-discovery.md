@@ -33,11 +33,30 @@ filenames. GUNW is an interferogram product; it must not be treated as a validat
 vertical-velocity measurement. Component, wavelength/sign, reference, masks,
 acquisition lineage, uncertainty and processing version need adapter verification.
 
-[ASF access guidance](https://hyp3-docs.asf.alaska.edu/nisar-docs/access-overview/)
+[ASF access guidance](https://nisar-docs.asf.alaska.edu/access-overview/)
 requires Earthdata login for downloading and streaming NISAR data. A credential
 entry for `urs.earthdata.nasa.gov` was not found in local `.netrc`; the user was
 asked about configuring it locally, without sending credentials in conversation.
 No whole-scene download or sensor fusion has been started.
+
+### Access and maturity recheck — 2026-09-10
+
+The project owner confirmed that no Earthdata account is available. The current
+[ASF access guide](https://nisar-docs.asf.alaska.edu/access-overview/) still requires
+Earthdata Login for measurement downloads. Direct S3 is not an anonymous local
+alternative: [ASF's S3 guidance](https://nisar-docs.asf.alaska.edu/aws-s3-access/)
+requires temporary credentials and access from AWS us-west-2. Browse images are
+separate from measurement products and cannot substitute for the native HDF5.
+
+The [current availability record](https://nisar-docs.asf.alaska.edu/availability-overview/)
+identifies the July 20 PROVISIONAL release as calibrated and partially validated,
+with processing release P05023 and acquisitions from June 17, 2026 onward.
+It also records an instrument data gap from 2026-07-27T22:03:25Z to
+2026-08-10T00:55:27Z. These are provider-wide maturity and acquisition statements,
+not proof of valid deformation pixels in the local pilot. Beta/provisional
+differences must not be interpreted as ground change without checking processing
+differences. The existing September 6 CMR archive is retained unchanged; its
+granule count has not been remeasured in this check.
 
 ## Sentinel follow-up — updated 2026-09-10
 

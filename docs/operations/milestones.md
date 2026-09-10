@@ -2,6 +2,72 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Complete COMET exposure and source comparison — 2026-09-10
+
+Version `0.3.0-alpha.8` closes the COMET road and regional exposure gaps. All
+120,393 major-road ways are published, including 1,719 ways with valid COMET
+samples and 1,210,383.4092125613 m of valid summed way length. Both infrastructure
+types have country plus all 31 historical-region aggregates (64 results).
+WorldPop 2026 and 2020 each have all 32 COMET scopes (64 population results).
+The existing numerical methods and source versions remain immutable. Batches
+use the common CLI's sequential, resumable `--all-regions` option.
+
+The home page now opens the Varamin pilot directly. `/compare` displays two
+explicitly selected published rate products at one coordinate, retaining native
+pixels, periods, components, signs, references and source IDs. No subtraction,
+fusion or independent-validation claim is introduced. An inspected mobile
+spacing defect in the new point-to-comparison link was corrected and covered by
+a real geometry assertion on desktop and mobile.
+The shared numeric URL validator now rejects empty, null, boolean and structured
+coordinates before conversion. Invalid camera values restore defaults; invalid
+optional point coordinates remain absent. Numeric zero is preserved. A regression
+test reproduced the previous empty-to-zero coercion and passed after the fix;
+the comparison route reuses the same validator.
+
+Seventeen real COMET, CLI and recovery checks passed in 4.71 seconds; a separate
+all-scope API acceptance passed in 5.01 seconds, covering every one of the 128
+regional pairs, conservation, source/year identity and missing-coverage semantics.
+The transaction-local PostGIS clipping check also passed. All 18 frontend unit
+tests, Ruff, Pyright, TypeScript, ESLint, the frozen offline dependency check and
+production web build passed. The exported OpenAPI version is now alpha.8; its
+schema shape and generated client did not change.
+
+Forty existing map/content/source/event/exposure/infrastructure/population/region
+browser cases passed on the local alpha.8 candidate. Fourteen COMET cases then
+passed in 1.8 minutes and all four opt-in historical report cases passed in
+9.7 seconds. After the point-link layout fix, the six affected comparison
+and time-series cases passed again in 45 seconds. Following the shared-coordinate
+fix, all 14 COMET cases and all 14 historical/offline map cases passed on the final
+image across two runs (16 cases in 1.7 minutes; 12 opt-in cases in 34.6 seconds). Screenshots
+were inspected. Four real country/Tehran PDFs for both population years passed
+PDF/HTML hash and input-manifest verification; the six pages of the 2026 Tehran
+PDF were visually reviewed. See [report identities](../v2/reports.md#complete-comet-regional-reports-2026-09-10).
+
+The earlier four report browser timeouts occurred while road analysis held the
+shared resource lock. The jobs stayed queued; after the sequential analysis
+finished, rendering and all four checks succeeded. The UI now explains the
+resource wait. No timeout was hidden by increasing the test limit.
+
+Packaging reused verified local dependency runtimes with current application
+source and successful `uv sync --frozen --no-dev --offline`; the web packages the
+tested production build in Caddy. This verifies these local artifacts, not a
+clean-machine build or remote CI. The API returned `0.3.0-alpha.8`, readiness
+returned HTTP 200, and the final API/report/web containers had zero restarts and
+no OOM termination.
+
+| Local image | SHA-256 |
+| --- | --- |
+| API and initializer | `4dfaff099b0e8fea119549f057df14a1fd8b4e8368dca3c61b25d5a5ddb7b928` |
+| Report worker | `4221057e9b44680cb9b5a7df1b7f67ba171bfc059d7da7b9c50e7296eaf15a5a` |
+| Web | `275b47f90704b5ca8cbf954d7c9d2e7bc704a232d567e86b595d4af8251f800e` |
+
+Large map/chart build chunks remain a packaging warning. V3 operational updates,
+NISAR measurements, organization/field workflows and scientific review remain
+open under the [coverage ledger](specification-coverage.md). The owner confirmed
+that no Earthdata account or organization/asset pilot is available. No event,
+inspection, outcome or validation was fabricated. No remote repository or
+deployment host is configured, so this is a local release.
+
 ## COMET acquisition and railway exposure — 2026-09-10
 
 Version `0.3.0-alpha.7` adds foreground COMET metadata checking and integrated

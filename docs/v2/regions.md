@@ -103,3 +103,19 @@ not a population-density or hazard colour scale. Attribution remains visible.
 CSS flow keeps the legend and guidance apart as text and attribution heights
 change. Desktop/390 px Chrome tests verify real selection, Tehran population,
 source attribution, URL restoration, non-overlap and document width.
+
+## Complete COMET infrastructure pairs, 2026-09-10
+
+The separate COMET LOS product `5323cc4f-57ec-5347-a85d-14f4887e5d27` now has
+32 published railway aggregates and 32 published major-road aggregates: the
+complete imported snapshot plus every registered historical region. Upstream
+runs are `e8e610a9-7950-5871-a087-ed70b2cbc82b` and
+`4c4708a2-afcb-5e50-b57a-aacdf473d08d`, respectively. The existing
+`region-segment-clip-1` method and boundary version remain unchanged.
+
+The product's raster extent intersects only the historical Tehran, Qom and
+Semnan regions. A completed region outside that extent retains its imported
+infrastructure length and reports zero valid deformation coverage. This is
+missing measurement coverage, not zero ground motion or a missing analysis.
+LOS edges remain `[-150, -100, -50, 0, 25]` mm/year; hazard lengths remain null.
+The batch runs sequentially through the common CLI's `--all-regions` option.

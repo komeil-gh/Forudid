@@ -62,8 +62,44 @@ Country aggregate `6eeba935-f905-5568-813b-df02478f1277` and Tehran aggregate
 `b8a0b77d-0a62-5468-af22-b9e8d00c45d4` use the existing administrative segment
 clipping method. The selected ranked railway's API profile was checked against
 every corresponding native COG sample, including signed values and absent
-uncertainty/hazard classifications. The separate major-road pair remains open;
-the complete regional-report prerequisite remains enforced.
+uncertainty/hazard classifications.
+
+Alpha.8 additionally published major-road run
+`4c4708a2-afcb-5e50-b57a-aacdf473d08d`: all 120,393 ways, 1,719 with valid samples,
+1,210,383.4092125613 m of valid summed way length and 120,738 contiguous segments.
+Every registered region and country scope now has a published railway and road
+aggregate (64 results). Road country and Tehran aggregates are
+`8277875b-1608-5706-baf6-6f86097128a3` and
+`3ef85b48-6b6a-544c-a4c0-1f949014d3e0`; Tehran valid road length is
+1,054,361.3258803524 m. Existing numerical methods and published runs were reused.
+
+## Point comparison — 2026-09-10
+
+`/compare` is reachable from a selected deformation point and the source catalog.
+It reuses the published product and native-pixel APIs for two independently
+selected rate products. Coordinates, area choices and exact product IDs survive
+URL sharing and reload. Persian coordinate digits are accepted; invalid coordinates
+produce no measurement request. Empty/null/boolean URL coordinates are rejected
+by the shared map validator rather than coerced to a real zero coordinate.
+Seasonal amplitude is explicitly rejected as a
+rate. Each source can fail and recover without hiding the other source's result.
+
+The display retains native pixel centres, spatial resolution, component, sign,
+period, orbit, reference, missing uncertainty and source/run IDs. Only display
+units are converted to mm/year. There is no common-grid resampling, subtraction,
+fusion, harmonization or independent-validation claim. Identical product choices
+are identified explicitly. Separate source names do not establish independent
+errors when satellite observations are shared. NoData remains missing rather
+than zero. The home page also links directly to the Varamin map without claiming
+nationwide or vertical coverage for this pilot.
+
+Four real desktop/390 px mobile Chrome checks passed in 28 seconds, covering
+map-to-comparison navigation, source selection, native API values and pixel
+centres, Jalali/Gregorian dates, reload, invalid coordinates, outside-raster
+NoData, non-rate rejection, same-source selection and isolated recovery from a
+simulated HTTP 503. Desktop/mobile screenshots were inspected. This verifies
+the read-only workflow in V2 section 127, not scientific agreement between the
+2014–2020 projected vertical source and the 2014–2026 ascending LOS pilot.
 
 ## Verified snapshot — 2026-09-09
 
@@ -169,9 +205,9 @@ do not infer a Creative Commons license from another COMET service.
   checks; all 20 existing WebGIS regressions also passed.
 - Desktop and 390 px mobile Chrome checks passed source selection, real tile
   delivery, displayed rate, 323 table rows, chart rendering and URL restoration.
-- Four COMET browser cases cover both device sizes and the independent
+- At the initial September 9 checkpoint, four COMET browser cases covered both device sizes and the independent
   population-to-region path. They also verify the explicit prerequisite message
-  for a combined report when this source lacks infrastructure analyses.
+  for a combined report before this source's infrastructure analyses existed.
 - The final combined population, region, map-mode and COMET run passed all
   14 cases in 1.2 minutes. Metadata requests take priority over two concurrent
   raster requests; a previous reproducible desktop ranking delay was resolved
@@ -179,7 +215,7 @@ do not infer a Creative Commons license from another COMET service.
 
 ## Independent population overlap
 
-WorldPop 2026 is intersected with this product using its exact registered COG,
+WorldPop 2026 and 2020 are separately intersected with this product using each exact registered COG,
 LOS units and reference. Numerical bands are `[-150, -100, -50, 0, 25]` mm/year;
 negative values remain motion away from the satellite, not vertical subsidence.
 
@@ -194,10 +230,12 @@ uv run --project apps/api python -m forudid_api.analyze_population \
 Add `--region 637d5b9a-e103-54e0-8379-60beb1b21b40` for the separately
 versioned historical Tehran calculation. Run one analysis worker at a time.
 
-| Scope | Analysis ID | Estimated people within valid deformation coverage |
-| --- | --- | --- |
-| Iran population footprint | `5cdf2452-a635-5e3c-ac73-6bf0875e04a7` | 1,657,239.3294914013 |
-| Historical Tehran boundary | `d53d1829-07f5-5097-986f-1999cff9680e` | 1,636,661.7765239528 |
+| Population year | Scope | Analysis ID | Estimated people within valid deformation coverage |
+| --- | --- | --- | --- |
+| 2026 | Iran population footprint | `5cdf2452-a635-5e3c-ac73-6bf0875e04a7` | 1,657,239.3294914013 |
+| 2026 | Historical Tehran boundary | `d53d1829-07f5-5097-986f-1999cff9680e` | 1,636,661.7765239528 |
+| 2020 | Iran population footprint | `747eb08a-3446-549f-a5fc-085a4dc2a13d` | 1,294,436.7238497997 |
+| 2020 | Historical Tehran boundary | `d46964d4-a032-5cac-8451-35dd6f74cf14` | 1,272,247.7124644336 |
 
 The country calculation uses unchanged `ellipsoid-cell-overlap-1`. The first
 regional attempt reached that method's 100,000-distinct-value limit and remains
@@ -209,8 +247,13 @@ regressions. A 102,400-distinct-rate check verifies exact signed median/95th
 percentile behavior beyond the old limit. This resource limit is still not
 suitable for unrestricted national floating-point regional grids.
 
-The source has no precomputed infrastructure analysis. Complete combined regional
-PDFs therefore remain unavailable for this source. Missing infrastructure is not
-substituted from a different product. It is a Varamin footprint, not current
-nationwide deformation coverage. No public-server deployment or current-event
-validation is claimed.
+Both years have country and all 31 historical-region results (64 population
+analyses). The all-scope API acceptance checked these and all 64 infrastructure
+aggregates: conservation, exact product/year/scope, unchanged population totals,
+and zero valid coverage outside the three intersecting regions passed. Native
+pixel, 323-epoch, profile, CLI and recovery checks also passed. Four real country
+and Tehran PDFs for both population years completed with verified download
+hashes; see [reports](reports.md). Fourteen COMET desktop/mobile browser cases
+passed, including the now-complete regional report workflow and year switching.
+It remains a Varamin footprint, not current nationwide deformation coverage.
+No public-server deployment or current-event validation is claimed.

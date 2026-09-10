@@ -121,13 +121,14 @@ def test_real_comet_tile_preserves_nodata_without_invalid_cast():
         assert np.any(alpha == 0) and np.any(alpha == 255)
 
 
-def test_real_comet_railway_exposure_preserves_signed_native_values():
+@pytest.mark.parametrize("asset_type", ["railway", "road"])
+def test_real_comet_infrastructure_exposure_preserves_signed_native_values(asset_type):
     import rasterio
 
     client = TestClient(app)
     product = "5323cc4f-57ec-5347-a85d-14f4887e5d27"
     response = client.get("/api/v1/exposure-ranking", params={
-        "product_id": product, "asset_type": "railway", "min_coverage": 0.9, "limit": 1,
+        "product_id": product, "asset_type": asset_type, "min_coverage": 0.9, "limit": 1,
     })
     assert response.status_code == 200, response.text
     ranking = response.json()
@@ -177,3 +178,66 @@ def test_real_comet_population_keeps_signed_bands_and_separate_region_method():
         assert metrics["estimated_valid_coverage"] == pytest.approx(expected, abs=1e-7)
         assert sum(metrics["estimated_by_numeric_band"]) == pytest.approx(expected, abs=1e-7)
         assert metrics["hazard_population"] is None
+
+
+def test_complete_comet_regional_pairs_preserve_coverage_and_population_versions():
+    client = TestClient(app)
+    product = "5323cc4f-57ec-5347-a85d-14f4887e5d27"
+    historical = "744b6536-b9a7-56c5-85b1-66a629a78b91"
+    regions = client.get("/api/v1/regions", params={"limit": 100}).json()["items"]
+    assert len(regions) == 31
+    for version, year in (
+        ("b626dc10-f9f7-5b67-9f49-889e391c8b15", 2026),
+        ("488059d8-d3f6-5064-af66-131da47742e3", 2020),
+    ):
+        for region in [None, *regions]:
+            params = {"population_version": version}
+            if region:
+                params["region_id"] = region["id"]
+            response = client.get(f"/api/v1/products/{product}/population-exposure", params=params)
+            assert response.status_code == 200, response.text
+            result = response.json()
+            metrics = result["metrics"]
+            assert result["product_id"] == product and result["population_year"] == year
+            assert result["population_source_version_id"] == version
+            assert result["region_id"] == (region["id"] if region else None)
+            assert metrics["estimated_valid_coverage"] == pytest.approx(
+                sum(metrics["estimated_by_numeric_band"]), abs=1e-7
+            )
+            assert metrics["estimated_total"] == pytest.approx(
+                metrics["estimated_valid_coverage"] + metrics["estimated_without_deformation_data"]
+            )
+            original = client.get(
+                f"/api/v1/products/{historical}/population-exposure", params=params
+            ).json()
+            assert metrics["estimated_total"] == pytest.approx(
+                original["metrics"]["estimated_total"], rel=1e-12
+            )
+            if region and region["name_en"] not in ("Tehran", "Qom", "Semnan"):
+                assert metrics["estimated_valid_coverage"] == 0
+                assert metrics["region"]["mean_mm_year"] is None
+    for kind, expected in (("railway", 12722), ("road", 120393)):
+        for region in [None, *regions]:
+            params = {"asset_type": kind}
+            if region:
+                params["region_id"] = region["id"]
+            response = client.get(
+                f"/api/v1/products/{product}/infrastructure-exposure", params=params
+            )
+            assert response.status_code == 200, response.text
+            result = response.json()
+            metrics = result["metrics"]
+            assert result["product_id"] == product
+            assert result["region_id"] == (region["id"] if region else None)
+            assert metrics["band_edges_mm_year"] == [-150, -100, -50, 0, 25]
+            assert metrics["total_length_m"] == pytest.approx(
+                metrics["valid_length_m"] + metrics["nodata_length_m"]
+            )
+            assert metrics["valid_length_m"] == pytest.approx(
+                sum(metrics["length_by_numeric_band_m"])
+            )
+            assert metrics["hazard_length_m"] is None
+            if region is None:
+                assert metrics["way_count"] == expected
+            elif region["name_en"] not in ("Tehran", "Qom", "Semnan"):
+                assert metrics["valid_length_m"] == 0
