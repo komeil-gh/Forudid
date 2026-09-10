@@ -19,7 +19,8 @@ synthetic products automatically.
 - The database transaction publishes only after object storage succeeds. The run
   records actual COG normalization, not a new Sentinel-1 processing experiment.
 
-Acquisition, normalization and publication commands are in the root README.
+Acquisition, normalization and publication commands are in the
+[local setup guide](../operations/local-guide.md#real-source-ingestion).
 Original integrity evidence is in [source-registry.md](source-registry.md), and
 full-grid preservation evidence is in [raster-normalization.md](raster-normalization.md).
 

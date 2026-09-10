@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Present the project introduction and the author's unchanged letter in Persian and English in the main README.
+- Index documentation by topic and move the complete technical README into the local setup guide, preserving working links and publication boundaries.
+
 ## 0.3.0-alpha.9 — 2026-09-10
 
 - Prepare the public source core under Apache-2.0, with separate data/font notices, contribution and security guidance.

@@ -42,7 +42,7 @@ gitleaks dir --redact /path/to/extracted-source
 
 Extract into an empty directory, verify the checksum, install locked dependencies,
 generate fresh settings and run `make check-source`. An empty installation has
-no scientific products. Acquire source versions explicitly using the README and
+no scientific products. Acquire source versions explicitly using the [local guide](local-guide.md) and
 source-specific instructions. Fixtures are synthetic and remain hidden in normal use.
 
 ## Later publication
