@@ -8,6 +8,8 @@ down:
 api-contract:
 	uv run --project apps/api python scripts/export_openapi.py
 	pnpm generate:api
+check-source: export pnpm_config_verify_deps_before_run = false
+check-source: export UV_FROZEN = true
 check-source:
 	python3 scripts/test_release_source.py
 	uv run --project apps/api ruff check apps/api/src apps/api/tests packages/python/forudid_analysis scripts/release_source.py scripts/test_release_source.py

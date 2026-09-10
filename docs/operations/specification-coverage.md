@@ -14,6 +14,12 @@ PDFs and read-only point comparison. Its acceptance record is in
 Alpha.6's navigation, date, responsive-layout, publication-visibility and
 report-queue fixes remain accepted. The open V3 milestones below are not complete.
 
+Alpha.9 prepares the Apache-2.0 public source core, with an independently checked
+source archive, explicit third-party terms and separate source/real-data CI.
+See [source-release acceptance](open-source-release.md#local-acceptance--2026-09-10).
+The existing repository and local datasets remain private; this preparation does
+not close scientific or operational V3 gates or publish a hosted service.
+
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.

@@ -134,7 +134,7 @@ Use Node 22.12+, pnpm 11.24.0, uv and Python 3.13.
 
 ```sh
 pnpm install --frozen-lockfile
-uv sync --project apps/api --frozen
+uv sync --project apps/api --python 3.13 --frozen
 python3 scripts/init_env.py
 docker compose up -d postgres object-storage
 uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
