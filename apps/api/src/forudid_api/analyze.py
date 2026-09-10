@@ -38,7 +38,7 @@ def analyze(
     *,
     asset_id: UUID | None = None,
     asset_type: str | None = None,
-    edges: tuple[float, ...] = (0, 50, 100, 200, 400),
+    edges: tuple[float, ...] | None = None,
     local_raster: Path | None = None,
 ) -> UUID:
     if (asset_id is None) == (asset_type is None) or asset_type not in (None, "road", "railway"):
@@ -72,6 +72,12 @@ def analyze(
                     "is_fixture"
                 ):
                     raise ValueError("Exposure requires a published real velocity product")
+                if edges is None:
+                    edges = (
+                        (-150, -100, -50, 0, 25)
+                        if product.kind == "velocity_los"
+                        else (0, 50, 100, 200, 400)
+                    )
                 data = catalog.role_asset(db, product, "data")
                 if local_raster is not None and digest(local_raster) != data.checksum_sha256:
                     raise ValueError("Local raster does not match the published product checksum")
@@ -109,6 +115,8 @@ def analyze(
                         for name in ("numpy", "rasterio", "pyproj", "shapely")
                     },
                 }
+                if product.kind == "velocity_los":
+                    inputs["reference"] = product.stats.get("reference")
                 signature = hashlib.sha256(json_bytes(inputs)).hexdigest()
                 run_id = uuid5(method_id, signature)
                 method = db.get(AnalysisMethod, method_id)

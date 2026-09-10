@@ -7,10 +7,11 @@ validation.
 
 ## Delivery decision — 2026-09-10
 
-The current unveiling target is local. The alpha.6 implementation and acceptance
-record is in [delivery status](milestones.md#local-unveiling-preparation--2026-09-10).
-It closes concrete navigation, date, responsive-layout, publication-visibility
-and report-queue defects. It does not complete the open V3 milestones below.
+The current unveiling target is local. Alpha.7 adds repeatable pinned COMET
+ingestion and the missing real railway exposure pair; its acceptance record is
+in [delivery status](milestones.md#comet-acquisition-and-railway-exposure--2026-09-10).
+Alpha.6's navigation, date, responsive-layout, publication-visibility and
+report-queue fixes remain accepted. The open V3 milestones below are not complete.
 
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
@@ -52,8 +53,8 @@ not establish infrastructure condition, failure probability or structural safety
 | Area | Current evidence | Limit retained |
 | --- | --- | --- |
 | Population | WorldPop 2026 R2025A v1, exact source identity, unchanged native values, lossless COG conversion, Iran and 31 historical regions; 2020 remains independently selectable | Modelled population rather than a census; 2017 boundaries; the population year does not update the deformation period |
-| COMET Varamin | Official ascending-frame HDF5 snapshot, native LOS rate, 323 actual epochs through 2026-07-31, immutable HDF5/COG/Zarr and selected-epoch equality checks; provider headers rechecked on 2026-09-10 still match the archived 513,816,102-byte version last modified on 2026-08-13 | One manually acquired, unfiltered pilot; no supplied pixel uncertainty or temporal coherence; no documented operational update schedule |
-| Cross-product exposure | Separate COMET/WorldPop 2026 country and Tehran analyses with LOS sign and component retained | Population exposure is descriptive; no COMET infrastructure analysis has been published |
+| COMET Varamin | Official ascending-frame HDF5 snapshot, native LOS rate, 323 epochs through 2026-07-31, immutable HDF5/COG/Zarr, real HTTP range recovery and repeatable CLI ingestion; September 10 headers still match the reviewed August 13 file | One unfiltered pilot; new source versions require review; no supplied pixel uncertainty, temporal coherence or scheduled update worker |
+| Cross-product exposure | Separate COMET/WorldPop 2026 country and Tehran analyses; all 12,722 railway ways evaluated with signed LOS bands, 244 ways with valid data, and country/Tehran railway aggregates | Exposure is descriptive; the COMET major-road pair remains unpublished, so complete regional reports remain unavailable |
 | Map | True raster layers, source footprints, local Persian/English place search, coordinate parsing, native point inspection, failure recovery and URL restoration | A missing product/analysis combination remains unavailable rather than borrowing another product's result |
 
 Detailed evidence is in [population exposure](../v2/population-exposure.md),
@@ -69,8 +70,8 @@ only when their input and decision value exist.
 
 | Candidate | State | Gate before implementation or publication |
 | --- | --- | --- |
-| Additional COMET/source versions | One pinned snapshot is implemented | Use a documented acquisition mechanism; retain frame, acquisition list, variant, provider version and immutable original; confirm redistribution terms before public distribution |
-| Additional source/product exposure pairs | Historical road/rail and WorldPop pairs plus COMET/WorldPop 2026 exist | Compute each pair from its own product and preserve component, sign, period and reference; never reuse a historical run under a newer identifier |
+| Additional COMET/source versions | The pinned snapshot has repeatable acquisition, checksum verification, partial-download recovery and a provider-change gate | A changed snapshot needs a separately reviewed adapter/version; confirm redistribution terms before public distribution |
+| Additional source/product exposure pairs | Historical road/rail and WorldPop pairs plus COMET/WorldPop 2026 and COMET railway exist | Finish the separate COMET major-road pair; preserve component, sign, period and reference for every pair |
 | Private corridor import | Admin/CLI-only import is allowed by V2 section 24 but is not implemented | A real owner and corridor, authentication, organization scope, ownership checks, audit history and bounded geometry processing |
 | Multi-source comparison | Source switching exists; harmonized comparison does not | Explicit temporal, component, viewing-geometry and reference compatibility; incompatible values remain separate |
 | Differential hazard | Gradient and Payne-style artifacts are experimental | Resolve the measured reproduction discrepancy and obtain independent review of the method, corpus, products and tolerances before any validated class |
@@ -87,7 +88,7 @@ The sequence follows [V3 sections 160–183](../v3/MASTER_SPEC.md#160-v3-milesto
 | 1. Event data model | Complete | Append-only event revisions, observations and evidence persist real foreign keys; published read APIs preserve lineage, contradiction and withdrawal. See [event foundation](../v3/event-foundation.md). |
 | 2. Statistical event detector | Partial | Deterministic temporal screening, seasonal handling, geometry and association primitives have numerical tests. No operational thresholds, calibrated probabilities or real event publication are accepted. See [statistical detector](../v3/statistical-detector.md). |
 | 3. Event UI | Partial | Empty-state and contract-backed event list/dossier, evolution, observation and evidence panels work bilingually and survive partial request failure. A real published event is unavailable until a reviewed observation pipeline exists. See [event UI](../v3/event-ui.md). |
-| 4. Sentinel operational update | Open | The COMET snapshot proves one real recent time series, not scheduled Sentinel acquisition, retry, lineage and repeat-cycle processing. |
+| 4. Sentinel operational update | Partial | Pinned COMET ingestion, HTTP range recovery, provider checks, isolated normalization attempts and repeat publication are verified. Scheduled changed-snapshot ingestion and reviewed event update/association remain open. |
 | 5. NISAR adapter | Discovery only | Official catalog metadata and provisional coverage discovery are documented; no measurement product is ingested. See [operational source discovery](../v3/operational-source-discovery.md). |
 | 6. Evidence engine | Partial | Evidence records preserve sources, independence groups and contradictions. Reviewed grade profiles, reconciliation rules and maturity propagation are absent. |
 | 7. V2 exposure integration | Open | V2 exposure remains queryable, but no real event-to-exposure record or accepted impact workflow exists. |

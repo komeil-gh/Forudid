@@ -1,6 +1,7 @@
 """Local commands for versioned sources, existing analysis workers and reports."""
 
 import argparse
+import json
 import logging
 from pathlib import Path
 from uuid import UUID
@@ -14,12 +15,14 @@ def parser():
     listing.add_argument("--source", type=UUID)
     listing.add_argument("--cursor", type=UUID)
     listing.add_argument("--limit", type=int, choices=range(1, 101), default=20, metavar="1..100")
-    for name in ("subsidence", "osm", "population"):
+    check = data.add_parser("check-comet", help="Archive live provider metadata; no publication")
+    check.add_argument("directory", type=Path)
+    for name in ("subsidence", "osm", "population", "comet"):
         ingest = data.add_parser(
             f"ingest-{name}", help="Acquire and register the pinned real source"
         )
         ingest.add_argument("directory", type=Path)
-        if name == "subsidence":
+        if name in ("subsidence", "comet"):
             ingest.add_argument("--normalized", type=Path, required=True)
         if name == "population":
             ingest.add_argument("--year", type=int, choices=(2020, 2026), default=2026)
@@ -92,6 +95,16 @@ def execute(args):
             osm.fetch_file(osm.URL, path, osm.SIZE, osm.MD5)
             normalized = args.directory / osm.PIPELINE
             print(osm.publish(path, normalized, osm.normalize(path, normalized)))
+        elif args.command in ("check-comet", "ingest-comet"):
+            from forudid_api.ingest_comet import check_source, ingest
+
+            if args.command == "check-comet":
+                result = check_source(args.directory)
+                print(json.dumps(result, indent=2, sort_keys=True))
+                if result["status"] == "review_required":
+                    raise SystemExit(2)
+            else:
+                print(ingest(args.directory, args.normalized))
         else:
             from forudid_api.ingest_population import acquire, register
 

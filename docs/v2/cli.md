@@ -11,6 +11,8 @@ forudid data list --source SOURCE_UUID --limit 20
 forudid data ingest-subsidence SOURCE_DIRECTORY --normalized COG_DIRECTORY
 forudid data ingest-osm SOURCE_DIRECTORY
 forudid data ingest-population SOURCE_DIRECTORY --year 2026
+forudid data check-comet SOURCE_DIRECTORY
+forudid data ingest-comet SOURCE_DIRECTORY --normalized NORMALIZED_DIRECTORY
 
 forudid analyze asset --asset ASSET_UUID --deformation-product PRODUCT_UUID \
   --source-version OSM_VERSION_UUID --raster RATE_COG
@@ -30,6 +32,24 @@ Source commands acquire the pinned versions documented in the source registry;
 they are not arbitrary dataset importers. Keep the original directories for
 checksum verification and resumability. The subsidence command acquires,
 registers, normalizes and publishes in that order, preserving originals.
+
+COMET commands require `uv sync --project apps/api --frozen --group ingest`.
+`check-comet` archives a timestamped provider-header check and separately verifies
+any local original. Exit code 2 means changed or incomplete provider metadata;
+network failures also retain a check record and exit unsuccessfully. Matching
+headers do not establish remote byte equality or a newly observed acquisition.
+`ingest-comet` requires the reviewed Varamin snapshot, verifies its full SHA-256,
+normalizes and publishes through the existing immutable pipeline. A provider
+change stops ingestion for review; it never overwrites the current product.
+See [COMET operations](comet-varamin.md#repeatable-acquisition-and-recovery).
+
+Pinned source downloads now resume HTTP ranges under an exclusive local lock.
+Rerun the same command after a network interruption. A complete checksum match
+is mandatory before the final source name is created. Unsupported ranges restart
+from zero while retaining the earlier partial; malformed ranges and source
+changes fail without publishing. Checksum-scoped partials, rejected attempts and
+older unscoped partials remain available for inspection. No retry loop or
+background scheduler is started by these foreground commands.
 
 `data list` uses cursor pagination and public source fields. `--source` returns
 that source's versions. Analysis arguments require UUIDs and explicit input

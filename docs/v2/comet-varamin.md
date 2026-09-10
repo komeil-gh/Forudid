@@ -1,5 +1,70 @@
 # COMET Varamin native-source preparation
 
+## Repeatable acquisition and recovery
+
+The foreground workflow is now available through the project CLI:
+
+```sh
+uv sync --project apps/api --frozen --group ingest
+uv run --project apps/api forudid data check-comet data/discovery/comet/2026-09-09
+uv run --project apps/api forudid data ingest-comet data/discovery/comet/2026-09-09 \
+  --normalized data/normalized/comet-varamin-native-1
+```
+
+Each command archives provider headers under the source directory's `checks/`.
+The check distinguishes local full-byte verification from remote header matching.
+Provider changes or missing validators stop the integrated ingestion for review.
+The reviewed importer, source checksum, published run and normalization manifest
+remain unchanged. A new provider version requires its own reviewed adapter and
+source identity; this command does not silently broaden the old import contract.
+
+Download interruption is recoverable by rerunning the same command: the shared
+downloader requests the remaining byte range, validates the exact range/size and
+checks the complete pinned checksum before exposing the final file. It holds an
+exclusive local lock and never overwrites a conflicting source. A server ignoring
+Range starts a new full attempt; rejected and superseded partials stay inspectable.
+Interrupted normalization runs retain separate hidden attempt directories. Only a
+successful conversion becomes the named normalized directory; publication can
+then resume through the existing immutable publisher.
+
+Local acceptance on 2026-09-10 verified recovery against the actual provider:
+the first 512,767,526 bytes came from the checksummed retained original and the
+remaining 1,048,576 bytes came from an HTTP 206 response. The assembled
+513,816,102-byte file matched the full SHA-256 below. This verifies real range
+recovery, not a new full remote snapshot. The two integrated ingestion executions
+both returned `62161d71-f329-5c89-b275-71a9854eb6e5`; no new publication identity
+was created. Targeted software checks also passed, covering interrupted
+transfer, ignored/malformed ranges, wrong bytes, locks, metadata gates, failed
+conversion recovery and existing CLI/integrity behavior.
+
+The [provider's technical information](https://comet-subsidencedb.org/technical-information)
+describes continuing LiCSBAS updates and explicitly states that its portal data
+lack independent verification. On this check, headers still identified the
+August 13 file and the local series still ended July 31. Scheduled acquisition,
+automatic acceptance of changed snapshots and reviewed event updates remain open.
+
+## Railway exposure — 2026-09-10
+
+The complete imported railway snapshot was evaluated against this source's own
+LOS COG. Run `e8e610a9-7950-5871-a087-ed70b2cbc82b` contains all 12,722 OSM ways;
+244 have valid samples. Summed valid length is 360,375.00715000805 m and missing
+length is 15,683,657.44291099 m. These are summed OSM-way lengths, not a deduplicated
+network inventory. The pilot does not provide present-day nationwide deformation.
+
+The native geodesic method is unchanged. LOS defaults use signed descriptive
+edges `[-150, -100, -50, 0, 25]` mm/year, matching the existing population exposure
+profile. Positive values indicate motion towards the satellite and negative
+values away; neither is relabelled as vertical subsidence. The provider reference
+is retained in the analysis inputs. Historical default bands and existing run
+identities are preserved. Repeating the full railway command returns the same run.
+
+Country aggregate `6eeba935-f905-5568-813b-df02478f1277` and Tehran aggregate
+`b8a0b77d-0a62-5468-af22-b9e8d00c45d4` use the existing administrative segment
+clipping method. The selected ranked railway's API profile was checked against
+every corresponding native COG sample, including signed values and absent
+uncertainty/hazard classifications. The separate major-road pair remains open;
+the complete regional-report prerequisite remains enforced.
+
 ## Verified snapshot — 2026-09-09
 
 The [official region page](https://comet-subsidencedb.org/region/000001)

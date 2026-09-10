@@ -39,11 +39,18 @@ entry for `urs.earthdata.nasa.gov` was not found in local `.netrc`; the user was
 asked about configuring it locally, without sending credentials in conversation.
 No whole-scene download or sensor fusion has been started.
 
-## Sentinel follow-up candidate
+## Sentinel follow-up — updated 2026-09-10
 
-The [COMET Subsidence Portal](https://comet-subsidencedb.org/) publishes processed
-Sentinel-1 time series for Iranian subsidence regions. It is a candidate for
-avoiding raw-SLC processing on the local machine. The exact region, files, latest
-observation dates, reference, quality, license/attribution and update availability
-still need inspection before choosing an operational adapter. The portal's broad
-claims of ongoing updates do not verify any particular current local product.
+The [COMET Subsidence Portal](https://comet-subsidencedb.org/) now supplies the
+verified Varamin pilot: 323 actual ascending LOS epochs through 2026-07-31,
+published locally with its native rate, reference, original HDF5 and checksums.
+Foreground CLI acquisition, live metadata checks, bounded HTTP range recovery
+and repeat publication have been verified against the real source. The railway
+exposure pair and country/Tehran aggregates are also published. See
+[COMET preparation and operations](../v2/comet-varamin.md).
+
+Provider headers on September 10 still identify the reviewed August 13 file.
+Matching headers do not prove new observations or a new full remote download.
+Changed snapshots stop for a separately reviewed contract/version; scheduled
+updates and accepted event processing remain open. Redistribution terms are still
+unspecified for this snapshot and no independent scientific validation is claimed.

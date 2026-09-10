@@ -69,7 +69,10 @@ export function ExposureDetails({ assetId, productId, runId, onInspect, selected
   const bandLabel = (index: number | null) => index === null ? (en ? 'No data' : 'بدون داده') : !edges.length ? (en ? 'Unavailable' : 'ناموجود') : index === 0 ? `< ${number(edges[0])}` : index === edges.length ? `≥ ${number(edges.at(-1))}` : `${number(edges[index-1])} ≤ v < ${number(edges[index])}`
   return <section aria-label={en ? 'Descriptive exposure' : 'مواجههٔ توصیفی'}>
     <h3>{en ? 'Descriptive exposure · experimental method' : 'مواجههٔ توصیفی · روش آزمایشی'}</h3>
-    <p>{en ? 'Length-weighted sampling of the historical raster; numerical bands are not hazard classes.' : 'نمونه‌برداری با وزن طول از رستر تاریخی؛ بازه‌های عددی، ردهٔ خطر نیستند.'}</p>
+    <p>{en ? 'Length-weighted sampling of the selected raster; numerical bands are not hazard classes.' : 'نمونه‌برداری با وزن طول از رستر انتخاب‌شده؛ بازه‌های عددی، ردهٔ خطر نیستند.'}</p>
+    {data.inputs.measurement_component === 'los' && <p data-testid="exposure-component">{en
+      ? 'Satellite line of sight (LOS): positive values indicate motion towards the satellite, negative values away. These are not vertical subsidence rates.'
+      : 'نرخ در راستای دید ماهواره (LOS): مقدار مثبت حرکت به سوی ماهواره و مقدار منفی دورشدن از آن است. این مقادیر نرخ فرونشست قائم نیستند.'}</p>}
     <dl className="metadata-list">
       <div><dt>{en ? 'Valid coverage' : 'پوشش معتبر'}</dt><dd data-testid="exposure-coverage">{number(data.coverage_fraction * 100)}٪</dd></div>
       <div><dt>{en ? 'Length with data' : 'طول دارای داده'}</dt><dd>{number(data.valid_length_m / 1000)} km</dd></div>
@@ -90,7 +93,7 @@ export function ExposureDetails({ assetId, productId, runId, onInspect, selected
       </div>}
     </>}
     <details className="series-table segment-table"><summary>{en ? 'Exposure intervals' : 'بازه‌های مواجهه'}</summary>
-      <p>{en ? 'Select a real interval to fit its geometry on the map. Bands describe historical rates, not hazard.' : 'یک بازهٔ واقعی را انتخاب کنید تا هندسهٔ آن روی نقشه نمایش داده شود. باندها نرخ تاریخی را توصیف می‌کنند، نه خطر را.'}</p>
+      <p>{en ? 'Select a real interval to fit its geometry on the map. Bands describe rates over the selected observation period.' : 'یک بازهٔ واقعی را انتخاب کنید تا هندسهٔ آن روی نقشه نمایش داده شود. باندها نرخ در دورهٔ مشاهدهٔ انتخاب‌شده را توصیف می‌کنند.'}</p>
       {selectedSegment !== undefined && <Button onClick={() => onSelectSegment()}>{en ? 'Show the entire way' : 'نمایش کل قطعه'}</Button>}
       {segments.isPending ? <Status /> : segments.isError ? <Status error retry={() => void segments.refetch()} /> : segments.data && <>
         {selectedSegment !== undefined && !segments.data.features.some(f => f.properties.ordinal === selectedSegment) && <p role="status">{en ? 'The requested interval is unavailable.' : 'بازهٔ درخواست‌شده در دسترس نیست.'}</p>}

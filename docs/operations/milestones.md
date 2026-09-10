@@ -2,6 +2,56 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## COMET acquisition and railway exposure — 2026-09-10
+
+Version `0.3.0-alpha.7` adds foreground COMET metadata checking and integrated
+pinned ingestion. The shared downloader now resumes checksum-scoped HTTP ranges
+under an exclusive lock; empty/interrupted downloads, ignored ranges, malformed
+ranges and changed bytes retain explicit recovery behavior. Failed normalization
+attempts remain separate from complete outputs. A changed provider snapshot stops
+for review rather than changing an existing scientific source identity.
+
+Real range recovery fetched the final 1 MiB of the official COMET original and
+verified the assembled 513,816,102-byte SHA-256. Two integrated ingestions returned
+the existing publication ID. All 12,722 imported railway ways were then analyzed
+against the actual COMET LOS raster: 244 ways have valid data, totaling
+360,375.00715000805 m. Signed numerical bands and the provider reference are
+retained; historical analysis identities are unchanged. Country and Tehran
+railway aggregates are published. Exact identities and limits are in
+[COMET operations](../v2/comet-varamin.md).
+
+The final targeted API run passed 16 checks with one unrelated opt-in CLI report
+check skipped. All 11 numerical checks and 17 frontend unit checks passed, as did
+Ruff, Pyright, TypeScript, ESLint, the frozen offline lock check and the production
+frontend build. Ten real desktop/mobile cases passed against the local Compose
+stack in 44 seconds. After adding the real PDF action, both railway browser cases
+passed again in 34.6 seconds, including PDF SHA-256 verification. The native COG
+and every returned sample of the selected COMET railway profile matched.
+Persian/English dates, signed rates, source identity, interval URL restoration
+and narrow-width layout passed. Desktop and mobile screenshots were inspected.
+
+The container report worker generated real COMET railway report
+`16f0b488-0649-500d-a825-4c0cc5277533`, 486,553 bytes, SHA-256
+`52abb64810cc12f785f016b9a035c0753784cf9998d06b198c0ed8ac8707fdaf`.
+No host API or report worker was used for this browser/PDF acceptance.
+
+Packaging reused the previously verified local dependency runtimes and completed
+`uv sync --frozen --no-dev --offline`; the web image uses the tested production
+build. This is local runtime packaging, not a new clean-machine build. The final
+Compose stack became healthy. Its image identities are:
+
+| Local image | SHA-256 |
+| --- | --- |
+| API and initializer | `9374d8800ad742c0a03143efe54bfd139b9b9385876abad6f6e21e54001f64a9` |
+| Report worker | `3b05ab0d3b7be67531866d67b3187f0c636c013ced2b5f0e99fe7c1fd6e67fc7` |
+| Web | `d7fa0ad94f34f9e90f688df8bc519cc34da7cda18e18e76a702add737bc4a5dd` |
+
+The COMET major-road pair and complete regional PDFs remain open. V3 milestone 4
+is partial: scheduled changed-snapshot acceptance and reviewed event updates are
+not implemented. NISAR measurements, private organization workflows and the other
+scientific milestones retain their documented evidence gates. No public host or
+remote repository is configured, and no remote deployment is claimed.
+
 ## Local unveiling preparation — 2026-09-10
 
 The target remains local; no domain or deployment host has been supplied.

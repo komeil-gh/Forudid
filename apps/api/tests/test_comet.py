@@ -121,6 +121,42 @@ def test_real_comet_tile_preserves_nodata_without_invalid_cast():
         assert np.any(alpha == 0) and np.any(alpha == 255)
 
 
+def test_real_comet_railway_exposure_preserves_signed_native_values():
+    import rasterio
+
+    client = TestClient(app)
+    product = "5323cc4f-57ec-5347-a85d-14f4887e5d27"
+    response = client.get("/api/v1/exposure-ranking", params={
+        "product_id": product, "asset_type": "railway", "min_coverage": 0.9, "limit": 1,
+    })
+    assert response.status_code == 200, response.text
+    ranking = response.json()
+    assert ranking["analysis_run_id"] and ranking["items"]
+    asset = ranking["items"][0]["asset_id"]
+    run = ranking["analysis_run_id"]
+    summary = client.get(f"/api/v1/assets/{asset}/exposure", params={"run_id": run}).json()
+    assert summary["inputs"]["product_id"] == product
+    assert summary["inputs"]["measurement_component"] == "los"
+    assert summary["inputs"]["band_edges_mm_year"] == [-150, -100, -50, 0, 25]
+    assert summary["inputs"]["reference"]["coordinate"]
+    assert summary["metrics"]["mean_velocity"] < 0
+    root = Path(__file__).resolve().parents[3]
+    with rasterio.open(root / "data/normalized/comet-varamin-native-1/velocity.tif") as raster:
+        page = 0
+        while True:
+            result = client.get(f"/api/v1/analyses/{run}/assets/{asset}/profile", params={
+                "page": page,
+            }).json()
+            for sample in result["items"]:
+                value = next(raster.sample([(sample["lon"], sample["lat"])], masked=True))[0]
+                expected = None if np.ma.is_masked(value) or not np.isfinite(value) else value*1000
+                assert sample["velocity"] == expected
+                assert sample["hazard_class"] is None and sample["uncertainty"] is None
+            if result["next_page"] is None:
+                break
+            page = result["next_page"]
+
+
 def test_real_comet_population_keeps_signed_bands_and_separate_region_method():
     client = TestClient(app)
     product = "5323cc4f-57ec-5347-a85d-14f4887e5d27"
