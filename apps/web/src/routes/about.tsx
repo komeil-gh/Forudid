@@ -164,7 +164,9 @@ export default function AboutPage() {
               {sourceMarks.map(source => <Tooltip.Root key={source.name}>
                 <Tooltip.Trigger asChild><a className={`source-mark source-mark-${source.className}`}
                   href={source.href} target="_blank" rel="noreferrer" aria-label={source.name} tabIndex={clone ? -1 : undefined}>
-                  <span><img src={source.logo} alt="" /></span>
+                  <span>{import.meta.env.VITE_SOURCE_MARKS === 'true'
+                    ? <img src={source.logo} alt="" />
+                    : <b className="source-name">{source.name}</b>}</span>
                   <i aria-hidden="true" />
                   <small>{language === 'fa' ? source.fa : source.en}</small>
                 </a></Tooltip.Trigger>

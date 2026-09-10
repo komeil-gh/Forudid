@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-alpha.9 — 2026-09-10
+
+- Prepare the public source core under Apache-2.0, with separate data/font notices, contribution and security guidance.
+- Export committed source without private history, local data, untracked studies or external logos with unresolved redistribution permission.
+- Keep source acknowledgements available as linked text; preserve optional logo display in private installations.
+- Separate routine source checks from manually requested real-data integration, and verify release archive boundaries.
+- Preserve the scientific and operational gaps recorded in the coverage ledger; source preparation is not a production deployment or scientific validation milestone.
+
 ## 0.3.0-alpha.5 — 2026-09-09
 
 - Render UI dates with the Persian calendar and Persian digits in Persian, and with the Gregorian calendar and Latin digits in English.

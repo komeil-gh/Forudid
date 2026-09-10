@@ -1,0 +1,9 @@
+# Public source archives contain no private history or uncleared third-party marks.
+AGENTS.md export-ignore
+.agents export-ignore
+.codex export-ignore
+.codex-toolkit export-ignore
+.tools export-ignore
+data export-ignore
+apps/web/public/source-marks export-ignore
+docs/brand export-ignore

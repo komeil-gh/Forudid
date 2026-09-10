@@ -3264,7 +3264,7 @@ Every subsequent significant change requires an ADR.
 
 ---
 
-# 108. Things Codex must NOT add
+# 108. Things Maintainers must NOT add
 
 Do not add these without an explicit request:
 

@@ -4,6 +4,14 @@ A local platform for ground-deformation evidence, infrastructure exposure and
 population analysis in Iran, with traceable sources and immutable versions.
 The product interface is Persian-first with English support.
 
+Original code and documentation are licensed under [Apache-2.0](LICENSE).
+See [third-party notices](THIRD_PARTY_NOTICES.md), [contributing](CONTRIBUTING.md)
+and [security](SECURITY.md). This alpha source distribution includes no scientific
+measurements or prepopulated database. Results described below refer to the
+documented local analyses, not data bundled with a fresh checkout. The
+[source-release guide](docs/operations/open-source-release.md) defines the
+publication boundary and reproducible packaging command.
+
 ## Implementation and specification coverage
 
 [V2](docs/v2/MASTER_SPEC.md) extends the original WebGIS into infrastructure and
@@ -127,6 +135,7 @@ Use Node 22.12+, pnpm 11.24.0, uv and Python 3.13.
 ```sh
 pnpm install --frozen-lockfile
 uv sync --project apps/api --frozen
+python3 scripts/init_env.py
 docker compose up -d postgres object-storage
 uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
 uv run --project apps/api python -m forudid_api.initialize

@@ -3441,7 +3441,7 @@ Exact corridor may be adjusted based on actual source coverage.
 
 Before writing V2 code:
 
-Codex must:
+Maintainers must:
 
 1. inspect repository.
 2. identify current architecture.
@@ -3991,9 +3991,9 @@ Create:
 
 ---
 
-# 168. Codex engineering rules
+# 168. Maintainers engineering rules
 
-Codex must not invent scientific assumptions.
+Maintainers must not invent scientific assumptions.
 
 When a required scientific parameter is uncertain:
 
@@ -4144,7 +4144,7 @@ What will fail?
 
 ---
 
-# 174. Final instruction to Codex
+# 174. Final instruction to Maintainers
 
 Do not implement all milestones in one uncontrolled generation.
 

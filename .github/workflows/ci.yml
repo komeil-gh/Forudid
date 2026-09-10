@@ -1,21 +1,19 @@
-name: Local WebGIS checks
+name: Source checks
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: source-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
-    env:
-      FORUDID_REAL_SOURCE_TESTS: '1'
-      FORUDID_OSM_TESTS: '1'
-      FORUDID_MARTIN_TESTS: '1'
-      FORUDID_EXPOSURE_TESTS: '1'
-      FORUDID_REGION_TESTS: '1'
-      FORUDID_POPULATION_TESTS: '1'
-      FORUDID_REGION_INFRA_TESTS: '1'
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22.22.3'
@@ -26,55 +24,16 @@ jobs:
         with:
           version: '0.12.10'
           python-version: '3.13'
+      - name: Scan committed history
+        run: docker run --rm -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:v8.30.1 git --redact --log-opts=--all /repo
       - run: pnpm install --frozen-lockfile
       - run: uv sync --project apps/api --frozen
       - run: python3 scripts/init_env.py
-      - run: docker compose up -d --wait postgres object-storage
-      - name: Migration round trip on fresh CI database
-        run: |
-          uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
-          uv run --project apps/api alembic -c apps/api/alembic.ini downgrade -1
-          uv run --project apps/api alembic -c apps/api/alembic.ini upgrade head
-          uv run --project apps/api python -m forudid_api.seed
-      - name: Acquire and publish the verified historical snapshot
-        run: |
-          uv run --project apps/api python -m forudid_api.ingest data/sources/haghighi-motagh-2024/1.0.0
-          uv run --project apps/api python -m forudid_api.register_source data/sources/haghighi-motagh-2024/1.0.0
-          uv run --project apps/api python -m forudid_api.normalize data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
-          uv run --project apps/api python -m forudid_api.publish_historical data/sources/haghighi-motagh-2024/1.0.0 data/normalized/haghighi-motagh-cog-1
-      - name: Import real infrastructure and start restricted vector tiles
-        run: |
-          uv run --project apps/api python -m forudid_api.ingest_osm data/sources/geofabrik-iran/260904
-          uv run --project apps/api python -m forudid_api.configure_martin .tools/martin.json
-          docker run -d --rm --name forudid-martin-ci --network host -v "$PWD/.tools/martin.json:/runtime/martin.json:ro" ghcr.io/maplibre/martin:1.15.0 --config /runtime/martin.json
-          curl --retry 15 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:58300/vector/health
-      - name: Register real population and boundaries and compute country and Tehran
-        run: |
-          uv run --project apps/api python -m forudid_api.ingest_regions data/sources/geoboundaries/IRN-ADM1-17685810
-          uv run --project apps/api python -m forudid_api.ingest_population data/sources/worldpop-iran/2020-wpgp-31792 --year 2020
-          uv run --project apps/api python - <<'PY'
-          from pathlib import Path
-          from uuid import UUID, uuid5
-          from forudid_api.ingest_regions import VERSION_ID
-          from forudid_api.analyze_population import analyze
-          for region in (None, uuid5(VERSION_ID, "Tehran")):
-              analyze(UUID("744b6536-b9a7-56c5-85b1-66a629a78b91"), UUID("488059d8-d3f6-5064-af66-131da47742e3"), Path("data/sources/worldpop-iran/2020-wpgp-31792/population-count.cog.tif"), Path("data/normalized/haghighi-motagh-cog-1/rate.tif"), region)
-          PY
+      - run: make check-source
       - name: Contract synchronization
         run: |
           uv run --project apps/api python scripts/export_openapi.py
           pnpm generate:api
           git diff --exit-code -- docs/openapi.json apps/web/src/generated/api
-      - run: make check
-      - run: pnpm --filter @forudid/web exec playwright install --with-deps chromium
-      - run: FORUDID_START_SERVERS=1 pnpm test:e2e
-      - name: Verify complete static stack
-        run: |
-          docker compose up -d --build --wait
-          curl --fail http://localhost:58080/health/ready
-          curl --fail http://localhost:58080/map
-      - name: Stop this project's containers
-        if: always()
-        run: |
-          docker stop forudid-martin-ci || true
-          docker compose down
+      - name: Verify source archive boundary
+        run: python3 scripts/release_source.py

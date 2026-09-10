@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import AboutPage from './about'
 import MethodologyPage from './methodology'
 import { LanguageProvider } from '../i18n'
@@ -9,6 +9,7 @@ const renderPage = (page: React.ReactNode, language: 'fa' | 'en' = 'fa') => {
 }
 
 describe('scientific content pages', () => {
+  afterEach(() => vi.unstubAllEnvs())
   it('keeps the methodology scientifically qualified', () => {
     renderPage(<MethodologyPage />)
     expect(screen.getByRole('heading', { name: 'تفسیر و انتشار.' })).toBeInTheDocument()
@@ -30,6 +31,7 @@ describe('scientific content pages', () => {
   })
 
   it('renders the supplied dedication and attribution', () => {
+    vi.stubEnv('VITE_SOURCE_MARKS', 'false')
     renderPage(<AboutPage />)
     expect(screen.getByText(/وظیفهٔ هر کس در دانش خویش/)).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /به یاد آنان/ })).not.toBeInTheDocument()
@@ -37,7 +39,8 @@ describe('scientific content pages', () => {
     expect(screen.getByText('کمیل')).toBeInTheDocument()
     expect(screen.getByRole('contentinfo')).toHaveTextContent('فرودید | پایش ماهواره‌ای فرونشست ایران زمین')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('فرودید تلاشی شخصی و مستقل است')
-    expect(document.querySelectorAll('.source-group:not([aria-hidden]) img')).toHaveLength(8)
+    expect(document.querySelectorAll('.source-group:not([aria-hidden]) img')).toHaveLength(0)
+    expect(document.querySelectorAll('.source-group:not([aria-hidden]) .source-name')).toHaveLength(8)
     expect(screen.getByRole('contentinfo').querySelectorAll('.source-group:not([aria-hidden]) a')).toHaveLength(8)
     expect(screen.getAllByRole('button', { name: /معرفی/ })).toHaveLength(8)
     expect(document.querySelector('.about-letter-watermark')).toHaveAttribute('src', '/brand/selected/forudid-mark-black.png')
@@ -45,7 +48,9 @@ describe('scientific content pages', () => {
   })
 
   it('renders the English dedication without enlarging the author signature', () => {
+    vi.stubEnv('VITE_SOURCE_MARKS', 'true')
     renderPage(<AboutPage />, 'en')
+    expect(document.querySelectorAll('.source-group:not([aria-hidden]) img')).toHaveLength(8)
     expect(screen.getByText(/duty of each person in their field of knowledge/)).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /In memory/ })).not.toBeInTheDocument()
     expect(screen.getByText('Komeil')).toBeInTheDocument()

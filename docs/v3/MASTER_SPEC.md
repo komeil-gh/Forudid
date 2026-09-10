@@ -787,7 +787,7 @@ weak/conflicting/provisional evidence
 
 These are conceptual rules only.
 
-Codex must not convert these examples into scientific thresholds without a reviewed profile.
+Maintainers must not convert these examples into scientific thresholds without a reviewed profile.
 
 ---
 
@@ -4340,7 +4340,7 @@ Do not put V3 business logic into generic map components.
 
 Before implementation:
 
-Codex must inspect V1/V2.
+Maintainers must inspect V1/V2.
 
 Produce:
 
@@ -5045,7 +5045,7 @@ Outcomes improve future decisions.
 
 ---
 
-# 194. Final instruction to Codex
+# 194. Final instruction to Maintainers
 
 Do not build V3 in one generation.
 
