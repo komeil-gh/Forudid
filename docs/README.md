@@ -19,6 +19,7 @@ introduction and the author's letter in Persian and English.
 | [Asset exploration](v2/asset-exploration.md) | Map selection, asset profiles and downloads. |
 | [Reports](v2/reports.md) | Reproducible infrastructure and regional PDF reports. |
 | [Event interface](v3/event-ui.md) | Event browsing and evidence boundaries. |
+| [Railway inspection-planning pilot](v3/railway-pilot.md) | Real candidate segment, user task, baseline comparison and unmeasured decision outcomes. |
 
 <a id="data-and-methods"></a>
 

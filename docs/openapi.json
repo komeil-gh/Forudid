@@ -1365,6 +1365,20 @@
             "title": "Run Id",
             "type": "string"
           },
+          "sampled_cell": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Coordinate"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sampled Cell"
+          },
           "sampled_coordinate": {
             "anyOf": [
               {
@@ -3465,7 +3479,7 @@
   },
   "info": {
     "title": "FORUDID",
-    "version": "0.3.0-alpha.9"
+    "version": "0.3.0-alpha.10"
   },
   "openapi": "3.1.0",
   "paths": {

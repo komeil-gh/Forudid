@@ -46,3 +46,25 @@ month, year order. Year-precision source intervals are converted as calendar
 coverage, so Gregorian 2014 through 2020 appears as Persian 1392 through 1399 rather
 than inventing a precise acquisition day. Citations and immutable dataset titles
 retain their published Gregorian wording.
+
+## Native-pixel inspection — 2026-09-11
+
+Point inspection reads the selected raster's containing native pixel, including
+coherence and velocity uncertainty. It does not substitute the LOS rate for a
+quality layer. Source scale and offset remain applied once; zero is preserved,
+non-finite and masked values remain missing, and unitless coherence is not labelled
+as millimetres. A companion velocity uncertainty retains its own velocity unit.
+
+The API returns the pixel centre and closed native-cell corners in WGS84. The map
+outlines that footprint and can fit it without changing the measurement. A cell
+inside the raster with no value retains its geometry; a point outside the raster
+extent has neither cell nor centre. Population uses its existing native bounds
+and distinguishes masked cells from points outside its extent. Coordinate values
+are preserved through selection and URL state rather than rounded before sampling.
+
+Both server tile generation and browser raster display explicitly use nearest
+resampling. Zooming does not create finer measurements. Neither coordinate decimal
+places nor a pixel outline establish geodetic accuracy. The railway map displays
+the selected product's actual observation period, independently of the network
+snapshot date. These corrections change inspection and presentation, not the
+immutable source pixels, published analyses or their scientific maturity.

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Map, { Layer, Marker, NavigationControl, ScaleControl, Source, type MapRef } from 'react-map-gl/maplibre'
 import * as maplibre from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
-import { Crosshair } from 'lucide-react'
+import { Crosshair, Scan } from 'lucide-react'
 import { defaultSearch, type MapSearch } from '../../lib/search'
 import type { ProductInfo, LineGeometry, RegionFeature, MultiPolygonGeometry, PopulationSource } from '../../generated/api/forudid'
 import { apiBase } from '../../lib/api'
@@ -18,10 +18,11 @@ const localStyle: maplibre.StyleSpecification = {
   version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
     paint: { 'background-color': '#dbe9ed' } }],
 }
-export function MapCanvas({ state, product, population, style, update, selectPoint, selectedGeometry, profilePoint, region, eventGeometry, inspectEnabled = true }:
+export function MapCanvas({ state, product, population, style, update, selectPoint, selectedGeometry, profilePoint, region, eventGeometry, sampledCell, inspectEnabled = true }:
   { state: MapSearch; product?: ProductInfo; style?: string;
     population?: PopulationSource;
     selectedGeometry?: LineGeometry;
+    sampledCell?: number[][];
     region?: RegionFeature;
     eventGeometry?: MultiPolygonGeometry; inspectEnabled?: boolean;
     profilePoint?: { lon: number; lat: number };
@@ -46,7 +47,7 @@ export function MapCanvas({ state, product, population, style, update, selectPoi
     if (!ref.current || !coordinates?.length) return
     const bounds = new maplibre.LngLatBounds()
     coordinates.forEach(coordinate => bounds.extend(coordinate))
-    ref.current.fitBounds(bounds, { padding: 45, maxZoom: 12, duration: 0 })
+    ref.current.fitBounds(bounds, { padding: 45, maxZoom: 16, duration: 0 })
   }, [selectedGeometry, region, eventGeometry])
   useEffect(fitSelection, [fitSelection])
   useEffect(() => {
@@ -64,7 +65,7 @@ export function MapCanvas({ state, product, population, style, update, selectPoi
   if (!supported) return <div role="alert" className="status">{m.webgl}</div>
   const bbox = product?.bbox
   const resetBounds = state.mode === 'population' ? population?.bounds : bbox
-  const area = { type: 'FeatureCollection' as const, features: bbox ? [{ type: 'Feature' as const,
+  const area = { type: 'FeatureCollection' as const, features: bbox && state.mode !== 'population' ? [{ type: 'Feature' as const,
     properties: {}, geometry: { type: 'Polygon' as const, coordinates: [[[bbox[0], bbox[1]], [bbox[2], bbox[1]],
       [bbox[2], bbox[3]], [bbox[0], bbox[3]], [bbox[0], bbox[1]]]] } }] : [] }
   return <div className="map-canvas">
@@ -143,9 +144,14 @@ export function MapCanvas({ state, product, population, style, update, selectPoi
         <Layer id="historical-region-fill" type="fill" paint={{ 'fill-color': '#176e79', 'fill-opacity': 0.04 }} />
         <Layer id="historical-region-line" type="line" paint={{ 'line-color': '#244953', 'line-width': 2, 'line-dasharray': [3, 2] }} />
       </Source>}
-      {state.pointLon !== undefined && state.pointLat !== undefined && <Marker
-        longitude={state.pointLon} latitude={state.pointLat}><span className="point-marker"><Crosshair size={26} /></span></Marker>}
-      {product?.reference && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>
+      {sampledCell && <Source id="sampled-cell" type="geojson" data={{ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [sampledCell] } }}>
+        <Layer id="sampled-cell-fill" type="fill" paint={{ 'fill-color': '#fff', 'fill-opacity': 0.08 }} />
+        <Layer id="sampled-cell-halo" type="line" paint={{ 'line-color': '#fff', 'line-width': 5 }} />
+        <Layer id="sampled-cell-outline" type="line" paint={{ 'line-color': '#154c59', 'line-width': 2 }} />
+      </Source>}
+      {state.panel === 'point' && state.pointLon !== undefined && state.pointLat !== undefined && <Marker
+        longitude={state.pointLon} latitude={state.pointLat}><span className={`point-marker ${sampledCell ? 'native-cell-marker' : ''}`}><Crosshair size={sampledCell ? 10 : 26} /></span></Marker>}
+      {state.mode !== 'population' && product?.reference && <Marker longitude={product.reference.coordinate.lon} latitude={product.reference.coordinate.lat}>
         <span className="reference-marker" title={m.reference}>REF</span></Marker>}
       {profilePoint && <Marker longitude={profilePoint.lon} latitude={profilePoint.lat}>
         <span className="point-marker" data-testid="profile-map-marker"><Crosshair size={26} /></span></Marker>}
@@ -160,6 +166,16 @@ export function MapCanvas({ state, product, population, style, update, selectPoi
       if (resetBounds && ref.current) ref.current.fitBounds(resetBounds as [number, number, number, number], { padding: 45, maxZoom: 12, duration: 0, pitch: 0, bearing: 0 })
       else update({ lon: defaultSearch.lon, lat: defaultSearch.lat, z: defaultSearch.z, pitch: 0, bearing: 0 })
     }}><Crosshair size={19} /></Button>
+      {sampledCell && <Button aria-label={language === 'fa' ? 'نمای سلول بومی' : 'Fit native cell'} title={language === 'fa' ? 'نمای سلول بومی' : 'Fit native cell'} onClick={() => {
+        const bounds = new maplibre.LngLatBounds()
+        sampledCell.forEach(coordinate => bounds.extend(coordinate as [number, number]))
+        const container = ref.current?.getContainer(), frame = container?.getBoundingClientRect()
+        const search = container?.parentElement?.querySelector('.map-place-search')?.getBoundingClientRect()
+        const legend = container?.closest('.map-region')?.querySelector('.map-guidance')?.getBoundingClientRect()
+        const padding = frame ? { top: search ? search.bottom - frame.top + 16 : 120,
+          bottom: legend ? frame.bottom - legend.top + 16 : 80, left: 70, right: 70 } : 120
+        ref.current?.fitBounds(bounds, { padding, maxZoom: 18, duration: 0, pitch: 0, bearing: 0 })
+      }}><Scan size={19} /></Button>}
       {inspectEnabled && <Button onClick={() => selectPoint(state.lon, state.lat)}>{m.inspectCenter}</Button>}</div>
   </div>
 }

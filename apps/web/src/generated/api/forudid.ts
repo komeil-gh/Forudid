@@ -395,6 +395,7 @@ export interface PointSummary {
   reference_description: string | null;
   relative_orbit: number | null;
   run_id: string;
+  sampled_cell?: Coordinate[] | null;
   sampled_coordinate: Coordinate | null;
   start_date: string;
   temporal_coherence: number | null;

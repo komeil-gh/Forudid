@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react'
 import { Dialog } from 'radix-ui'
 import { Layers, X } from 'lucide-react'
 import { mapRoute } from '../app/router'
-import { useListProducts, useListPopulationSources, useGetLegend, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetRegion, type ProfileSample } from '../generated/api/forudid'
-import { defaultSearch, roundCoordinate, type MapSearch } from '../lib/search'
+import { useListProducts, useListPopulationSources, useGetLegend, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetRegion, useGetPointSummary, useGetPopulationPoint, type ProfileSample } from '../generated/api/forudid'
+import { defaultSearch, type MapSearch } from '../lib/search'
 import { MapCanvas } from '../features/map/MapCanvas'
 import { LayerPanel } from '../features/layers/LayerPanel'
 import { Legend } from '../features/layers/Legend'
@@ -44,13 +44,21 @@ export default function MapPage() {
   }
   function selectPoint(lon: number, lat: number) {
     if (state.mode === 'population' ? !population : !product) return
-    update({ pointLon: roundCoordinate(lon), pointLat: roundCoordinate(lat), panel: 'point', asset: undefined, analysis: undefined, segment: undefined,
+    update({ pointLon: lon, pointLat: lat, panel: 'point', asset: undefined, analysis: undefined, segment: undefined,
       ...(state.mode !== 'population' && product ? { product: product.id, run: product.processing_run_id, layer: product.kind as MapSearch['layer'], orbit: product.orbit_direction } : {}) })
   }
   const panelProps = { state, product, products: choices, update, onMetadata: () => {
     setLayersOpen(false); setMetadataOpen(true)
   } }
   const showPoint = (state.mode === 'population' ? !!population : !!product) && state.panel === 'point' && state.pointLon !== undefined && state.pointLat !== undefined
+  const point = useGetPointSummary({ product_id: product?.id ?? '', lon: state.pointLon ?? 0, lat: state.pointLat ?? 0 },
+    { query: { enabled: showPoint && state.mode !== 'population' } })
+  const cell = useGetPopulationPoint(population?.source_version_id ?? '', { lon: state.pointLon ?? 0, lat: state.pointLat ?? 0 },
+    { query: { enabled: showPoint && state.mode === 'population' } })
+  const bounds = cell.isError ? undefined : cell.data?.cell_bounds
+  const sampledCell = !showPoint ? undefined : state.mode === 'population'
+    ? bounds ? [[bounds[0], bounds[3]], [bounds[2], bounds[3]], [bounds[2], bounds[1]], [bounds[0], bounds[1]], [bounds[0], bounds[3]]] : undefined
+    : point.isError ? undefined : point.data?.sampled_cell?.map(coordinate => [coordinate.lon, coordinate.lat])
   const showAsset = state.panel === 'asset' && !!state.asset
   const controls = state.mode === 'deformation' ? <LayerPanel {...panelProps} /> : <>
     <ModePanel state={state} product={product} population={population} update={update} selectAsset={(id, runId) => {
@@ -69,6 +77,7 @@ export default function MapPage() {
     <aside className="desktop-sidebar">{controls}</aside>
     <div className="map-workspace"><div className="map-region">
       <MapCanvas state={state} product={product} population={state.mode === 'population' ? population : undefined} style={legend.data?.style} update={update} selectPoint={selectPoint}
+        sampledCell={sampledCell}
         region={state.mode !== 'deformation' && state.region ? region.data : undefined}
         profilePoint={profilePoint && profilePoint.asset === state.asset && showAsset ? profilePoint.sample : undefined}
         selectedGeometry={showAsset ? interval?.geometry ?? asset.data?.geometry : undefined} />
@@ -93,7 +102,7 @@ export default function MapPage() {
     </div>
       {showPoint && (state.mode === 'population' ? population && <PopulationPointPanel source={population} lon={state.pointLon!} lat={state.pointLat!} close={() => update({ panel: 'none' })} /> : product && <PointPanel state={state} product={product} close={() => update({ panel: 'none' })} />)}
       {showAsset && <AssetPanel data={asset.data} pending={asset.isPending} error={asset.isError}
-        productId={product?.id} runId={state.analysis ?? exposure.data?.analysis_run_id} onInspect={inspectProfile}
+        product={product} runId={state.analysis ?? exposure.data?.analysis_run_id} onInspect={inspectProfile}
         selectedSegment={state.segment} onSelectSegment={ordinal => update({ segment: ordinal, analysis: exposure.data?.analysis_run_id })}
         retry={() => void asset.refetch()} close={() => update({ panel: 'none', asset: undefined, analysis: undefined, segment: undefined })} />}
     </div>{product && <MetadataDialog product={product} open={metadataOpen} onOpenChange={setMetadataOpen} />}</div>

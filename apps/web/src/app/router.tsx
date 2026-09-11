@@ -62,12 +62,16 @@ function Home() { const { language } = useLanguage(); return <main className="ar
     <p>نقشهٔ نخست، مجموعهٔ منتشرشدهٔ Haghighi–Motagh برای بازهٔ {formatDateRange('2014', '2020', language, 'year')} است؛ این داده وضعیت کنونی زمین را نشان نمی‌دهد.</p>
     <Button asChild><Link to="/map" search={defaultSearch}>ورود به نقشهٔ ایران</Link></Button>
     <p>پایلوت ورامین، سری زمانی جداگانه‌ای در راستای دید ماهواره دارد؛ پوشش آن محلی است و مؤلفهٔ قائم محسوب نمی‌شود.</p>
-    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>پایلوت سری زمانی ورامین</Link></Button></> : <>
+    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>پایلوت سری زمانی ورامین</Link></Button>
+    <p>برای بررسی یک کار واقعی، قطعهٔ ثبت‌شدهٔ راه‌آهن تهران–مشهد را باز کنید؛ پوشش اندازه‌گیری، پروفایل و بازه‌های آن را برای برنامه‌ریزی بازدید بخوانید. تأیید مسئول مسیر و ارزیابی با کاربر واقعی هنوز انجام نشده است.</p>
+    <Button asChild><Link to="/assets" search={{ ...defaultAssetSearch, aoi: 'varamin-comet', product: '5323cc4f-57ec-5347-a85d-14f4887e5d27', q: 'way/1093520814' }}>بررسی قطعهٔ راه‌آهن تهران–مشهد</Link></Button></> : <>
     <p>Explore historical land-deformation data for Iran with its source, version, and measurement limitations.</p>
     <p>The initial map is the published Haghshenas Haghighi and Motagh dataset for 2014 to 2020; it does not describe current ground conditions.</p>
     <Button asChild><Link to="/map" search={defaultSearch}>Open the map of Iran</Link></Button>
     <p>The Varamin pilot provides a separate satellite line-of-sight time series. Its coverage is local and its measurements are not a vertical component.</p>
-    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>Varamin time-series pilot</Link></Button></>}</main> }
+    <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: 'varamin-comet', layer: 'velocity_los', orbit: 'ascending' }}>Varamin time-series pilot</Link></Button>
+    <p>Open a mapped Tehran–Mashhad railway segment to inspect measurement coverage, its profile and intervals for inspection planning. Route-owner confirmation and evaluation with a real user are still outstanding.</p>
+    <Button asChild><Link to="/assets" search={{ ...defaultAssetSearch, aoi: 'varamin-comet', product: '5323cc4f-57ec-5347-a85d-14f4887e5d27', q: 'way/1093520814' }}>Inspect the Tehran–Mashhad railway segment</Link></Button></>}</main> }
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home })
 const methodologyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/methodology', component: () => <Suspense fallback={<Status />}><MethodologyPage /></Suspense> })
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: () => <Suspense fallback={<Status />}><AboutPage /></Suspense> })

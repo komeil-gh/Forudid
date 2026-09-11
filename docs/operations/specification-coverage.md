@@ -20,6 +20,11 @@ See [source-release acceptance](open-source-release.md#local-acceptance--2026-09
 The existing repository and local datasets remain private; this preparation does
 not close scientific or operational V3 gates or publish a hosted service.
 
+Alpha.10 corrects native-pixel inspection, quality-layer units, map layout and
+selected-product dates, and adds a real railway candidate walkthrough. Its
+[acceptance record](milestones.md#native-pixel-inspection-and-practical-railway-workflow--2026-09-11)
+separates software checks from the still-unmeasured user decision outcome.
+
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.
@@ -118,13 +123,20 @@ The sequence follows [V3 sections 160–183](../v3/MASTER_SPEC.md#160-v3-milesto
 
 ## V3.0 closure order
 
-The next accepted vertical slice is milestone 4: one repeatable operational
-Sentinel update with immutable acquisitions, explicit failure recovery and no
-fabricated event. Milestones 5–7 then add independent NISAR evidence, reviewed
-evidence rules and event-linked V2 exposure. Organization identity and audit
-controls precede private cases and field workflows. Forecasting, priority, VoI,
-sensor, twin and assistant milestones remain downstream of real observations and
-field outcomes.
+On 2026-09-11 the owner prioritized a real decision workflow over expanding the
+feature inventory. The next acceptance target is the
+[railway inspection-planning pilot](../v3/railway-pilot.md): one real user, one
+owner-confirmed segment, a reviewable choice of interval or justified deferral,
+and measured comparison with the user's existing workflow. The public-data
+walkthrough is implemented; user participation and decision benefit are unproven.
+
+Operational source updates remain useful only where the selected task requires
+fresher observations. Immutable acquisitions, recovery and manual review remain
+mandatory. Organization identity and audit controls precede private mutation APIs.
+Forecasting, learned priority, Bayesian VoI, twins and assistants are deferred
+pending an observed user need and the evidence gates in the milestone table.
+The table is a capability inventory, not a commitment to build every feature
+before evaluating the product with a user.
 
 The V3.0 MVP is not complete. Empty event, case, inspection, sensor, model and
 outcome datasets are truthful system states. They must not be filled with fixtures

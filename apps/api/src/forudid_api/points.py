@@ -102,7 +102,7 @@ def timeseries(db: Session, run_id: UUID, coordinate: Coordinate) -> TimeSeries:
 
 def sample_product(
     db: Session, item: Product, coordinate: Coordinate
-) -> tuple[float | None, Coordinate | None]:
+) -> tuple[float | None, Coordinate | None, list[Coordinate] | None]:
     asset = catalog.role_asset(db, item, "data")
     object_key = asset.object_key
     db.close()
@@ -115,24 +115,33 @@ def sample_product(
             projected = transform("EPSG:4326", raster.crs, [coordinate.lon], [coordinate.lat])
             row, col = raster.index(projected[0][0], projected[1][0])
             if not 0 <= row < raster.height or not 0 <= col < raster.width:
-                return None, None
+                return None, None, None
             values = raster.read(1, window=((row, row + 1), (col, col + 1)), masked=True)
             cx, cy = raster.xy(row, col)
             geographic = transform(raster.crs, "EPSG:4326", [cx], [cy])
             center = Coordinate(lon=geographic[0][0], lat=geographic[1][0])
+            corners = [
+                raster.xy(row, col, offset=offset) for offset in ("ul", "ur", "lr", "ll", "ul")
+            ]
+            geographic_corners = transform(
+                raster.crs, "EPSG:4326", [p[0] for p in corners], [p[1] for p in corners]
+            )
+            cell = [Coordinate(lon=x, lat=y) for x, y in zip(
+                geographic_corners[0], geographic_corners[1], strict=True
+            )]
             if np.ma.getmaskarray(values)[0, 0]:
-                return None, center
+                return None, center, cell
             value = float(values[0, 0]) * raster.scales[0] + raster.offsets[0]
-            return (value if math.isfinite(value) else None), center
+            return (value if math.isfinite(value) else None), center, cell
 
 
 def summary(db: Session, product_id: UUID, coordinate: Coordinate) -> PointSummary:
-    requested = catalog.product(db, product_id)
-    item = (
-        requested
-        if requested.kind in ("velocity_los", "velocity_vertical", "seasonal_amplitude")
-        else catalog.run_product(db, requested.processing_run_id, "velocity_los")
-    )
+    item = catalog.product(db, product_id)
+    if item.kind not in (
+        "velocity_los", "velocity_vertical", "seasonal_amplitude",
+        "velocity_uncertainty", "temporal_coherence",
+    ):
+        raise catalog.missing("POINT_SAMPLE_NOT_AVAILABLE")
     companions = {
         p.kind: p
         for p in db.scalars(
@@ -144,12 +153,12 @@ def summary(db: Session, product_id: UUID, coordinate: Coordinate) -> PointSumma
             )
         )
     }
-    value, center = sample_product(db, item, coordinate)
+    value, center, cell = sample_product(db, item, coordinate)
     uncertainty, coherence, observations = None, None, None
     if "velocity_uncertainty" in companions:
-        uncertainty, _ = sample_product(db, companions["velocity_uncertainty"], coordinate)
+        uncertainty, _, _ = sample_product(db, companions["velocity_uncertainty"], coordinate)
     if "temporal_coherence" in companions:
-        coherence, _ = sample_product(db, companions["temporal_coherence"], coordinate)
+        coherence, _, _ = sample_product(db, companions["temporal_coherence"], coordinate)
     if item.stats.get("timeseries_available", item.stats["is_fixture"]):
         observations = sum(
             e.displacement is not None
@@ -162,12 +171,17 @@ def summary(db: Session, product_id: UUID, coordinate: Coordinate) -> PointSumma
     return PointSummary(
         coordinate=coordinate,
         sampled_coordinate=center,
+        sampled_cell=cell,
         product_id=product_id,
         run_id=item.processing_run_id,
         measurement=Quantity(value=value, unit=item.unit),
         measurement_kind=Kind(item.kind),
         velocity_los=Quantity(value=value if item.kind == "velocity_los" else None, unit="m/year"),
-        velocity_uncertainty=Quantity(value=uncertainty, unit=item.unit),
+        velocity_uncertainty=Quantity(
+            value=uncertainty,
+            unit=companions["velocity_uncertainty"].unit
+            if "velocity_uncertainty" in companions else "m/year",
+        ),
         temporal_coherence=coherence,
         observations=observations,
         orbit_direction=item.orbit_direction,

@@ -118,6 +118,7 @@ class Quality(BaseModel):
 class PointSummary(BaseModel):
     coordinate: Coordinate
     sampled_coordinate: Coordinate | None
+    sampled_cell: list[Coordinate] | None = None
     product_id: UUID
     run_id: UUID
     measurement: Quantity

@@ -214,6 +214,32 @@ test('COMET asset links retain the source and actual period without borrowing hi
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
+test('railway candidate opens from home with real coverage, intervals and the selected product period', async ({ page, request }, testInfo) => {
+  test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires the real COMET railway candidate')
+  const product = '5323cc4f-57ec-5347-a85d-14f4887e5d27'
+  const asset = '5305bd11-6cd0-5c89-98ed-26e33ed26f12'
+  const response = await request.get(`/api/v1/assets/${asset}/exposure?product_id=${product}`)
+  expect(response.ok()).toBe(true)
+  const exposure = await response.json()
+  expect(exposure.coverage_fraction).toBe(1)
+  await page.goto('/')
+  await page.getByRole('link', { name: 'بررسی قطعهٔ راه‌آهن تهران–مشهد', exact: true }).click()
+  await page.getByRole('region', { name: 'جدول زیرساخت' }).getByRole('link').first().click()
+  await expect(page).toHaveURL(new RegExp(asset))
+  await expect(page.getByTestId('exposure-mean')).toHaveText(`${exposure.metrics.mean_velocity.toLocaleString('fa-IR', { maximumFractionDigits: 1 })} mm/year`)
+  await page.getByText('بازه‌های مواجهه', { exact: true }).click()
+  await page.locator('.segment-table tbody button').first().click()
+  await expect(page).toHaveURL(/segment=0/)
+  await expect(page.getByRole('button', { name: 'نمایش کل قطعه', exact: true })).toBeVisible()
+  await page.screenshot({ path: `/tmp/forudid-qa/railway-candidate-${testInfo.project.name}.png`, fullPage: true })
+  await page.goto(`/map?aoi=varamin-comet&layer=velocity_los&orbit=ascending&product=${product}&asset=${asset}&analysis=${exposure.analysis_run_id}&panel=asset&infrastructure=railway`)
+  await expect(page.getByTestId('asset-observation-period')).toContainText('۹ مرداد ۱۴۰۵')
+  await page.getByRole('button', { name: 'EN', exact: true }).click()
+  await expect(page.getByTestId('asset-observation-period')).toContainText('31 July 2026')
+  await expect(page.getByTestId('asset-observation-period')).not.toContainText('2014–2020')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
 test('real COMET railway ranking opens a signed LOS profile and addressable interval', async ({ page, request, isMobile }) => {
   test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires the published real COMET railway run')
   const product = '5323cc4f-57ec-5347-a85d-14f4887e5d27'

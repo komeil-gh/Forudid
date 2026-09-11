@@ -46,7 +46,7 @@ class PublishedTiler(TilerFactory):
             try:
                 with rasterio.Env(GDAL_HTTP_TIMEOUT=10, GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR"):
                     with Reader(input=read_url(object_key), options={}) as reader:
-                        img = reader.tile(x, y, z, tilesize=256)
+                        img = reader.tile(x, y, z, tilesize=256, resampling_method="nearest")
                 img.array.set_fill_value(0)
                 img.rescale([(ticks[0], ticks[-1])])
                 payload = img.render(img_format="PNG", colormap=colormap(selected))

@@ -2,6 +2,54 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Native-pixel inspection and practical railway workflow — 2026-09-11
+
+Version `0.3.0-alpha.10` fixes quality-layer sampling: selecting coherence or
+velocity uncertainty now reads that raster and preserves its unit, rather than
+returning the LOS velocity. Native pixel centres and corners are returned for
+valid and masked cells; outside-extent points have no cell. Coordinate rounding
+before sampling is removed to avoid moving clicks across pixel boundaries.
+
+The map shows and fits the sampled cell, uses explicit nearest resampling,
+compacts point panels without time series, clears the selection marker when
+closed, and separates the population footprint from deformation references.
+Cell fitting accounts for search and legend overlays. Railway previews include
+the raster legend and fit short selected intervals more closely. The map asset
+panel now uses the selected product's actual observation period instead of a
+hardcoded 2014–2020 interval.
+
+The home page opens the real OSM Tehran–Mashhad railway candidate documented in
+[the pilot protocol](../v3/railway-pilot.md). Its profile, interval geometry,
+valid/missing lengths and pinned source are inspectable. This is a software
+walkthrough; a route-owner review, user session and measured decision outcome
+have not occurred. V3 delivery is now gated by that task rather than speculative
+assistant, forecast or twin features.
+
+Local acceptance:
+
+- `make check-source` passed: archive-boundary check, Ruff, Pyright, 25 Python
+  tests, 19 frontend unit tests, lint, TypeScript and production build. One
+  opt-in CLI integration check was skipped in the source-only suite.
+- Ten targeted API tests passed against the existing historical, COMET and
+  WorldPop 2026 data, including an isolated quality-raster regression. The
+  live historical response was independently compared with native raster row
+  10898, column 14655: value 37 cm/year, centre and all five closed-ring corners
+  matched the immutable local COG exactly.
+- Thirty-two browser checks passed with one worker on desktop 1440×1008 and
+  mobile 390×844: raster loading, retry/NoData, source/year selection, precise
+  coordinates, native-cell navigation, 323 real epochs, source comparison,
+  railway intervals, URL restoration and bilingual observation periods.
+- Browser plugin not available; the repository's Playwright setup used installed
+  Chrome. Rendered native-cell and railway screens were visually inspected;
+  screenshots remain local under `/tmp/forudid-qa/`.
+- The dependency lock passed its offline check. Existing dependency deprecation
+  and large frontend chunk warnings remain; they did not fail these checks.
+
+No new measurements, event publications, analysis recalculations or field
+outcomes were fabricated. Source versions and numerical method hashes are
+unchanged. These checks establish local software behavior, not geodetic or
+structural validation, hosted availability or user decision improvement.
+
 ## Complete COMET exposure and source comparison — 2026-09-10
 
 Version `0.3.0-alpha.8` closes the COMET road and regional exposure gaps. All

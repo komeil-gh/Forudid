@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.3.0-alpha.10 — 2026-09-11
+
+- Sample the requested quality raster, preserve its units, and expose native pixel boundaries with distinct masked-cell and outside-extent states.
+- Preserve click coordinates before sampling, add native-cell map fitting, compact point panels, and show the correct deformation period for selected infrastructure.
+- Add a reproducible Tehran–Mashhad railway candidate, explicit missing length and a map legend for the asset profile workflow.
+- Prioritize a measured inspection-planning pilot with a real user; defer speculative forecast, copilot, twin and Bayesian VoI development.
 - Present the project introduction and the author's unchanged letter in Persian and English in the main README.
 - Index documentation by topic and move the complete technical README into the local setup guide, preserving working links and publication boundaries.
 

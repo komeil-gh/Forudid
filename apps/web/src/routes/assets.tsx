@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button'
 import { useLanguage } from '../i18n'
 import { ExposureDetails } from '../features/assets/ExposureDetails'
 import { MapCanvas } from '../features/map/MapCanvas'
+import { Legend } from '../features/layers/Legend'
 import { defaultSearch, defaultAssetSearch, type MapSearch } from '../lib/search'
 import { apiBase } from '../lib/api'
 import { csvCell } from '../lib/csv'
@@ -82,7 +83,9 @@ export function AssetDetailPage() {
       <p>OSM <bdi>{asset.data.properties.external_id}</bdi> · {asset.data.properties.asset_type === 'railway' ? (fa ? 'راه‌آهن' : 'Railway') : (fa ? 'راه اصلی' : 'Major road')} · {(asset.data.properties.length_m/1000).toLocaleString(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 2 })} km</p>
       <p>{fa ? 'این هندسه یک قطعهٔ OSM است، نه الزاماً یک مسیر کامل؛ هم‌زمانی، کامل‌بودن و دقت مکانی شبکه تأیید نشده است.' : 'This is one OSM way, not necessarily a complete route; temporal alignment, network completeness and positional accuracy are unverified.'}</p>
       <p>{fa ? 'تاریخ شبکه:' : 'Network date:'} {asset.data.data_date ? formatDate(asset.data.data_date, language) : '—'} · {fa ? 'دورهٔ تغییرشکل:' : 'Deformation period:'} {product ? formatDateRange(product.start_date, product.end_date, language, product.time_precision) : '—'}</p>
-      <div className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={interval?.geometry ?? asset.data.geometry} profilePoint={sample?.assetId === assetId ? sample.value : undefined} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} /></div>
+      <div className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={interval?.geometry ?? asset.data.geometry} profilePoint={sample?.assetId === assetId ? sample.value : undefined} inspectEnabled={false} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} />
+        {legend.data && <div className="map-guidance"><Legend data={legend.data} /></div>}
+      </div>
       {product ? <ExposureDetails key={`${assetId}/${product.id}/${activeRun}`} assetId={assetId} productId={product.id} runId={activeRun} onInspect={inspect} selectedSegment={search.segment} onSelectSegment={ordinal => void navigate({ search: { ...search, segment: ordinal, analysis: exposure.data?.analysis_run_id } })} /> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
       <section className="source-version"><h2>{fa ? 'منابع و دریافت داده' : 'Sources and downloads'}</h2><p><a href={asset.data.license_url}>{asset.data.attribution} · ODbL 1.0</a></p><code>{asset.data.properties.source_version_id}</code>
         <p><a href={`${apiBase}/api/v1/assets/${assetId}`} download={`${assetId}.geojson`}>{fa ? 'هندسه و فرادادهٔ منبع (GeoJSON)' : 'Source geometry and metadata (GeoJSON)'}</a></p><Link to="/sources">{fa ? 'رجیستری منابع' : 'Source registry'}</Link></section>

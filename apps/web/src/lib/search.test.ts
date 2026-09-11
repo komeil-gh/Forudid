@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defaultSearch, searchSchema, assetSearchSchema, roundCoordinate, parseMapCoordinates } from './search'
+import { defaultSearch, searchSchema, assetSearchSchema, parseMapCoordinates } from './search'
 import { presentation } from './units'
 describe('shareable state and scientific units', () => {
   it('accepts Persian and Arabic coordinate digits without treating malformed or polar values as a place', () => {
@@ -49,7 +49,9 @@ describe('shareable state and scientific units', () => {
     expect(presentation(37, 'cm/year')).toBe(370)
     expect(presentation(1.2, 'cm')).toBe(12)
   })
-  it('rounds to finer than the fixture raster resolution', () => {
-    expect(roundCoordinate(51.645219)).toBe(51.64522)
+  it('preserves selected coordinates across URL validation near pixel edges', () => {
+    expect(searchSchema.parse({ pointLon: '51.645219123', pointLat: '35.300000019' })).toMatchObject({
+      pointLon: 51.645219123, pointLat: 35.300000019,
+    })
   })
 })

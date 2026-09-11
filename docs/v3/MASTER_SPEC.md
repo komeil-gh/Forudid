@@ -2,6 +2,14 @@
 
 ## Ground Deformation Operations, Evidence & Action Platform
 
+Execution priority — 2026-09-11: the owner selected a real inspection-planning
+workflow before further feature expansion. Follow the
+[railway pilot](railway-pilot.md) and the
+[current coverage ledger](../operations/specification-coverage.md#v30-closure-order)
+for delivery order and acceptance. The capabilities below retain their evidence
+requirements; speculative assistant, twin and forecast work is deferred until
+observed user needs justify it.
+
 ---
 
 # 0. Product Identity

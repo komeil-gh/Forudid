@@ -36,8 +36,6 @@ export const assetSearchSchema = z.object({
   offset: z.coerce.number().int().min(0).max(200000).catch(0),
 })
 export const defaultAssetSearch = assetSearchSchema.parse({})
-export const roundCoordinate = (value: number) => Math.round(value * 100000) / 100000
-
 export function parseMapCoordinates(input: string): { lon: number; lat: number } | undefined {
   const normalized = input.replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
     .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit))).replaceAll('٫', '.')

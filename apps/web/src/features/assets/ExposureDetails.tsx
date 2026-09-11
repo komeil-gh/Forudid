@@ -76,9 +76,11 @@ export function ExposureDetails({ assetId, productId, runId, onInspect, selected
     <dl className="metadata-list">
       <div><dt>{en ? 'Valid coverage' : 'پوشش معتبر'}</dt><dd data-testid="exposure-coverage">{number(data.coverage_fraction * 100)}٪</dd></div>
       <div><dt>{en ? 'Length with data' : 'طول دارای داده'}</dt><dd>{number(data.valid_length_m / 1000)} km</dd></div>
+      <div><dt>{en ? 'Length without data' : 'طول بدون داده'}</dt><dd>{number((data.total_length_m - data.valid_length_m) / 1000)} km</dd></div>
       <div><dt>{en ? 'Mean over valid length' : 'میانگین روی طول معتبر'}</dt><dd data-testid="exposure-mean">{number(data.metrics.mean_velocity)} mm/year</dd></div>
       <div><dt>{en ? 'Median over valid length' : 'میانه روی طول معتبر'}</dt><dd>{number(data.metrics.median_velocity)} mm/year</dd></div>
     </dl>
+    <p>{en ? 'For inspection planning: review the covered intervals and missing lengths, then have the asset owner confirm the geometry and inspection priority. A large rate alone does not establish damage or justify closure.' : 'برای برنامه‌ریزی بازدید: بازه‌های دارای داده و طول‌های بدون داده را بررسی کنید؛ سپس مسئول دارایی، هندسه و اولویت بازدید را تأیید کند. نرخ بزرگ به‌تنهایی نشانهٔ خرابی یا مبنای بستن مسیر نیست.'}</p>
     {profile.isPending ? <Status /> : profile.isError ? <Status error retry={() => void profile.refetch()} /> : profile.data && <>
       <ProfileChart samples={profile.data.items} onInspect={onInspect} />
       <p>{en ? 'Hover over the profile or select a table row to locate a sample on the map.' : 'با حرکت روی نمودار یا انتخاب سطر جدول، محل نمونه را روی نقشه ببینید.'}</p>

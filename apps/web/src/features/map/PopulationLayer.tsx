@@ -49,6 +49,14 @@ export function PopulationPointPanel({ source, lon, lat, close }: { source: Popu
       {query.isPending ? <Status /> : query.isError ? <Status error retry={() => void query.refetch()} /> : <>
         <p className="population-cell-value" data-testid="population-cell-count">{query.data.count === null ? (fa ? 'داده موجود نیست' : 'No data') : query.data.count.toLocaleString(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 1 })} {query.data.count !== null && (fa ? 'نفر (برآورد)' : 'people (estimate)')}</p>
         <p><bdi dir="ltr">{lon.toFixed(5)}, {lat.toFixed(5)}</bdi> · {fa ? 'حدود یک کیلومتر؛ عددِ کل سلول، نه یک نقطه' : 'Approximately 1 km; a whole-cell count, not a point count'}</p>
+        <div className="native-cell-details">
+          {query.data.cell_bounds && <>
+            <p>{fa ? 'مرکز سلول (طول، عرض)' : 'Cell centre (lon, lat)'}: <bdi dir="ltr">{((query.data.cell_bounds[0] + query.data.cell_bounds[2]) / 2).toFixed(6)}, {((query.data.cell_bounds[1] + query.data.cell_bounds[3]) / 2).toFixed(6)}</bdi></p>
+            <p>{fa ? 'مرز دورخط‌دار روی نقشه، همین سلول بومی را نشان می‌دهد؛ بزرگ‌نمایی جزئیات تازه‌ای به داده اضافه نمی‌کند.' : 'The map outline shows this native cell; zooming does not add data detail.'}</p>
+          </>}
+          {query.data.status === 'outside_extent' && <p role="status">{fa ? 'خارج از محدودهٔ رستر جمعیت.' : 'Outside the population raster extent.'}</p>}
+          {query.data.status === 'nodata' && <p role="status">{fa ? 'سلول داخل محدوده است، اما شمار جمعیت ندارد؛ این مقدار صفر نیست.' : 'The cell is inside the extent but has no population count; this is not zero.'}</p>}
+        </div>
         <a href={source.source_url}>WorldPop · {source.license}</a>
       </>}
     </div>
