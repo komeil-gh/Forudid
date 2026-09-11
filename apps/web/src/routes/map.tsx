@@ -23,9 +23,10 @@ export default function MapPage() {
   const state = mapRoute.useSearch(), navigate = mapRoute.useNavigate()
   const [metadataOpen, setMetadataOpen] = useState(false)
   const [layersOpen, setLayersOpen] = useState(false)
-  const [profilePoint, setProfilePoint] = useState<{ asset: string; sample: ProfileSample }>()
+  const profileContext = [state.asset, state.aoi, state.product, state.run, state.layer, state.analysis].join('/')
+  const [profilePoint, setProfilePoint] = useState<{ context: string; sample: ProfileSample }>()
   const inspectProfile = useCallback((sample?: ProfileSample) => setProfilePoint(
-    sample && state.asset ? { asset: state.asset, sample } : undefined), [state.asset])
+    sample && state.asset ? { context: profileContext, sample } : undefined), [state.asset, profileContext])
   const products = useListProducts({ aoi: state.aoi })
   const populations = useListPopulationSources()
   const population = state.populationVersion ? populations.data?.items.find(row => row.source_version_id === state.populationVersion) : populations.data?.items[0]
@@ -79,8 +80,13 @@ export default function MapPage() {
       <MapCanvas state={state} product={product} population={state.mode === 'population' ? population : undefined} style={legend.data?.style} update={update} selectPoint={selectPoint}
         sampledCell={sampledCell}
         region={state.mode !== 'deformation' && state.region ? region.data : undefined}
-        profilePoint={profilePoint && profilePoint.asset === state.asset && showAsset ? profilePoint.sample : undefined}
-        selectedGeometry={showAsset ? interval?.geometry ?? asset.data?.geometry : undefined} />
+        profilePoint={profilePoint?.context === profileContext && showAsset ? profilePoint.sample : undefined}
+        selectedGeometry={showAsset ? state.segment === undefined ? asset.data?.geometry : selectedInterval.isError ? undefined : interval?.geometry : undefined} />
+      {showAsset && state.segment !== undefined && exposure.data && (selectedInterval.isPending || selectedInterval.isError || !interval) && <div className="map-message">
+        <p>{language === 'fa' ? 'هندسهٔ بازهٔ انتخاب‌شده هنوز روی نقشه نمایش داده نشده است.' : 'The selected interval geometry is not currently shown on the map.'}</p>
+        {selectedInterval.isPending ? <Status /> : selectedInterval.isError ? <Status error retry={() => void selectedInterval.refetch()} /> : <p role="status">{language === 'fa' ? 'بازهٔ درخواست‌شده وجود ندارد.' : 'The requested interval does not exist.'}</p>}
+        <Button onClick={() => update({ segment: undefined })}>{language === 'fa' ? 'نمایش کل قطعه' : 'Show the entire way'}</Button>
+      </div>}
       {state.mode !== 'population' && (products.isPending ? <div className="map-message"><Status /></div> : products.isError ?
         <div className="map-message"><Status error retry={() => void products.refetch()} /></div> : !product ?
         <div className="map-message"><p>{m.empty}</p><Button onClick={() => void navigate({ search: defaultSearch, replace: true })}>{m.reset}</Button></div> :

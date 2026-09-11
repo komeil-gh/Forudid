@@ -145,6 +145,19 @@ The enforced limits and exact local-image packaging provenance are recorded in
 [delivery status](../operations/milestones.md#local-unveiling-preparation--2026-09-10).
 Scientific angular-distortion validation remains open; these PDFs do not enable it.
 
+## Railway candidate handoff, 2026-09-11
+
+Alpha.11 generated a real Persian PDF for OSM `way/1093520814`, asset
+`5305bd11-6cd0-5c89-98ed-26e33ed26f12`, using COMET analysis
+`e8e610a9-7950-5871-a087-ed70b2cbc82b`. Report ID:
+`e23ce257-284a-56cd-8ef1-201de9ae89d2`. PDF SHA-256:
+`ba563958fae78d9847581ebc14dcee41ed4cf963560e4cc747e0ab1e36a8cdb2`.
+The four tagged A4 pages were rendered and visually inspected. The manifest's
+analysis checksum matches the full downloaded JSON; all 120 CSV samples and both
+GeoJSON intervals match that analysis. The local packet and ZIP are described in
+[the railway pilot](../v3/railway-pilot.md#completed-local-handoff--2026-09-11).
+No field findings or user decisions are included.
+
 ## Complete COMET regional reports, 2026-09-10
 
 Alpha.8 completed the missing road, regional infrastructure and population pairs.

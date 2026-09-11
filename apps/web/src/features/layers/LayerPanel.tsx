@@ -33,7 +33,7 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
     {product?.is_fixture && <p className="notice"><Info size={17} />{m.fixture}</p>}
     <label className="field-label">{m.product}<select value={product?.id || ''}
       onChange={e => { const chosen = products.find(p => p.id === e.target.value);
-        if (chosen) update({ product: chosen.id, run: chosen.processing_run_id, layer: chosen.kind as MapSearch['layer'], orbit: chosen.orbit_direction }) }}>
+        if (chosen) update({ product: chosen.id, run: chosen.processing_run_id, layer: chosen.kind as MapSearch['layer'], orbit: chosen.orbit_direction, analysis: undefined, segment: undefined }) }}>
       {products.filter(p => p.kind === layer).map(p => <option value={p.id} key={p.id}>{formatDateRangesInText(p.product_version, language)}</option>)}
     </select></label>
     {state.mode === 'deformation' && <fieldset className="layer-options"><legend>{m.layers}</legend>
@@ -41,7 +41,7 @@ export function LayerPanel({ state, product, products, update, onMetadata }:
         const Icon = icons[kind]
         return <label key={kind} className={layer === kind ? 'selected' : ''}>
           <input type="radio" name="layer" value={kind} checked={layer === kind}
-            onChange={() => update({ layer: kind, product: undefined, run: undefined })} />
+            onChange={() => update({ layer: kind, product: undefined, run: undefined, analysis: undefined, segment: undefined })} />
           <span>{layerLabels[kind]}</span><Icon size={18} />
         </label>
       })}

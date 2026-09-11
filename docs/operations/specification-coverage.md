@@ -25,6 +25,13 @@ selected-product dates, and adds a real railway candidate walkthrough. Its
 [acceptance record](milestones.md#native-pixel-inspection-and-practical-railway-workflow--2026-09-11)
 separates software checks from the still-unmeasured user decision outcome.
 
+Alpha.11 completes the available local walkthrough through real PDF and full-data
+delivery, fixes interval-selection recovery and source-aware CSV export, and
+passes all 64 browser cases plus 70 distinct API/numerical checks. See
+[complete local acceptance](milestones.md#complete-local-workflow-and-handoff-acceptance--2026-09-11).
+The railway packet is ready locally. This closes its software preparation and
+handoff work; it does not turn absent participants or field outcomes into evidence.
+
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.

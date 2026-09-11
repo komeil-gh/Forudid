@@ -74,7 +74,8 @@ input[type='radio'] { width: 17px; height: 17px; accent-color: var(--accent); fl
 .map-hint { position: absolute; bottom: 30px; right: 20px; padding: 10px 14px; margin: 0;
   border: 1px solid var(--border); border-radius: 6px; background: #ffffffed; font-size: 12px; }
 .map-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px;
-  max-width: 90%; border: 1px solid var(--border); background: white; border-radius: 6px; text-align: center; font-size: 14px; }
+  z-index: 4; width: min(90%, 420px); max-height: calc(100% - 24px); overflow-y: auto;
+  border: 1px solid var(--border); background: white; border-radius: 6px; text-align: center; font-size: 14px; }
 .point-marker { display: flex; color: #176e79; background: #fff; border-radius: 100%; border: 2px solid #fff; box-shadow: 0 0 0 1px #176e79; }
 .reference-marker { font: 10px monospace; background: #fff; color: #176e79; border: 1px solid #176e79; padding: 3px; }
 .legend { position: absolute; left: 20px; bottom: calc(var(--attribution-height, 20px) + 10px); width: 288px; background: #ffffffed; padding: 14px 16px;

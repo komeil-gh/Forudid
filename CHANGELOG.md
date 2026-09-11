@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.3.0-alpha.11 — 2026-09-11
+
+- Keep a failed or missing interval distinct from the whole railway geometry, with visible retry and reset controls on desktop and mobile.
+- Preserve the exact product, analysis and interval when opening the full map; clear stale analysis and profile selection when the source changes.
+- Include observation dates, component, source version and sign convention in ranking CSV exports.
+- Complete the local railway handoff through real PDF and full-data export verification; retain unfilled user-evaluation and field-outcome records.
+
 ## 0.3.0-alpha.10 — 2026-09-11
 
 - Sample the requested quality raster, preserve its units, and expose native pixel boundaries with distinct masked-cell and outside-extent states.

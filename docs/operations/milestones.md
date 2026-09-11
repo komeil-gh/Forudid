@@ -2,6 +2,46 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Complete local workflow and handoff acceptance — 2026-09-11
+
+Version `0.3.0-alpha.11` completes the available public-data walkthrough through
+actual file delivery. Failed or nonexistent selected intervals no longer fall
+back to a whole-way highlight. Retry/reset controls remain reachable above the
+legend on mobile. Full-map navigation retains the exact asset, product, analysis
+and interval, and source changes clear old analysis/interval and profile markers.
+Ranking CSVs now include source version, component, dates and sign convention.
+
+Acceptance evidence:
+
+- The full API/numerical run passed 69 tests; its one opt-in differential research
+  check was then enabled and passed separately (70 distinct tests in total).
+  This includes actual raster preservation, PostGIS, source visibility, native
+  sampling, exposure, population, regional aggregates, report recovery and
+  transaction-isolated event history. Experimental methods remain experimental.
+- All 64 desktop/mobile browser tests passed in one final run with one worker,
+  including real infrastructure, source comparison, 323 epochs, population
+  versions, map modes, interval failure/recovery, asset and region PDFs, source
+  registry and event states. Error-path contract fixtures remained isolated to
+  tests. A comparison layout check now reads both rectangles in one rendered
+  frame, avoiding false failures during asynchronous panel resizing.
+- `make check-source` passed: Ruff, Pyright, TypeScript, ESLint, 25 Python source
+  tests, 19 frontend tests, archive-boundary check and production build. The
+  source-only CLI skip is exercised in the full API run. Alembic reported no
+  schema drift; the lockfile passed its offline consistency check.
+- The [local railway handoff](../v3/railway-pilot.md#completed-local-handoff--2026-09-11)
+  contains a verified four-page Persian PDF and all 120 native profile samples,
+  both interval geometries, source records, report manifest and an unfilled user
+  evaluation record. PDF bytes match the report checksum; report input SHA-256
+  matches the downloaded analysis. All 12 files match the ZIP contents. All PDF
+  pages were rendered and visually inspected.
+
+The packet lives under ignored `data/pilots/`; it is not bundled with public
+source. These software and delivery steps are complete and are not assigned to
+the project owner. No participant, owner approval, field observation, calibrated
+probability or demonstrated decision improvement has been invented. Those
+external evidence gates remain explicit; speculative copilot, forecast, twin and
+Bayesian VoI work remains deferred under the owner's pilot-first direction.
+
 ## Native-pixel inspection and practical railway workflow — 2026-09-11
 
 Version `0.3.0-alpha.10` fixes quality-layer sampling: selecting coherence or

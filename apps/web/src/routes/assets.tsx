@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
-import { useGetExposureRanking, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetLegend, useGetProduct, useListAreas, useListProducts, type ProfileSample, type RankedAsset } from '../generated/api/forudid'
+import { useGetExposureRanking, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetLegend, useGetProduct, useListAreas, useListProducts, type ProductInfo, type ProfileSample, type RankedAsset } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
 import { useLanguage } from '../i18n'
@@ -15,9 +15,9 @@ import './sources.css'
 import './regions.css'
 import './assets.css'
 
-function downloadPage(items: RankedAsset[], run: string, product: string) {
-  const header = ['asset_id', 'osm_id', 'name', 'type', 'length_m', 'valid_length_m', 'coverage_fraction', 'mean_mm_year', 'p95_mm_year', 'max_abs_mm_year', 'analysis_run_id', 'product_id', 'interpretation']
-  const rows = items.map(r => [r.asset_id, r.external_id, r.name, r.asset_type, r.total_length_m, r.valid_length_m, r.coverage_fraction, r.mean_velocity, r.p95_velocity, r.max_abs_velocity, run, product, 'Historical descriptive exposure; not a structural hazard or risk classification'])
+function downloadPage(items: RankedAsset[], run: string, product: ProductInfo) {
+  const header = ['asset_id', 'osm_id', 'name', 'type', 'length_m', 'valid_length_m', 'coverage_fraction', 'mean_mm_year', 'p95_mm_year', 'max_abs_mm_year', 'analysis_run_id', 'product_id', 'deformation_source_version_id', 'measurement_component', 'observation_start', 'observation_end', 'time_precision', 'sign_convention', 'interpretation']
+  const rows = items.map(r => [r.asset_id, r.external_id, r.name, r.asset_type, r.total_length_m, r.valid_length_m, r.coverage_fraction, r.mean_velocity, r.p95_velocity, r.max_abs_velocity, run, product.id, product.source_version_id, product.measurement_component, product.start_date, product.end_date, product.time_precision, product.sign_convention, 'Descriptive exposure over the stated observation period; not a structural hazard or risk classification'])
   const blob = new Blob(['\ufeff', [header, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob), link = document.createElement('a')
   link.href = url; link.download = 'forudid-assets-current-page.csv'; link.click()
@@ -55,7 +55,7 @@ export default function AssetsPage() {
           <tbody>{result.data.items.map(r => <tr key={r.asset_id}><td><Link to="/assets/$assetId" params={{ assetId: r.asset_id }} search={{ product: product.id, analysis: result.data!.analysis_run_id! }}>{r.name || `${fa ? 'قطعهٔ OSM' : 'OSM way'} ${r.external_id}`}</Link><small><bdi>{r.external_id}</bdi></small></td><td>{number(r.coverage_fraction*100)}٪</td><td>{number(r.valid_length_m/1000)}</td><td>{number(r.max_abs_velocity)}</td><td>{number(r.p95_velocity)}</td></tr>)}</tbody>
         </table></div>
         <div className="source-pagination"><Button disabled={search.offset === 0} onClick={() => update({ offset: Math.max(0, search.offset-20) })}>{fa ? 'قبلی' : 'Previous'}</Button><Button disabled={result.data.next_offset === null} onClick={() => update({ offset: result.data!.next_offset! })}>{fa ? 'بعدی' : 'Next'}</Button>
-          <Button disabled={!result.data.items.length} onClick={() => downloadPage(result.data!.items, result.data!.analysis_run_id!, product.id)}>{fa ? 'CSV همین صفحه' : 'Current page CSV'}</Button></div>
+          <Button disabled={!result.data.items.length} onClick={() => downloadPage(result.data!.items, result.data!.analysis_run_id!, product)}>{fa ? 'CSV همین صفحه' : 'Current page CSV'}</Button></div>
         <details className="source-version"><summary>{fa ? 'منشأ و روش' : 'Provenance and method'}</summary><code>{result.data.analysis_run_id}</code><code>{result.data.method_version}</code><p>{fa ? 'روش آزمایشی؛ عدم‌قطعیت پیکسلی و اعتبارسنجی سازه‌ای در دسترس نیست.' : 'Experimental method; pixel uncertainty and structural validation are unavailable.'}</p></details>
       </>}
       <Link to="/map" search={{ ...defaultSearch, aoi: product.aoi_slug, layer: product.kind as MapSearch['layer'], orbit: product.orbit_direction, product: product.id, infrastructure: search.type }}>{fa ? 'مشاهدهٔ زیرساخت روی نقشه' : 'View infrastructure on the map'}</Link>
@@ -76,15 +76,22 @@ export function AssetDetailPage() {
   const interval = selectedInterval.data?.features.find(f => f.properties.ordinal === search.segment)
   const activeRun = search.analysis ?? exposure.data?.analysis_run_id
   const [view, setView] = useState<MapSearch>({ ...defaultSearch, asset: assetId, panel: 'asset', infrastructure: 'none' })
-  const [sample, setSample] = useState<{ assetId: string; value: ProfileSample }>()
-  const inspect = useCallback((next?: ProfileSample) => setSample(next ? { assetId, value: next } : undefined), [assetId])
+  const profileContext = [assetId, product?.id, activeRun].join('/')
+  const [sample, setSample] = useState<{ context: string; value: ProfileSample }>()
+  const inspect = useCallback((next?: ProfileSample) => setSample(next ? { context: profileContext, value: next } : undefined), [profileContext])
   return <main className="sources-page asset-detail"><header><Link to="/assets" search={{ ...defaultAssetSearch, aoi: product?.aoi_slug ?? 'iran', product: product?.id }}>{fa ? 'فهرست زیرساخت' : 'Infrastructure list'}</Link><h1>{asset.data?.properties.name || (fa ? 'جزئیات قطعهٔ زیرساخت' : 'Infrastructure way details')}</h1></header>
     {asset.isPending || (search.product ? selected.isPending : products.isPending) ? <Status /> : asset.isError || (search.product ? selected.isError : products.isError) ? <Status error retry={() => { void asset.refetch(); if (search.product) void selected.refetch(); else void products.refetch() }} /> : asset.data && <>
       <p>OSM <bdi>{asset.data.properties.external_id}</bdi> · {asset.data.properties.asset_type === 'railway' ? (fa ? 'راه‌آهن' : 'Railway') : (fa ? 'راه اصلی' : 'Major road')} · {(asset.data.properties.length_m/1000).toLocaleString(fa ? 'fa-IR' : 'en-US', { maximumFractionDigits: 2 })} km</p>
       <p>{fa ? 'این هندسه یک قطعهٔ OSM است، نه الزاماً یک مسیر کامل؛ هم‌زمانی، کامل‌بودن و دقت مکانی شبکه تأیید نشده است.' : 'This is one OSM way, not necessarily a complete route; temporal alignment, network completeness and positional accuracy are unverified.'}</p>
       <p>{fa ? 'تاریخ شبکه:' : 'Network date:'} {asset.data.data_date ? formatDate(asset.data.data_date, language) : '—'} · {fa ? 'دورهٔ تغییرشکل:' : 'Deformation period:'} {product ? formatDateRange(product.start_date, product.end_date, language, product.time_precision) : '—'}</p>
-      <div className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={interval?.geometry ?? asset.data.geometry} profilePoint={sample?.assetId === assetId ? sample.value : undefined} inspectEnabled={false} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} />
+      {product && <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: product.aoi_slug, product: product.id, run: product.processing_run_id, layer: product.kind as MapSearch['layer'], orbit: product.orbit_direction, asset: assetId, analysis: activeRun, segment: search.segment, panel: 'asset', infrastructure: asset.data.properties.asset_type }}>{fa ? 'باز کردن همین بازه در نقشهٔ کامل' : 'Open this selection in the full map'}</Link></Button>}
+      <div id="asset-map" className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={search.segment === undefined ? asset.data.geometry : selectedInterval.isError ? undefined : interval?.geometry} profilePoint={sample?.context === profileContext ? sample.value : undefined} inspectEnabled={false} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} />
         {legend.data && <div className="map-guidance"><Legend data={legend.data} /></div>}
+        {search.segment !== undefined && exposure.data && (selectedInterval.isPending || selectedInterval.isError || !interval) && <div className="map-message">
+          <p>{fa ? 'هندسهٔ بازهٔ انتخاب‌شده هنوز روی نقشه نمایش داده نشده است.' : 'The selected interval geometry is not currently shown on the map.'}</p>
+          {selectedInterval.isPending ? <Status /> : selectedInterval.isError ? <Status error retry={() => void selectedInterval.refetch()} /> : <p role="status">{fa ? 'بازهٔ درخواست‌شده وجود ندارد.' : 'The requested interval does not exist.'}</p>}
+          <Button onClick={() => void navigate({ search: { ...search, segment: undefined } })}>{fa ? 'نمایش کل قطعه' : 'Show the entire way'}</Button>
+        </div>}
       </div>
       {product ? <ExposureDetails key={`${assetId}/${product.id}/${activeRun}`} assetId={assetId} productId={product.id} runId={activeRun} onInspect={inspect} selectedSegment={search.segment} onSelectSegment={ordinal => void navigate({ search: { ...search, segment: ordinal, analysis: exposure.data?.analysis_run_id } })} /> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
       <section className="source-version"><h2>{fa ? 'منابع و دریافت داده' : 'Sources and downloads'}</h2><p><a href={asset.data.license_url}>{asset.data.attribution} · ODbL 1.0</a></p><code>{asset.data.properties.source_version_id}</code>

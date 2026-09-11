@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 
 test('independent point comparison preserves real values, native pixels, periods and NoData', async ({ page, request, isMobile }) => {
   test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires both published real deformation sources')
@@ -7,9 +8,12 @@ test('independent point comparison preserves real values, native pixels, periods
   page.on('pageerror', error => errors.push(error.message))
   const comet = '5323cc4f-57ec-5347-a85d-14f4887e5d27', historical = '744b6536-b9a7-56c5-85b1-66a629a78b91'
   await page.goto(`/map?aoi=varamin-comet&product=${comet}&layer=velocity_los&orbit=ascending&panel=point&pointLon=51.70033&pointLat=35.3`)
-  const coordinateBox = await page.locator('.point-details .coordinate').boundingBox()
-  const comparisonBox = await page.getByRole('link', { name: 'مقایسهٔ منابع در این نقطه' }).boundingBox()
-  expect(comparisonBox!.y).toBeGreaterThanOrEqual(coordinateBox!.y + coordinateBox!.height)
+  await expect(page.getByRole('link', { name: 'مقایسهٔ منابع در این نقطه' })).toBeVisible()
+  await expect.poll(() => page.evaluate(() => {
+    const coordinate = document.querySelector('.point-details .coordinate')!.getBoundingClientRect()
+    const link = document.querySelector('.point-comparison-link')!.getBoundingClientRect()
+    return link.top >= coordinate.bottom
+  })).toBe(true)
   await page.getByRole('link', { name: 'مقایسهٔ منابع در این نقطه' }).click()
   await expect(page.getByRole('heading', { name: 'مقایسهٔ منابع', exact: true })).toBeVisible()
   const first = page.getByRole('region', { name: 'منبع اول', exact: true })
@@ -224,20 +228,56 @@ test('railway candidate opens from home with real coverage, intervals and the se
   expect(exposure.coverage_fraction).toBe(1)
   await page.goto('/')
   await page.getByRole('link', { name: 'بررسی قطعهٔ راه‌آهن تهران–مشهد', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'جدول زیرساخت' }).getByRole('link')).toHaveCount(1)
+  const downloading = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'CSV همین صفحه', exact: true }).click()
+  const csv = await readFile((await (await downloading).path())!, 'utf8')
+  expect(csv).toContain('"measurement_component","observation_start","observation_end"')
+  expect(csv).toContain('"los","2014-10-19","2026-07-31"')
+  expect(csv).toContain(product)
+  expect(csv).toContain('way/1093520814')
   await page.getByRole('region', { name: 'جدول زیرساخت' }).getByRole('link').first().click()
   await expect(page).toHaveURL(new RegExp(asset))
   await expect(page.getByTestId('exposure-mean')).toHaveText(`${exposure.metrics.mean_velocity.toLocaleString('fa-IR', { maximumFractionDigits: 1 })} mm/year`)
   await page.getByText('بازه‌های مواجهه', { exact: true }).click()
   await page.locator('.segment-table tbody button').first().click()
   await expect(page).toHaveURL(/segment=0/)
-  await expect(page.getByRole('button', { name: 'نمایش کل قطعه', exact: true })).toBeVisible()
+  await expect(page.locator('.segment-table').getByRole('button', { name: 'نمایش کل قطعه', exact: true })).toBeVisible()
   await page.screenshot({ path: `/tmp/forudid-qa/railway-candidate-${testInfo.project.name}.png`, fullPage: true })
-  await page.goto(`/map?aoi=varamin-comet&layer=velocity_los&orbit=ascending&product=${product}&asset=${asset}&analysis=${exposure.analysis_run_id}&panel=asset&infrastructure=railway`)
+  await page.getByRole('link', { name: 'باز کردن همین بازه در نقشهٔ کامل', exact: true }).click()
+  await expect(page).toHaveURL(/segment=0/)
+  await expect(page).toHaveURL(new RegExp(`asset=${asset}`))
+  await expect(page).toHaveURL(new RegExp(`analysis=${exposure.analysis_run_id}`))
   await expect(page.getByTestId('asset-observation-period')).toContainText('۹ مرداد ۱۴۰۵')
   await page.getByRole('button', { name: 'EN', exact: true }).click()
   await expect(page.getByTestId('asset-observation-period')).toContainText('31 July 2026')
   await expect(page.getByTestId('asset-observation-period')).not.toContainText('2014–2020')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
+test('interval geometry failure and missing intervals recover without silently selecting the whole way', async ({ page }) => {
+  test.skip(!process.env.FORUDID_COMET_TESTS, 'Requires the real COMET railway candidate')
+  const product = '5323cc4f-57ec-5347-a85d-14f4887e5d27'
+  const asset = '5305bd11-6cd0-5c89-98ed-26e33ed26f12'
+  const analysis = 'e8e610a9-7950-5871-a087-ed70b2cbc82b'
+  for (const path of [`/assets/${asset}?product=${product}&analysis=${analysis}&segment=0`,
+    `/map?aoi=varamin-comet&layer=velocity_los&orbit=ascending&product=${product}&asset=${asset}&analysis=${analysis}&panel=asset&segment=0`]) {
+    await page.route('**/segments?*', route => new URL(route.request().url()).searchParams.get('limit') === '1'
+      ? route.fulfill({ status: 503, body: '{}' }) : route.continue())
+    await page.goto(path)
+    const message = page.locator('.map-message')
+    await expect(message).toContainText('هندسهٔ بازهٔ انتخاب‌شده هنوز روی نقشه نمایش داده نشده است.')
+    await expect(message.getByRole('alert')).toBeVisible()
+    await expect(page).toHaveURL(/segment=0/)
+    await page.unroute('**/segments?*')
+    await message.getByRole('button', { name: 'تلاش دوباره', exact: true }).click()
+    await expect(message).toHaveCount(0)
+    await page.goto(path.replace('segment=0', 'segment=200000'))
+    await expect(message).toContainText('بازهٔ درخواست‌شده وجود ندارد.')
+    await message.getByRole('button', { name: 'نمایش کل قطعه', exact: true }).click()
+    await expect(page).not.toHaveURL(/segment=/)
+    await expect(message).toHaveCount(0)
+  }
 })
 
 test('real COMET railway ranking opens a signed LOS profile and addressable interval', async ({ page, request, isMobile }) => {
