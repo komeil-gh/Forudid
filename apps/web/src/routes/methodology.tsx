@@ -1,5 +1,7 @@
 import { type ReactNode } from 'react'
 import katex from 'katex'
+import '@fontsource-variable/noto-naskh-arabic'
+import 'katex/dist/katex.min.css'
 import { RepeatPassGeometry } from './methodology-figures'
 import { useLanguage } from '../i18n'
 import { formatDateRange } from '../lib/date'

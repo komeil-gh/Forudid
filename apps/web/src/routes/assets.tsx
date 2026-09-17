@@ -1,11 +1,9 @@
-import { useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useState } from 'react'
 import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useGetExposureRanking, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetLegend, useGetProduct, useListAreas, useListProducts, type ProductInfo, type ProfileSample, type RankedAsset } from '../generated/api/forudid'
 import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
 import { useLanguage } from '../i18n'
-import { ExposureDetails } from '../features/assets/ExposureDetails'
-import { MapCanvas } from '../features/map/MapCanvas'
 import { Legend } from '../features/layers/Legend'
 import { defaultSearch, defaultAssetSearch, type MapSearch } from '../lib/search'
 import { apiBase } from '../lib/api'
@@ -14,6 +12,9 @@ import { formatDate, formatDateRange } from '../lib/date'
 import './sources.css'
 import './regions.css'
 import './assets.css'
+
+const ExposureDetails = lazy(() => import('../features/assets/ExposureDetails').then(module => ({ default: module.ExposureDetails })))
+const MapCanvas = lazy(() => import('../features/map/MapCanvas').then(module => ({ default: module.MapCanvas })))
 
 function downloadPage(items: RankedAsset[], run: string, product: ProductInfo) {
   const header = ['asset_id', 'osm_id', 'name', 'type', 'length_m', 'valid_length_m', 'coverage_fraction', 'mean_mm_year', 'p95_mm_year', 'max_abs_mm_year', 'analysis_run_id', 'product_id', 'deformation_source_version_id', 'measurement_component', 'observation_start', 'observation_end', 'time_precision', 'sign_convention', 'interpretation']
@@ -85,7 +86,7 @@ export function AssetDetailPage() {
       <p>{fa ? 'این هندسه یک قطعهٔ OSM است، نه الزاماً یک مسیر کامل؛ هم‌زمانی، کامل‌بودن و دقت مکانی شبکه تأیید نشده است.' : 'This is one OSM way, not necessarily a complete route; temporal alignment, network completeness and positional accuracy are unverified.'}</p>
       <p>{fa ? 'تاریخ شبکه:' : 'Network date:'} {asset.data.data_date ? formatDate(asset.data.data_date, language) : '—'} · {fa ? 'دورهٔ تغییرشکل:' : 'Deformation period:'} {product ? formatDateRange(product.start_date, product.end_date, language, product.time_precision) : '—'}</p>
       {product && <Button asChild><Link to="/map" search={{ ...defaultSearch, aoi: product.aoi_slug, product: product.id, run: product.processing_run_id, layer: product.kind as MapSearch['layer'], orbit: product.orbit_direction, asset: assetId, analysis: activeRun, segment: search.segment, panel: 'asset', infrastructure: asset.data.properties.asset_type }}>{fa ? 'باز کردن همین بازه در نقشهٔ کامل' : 'Open this selection in the full map'}</Link></Button>}
-      <div id="asset-map" className="asset-preview map-region"><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={search.segment === undefined ? asset.data.geometry : selectedInterval.isError ? undefined : interval?.geometry} profilePoint={sample?.context === profileContext ? sample.value : undefined} inspectEnabled={false} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} />
+      <div id="asset-map" className="asset-preview map-region"><Suspense fallback={<Status />}><MapCanvas state={view} product={product} style={legend.data?.style} selectedGeometry={search.segment === undefined ? asset.data.geometry : selectedInterval.isError ? undefined : interval?.geometry} profilePoint={sample?.context === profileContext ? sample.value : undefined} inspectEnabled={false} update={next => setView(prev => ({ ...prev, ...next }))} selectPoint={(lon, lat) => setView(prev => ({ ...prev, pointLon: lon, pointLat: lat }))} /></Suspense>
         {legend.data && <div className="map-guidance"><Legend data={legend.data} /></div>}
         {search.segment !== undefined && exposure.data && (selectedInterval.isPending || selectedInterval.isError || !interval) && <div className="map-message">
           <p>{fa ? 'هندسهٔ بازهٔ انتخاب‌شده هنوز روی نقشه نمایش داده نشده است.' : 'The selected interval geometry is not currently shown on the map.'}</p>
@@ -93,7 +94,7 @@ export function AssetDetailPage() {
           <Button onClick={() => void navigate({ search: { ...search, segment: undefined } })}>{fa ? 'نمایش کل قطعه' : 'Show the entire way'}</Button>
         </div>}
       </div>
-      {product ? <ExposureDetails key={`${assetId}/${product.id}/${activeRun}`} assetId={assetId} productId={product.id} runId={activeRun} onInspect={inspect} selectedSegment={search.segment} onSelectSegment={ordinal => void navigate({ search: { ...search, segment: ordinal, analysis: exposure.data?.analysis_run_id } })} /> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
+      {product ? <Suspense fallback={<Status />}><ExposureDetails key={`${assetId}/${product.id}/${activeRun}`} assetId={assetId} productId={product.id} runId={activeRun} onInspect={inspect} selectedSegment={search.segment} onSelectSegment={ordinal => void navigate({ search: { ...search, segment: ordinal, analysis: exposure.data?.analysis_run_id } })} /></Suspense> : <p>{fa ? 'محصول انتخاب‌شده در دسترس نیست.' : 'Selected product unavailable.'}</p>}
       <section className="source-version"><h2>{fa ? 'منابع و دریافت داده' : 'Sources and downloads'}</h2><p><a href={asset.data.license_url}>{asset.data.attribution} · ODbL 1.0</a></p><code>{asset.data.properties.source_version_id}</code>
         <p><a href={`${apiBase}/api/v1/assets/${assetId}`} download={`${assetId}.geojson`}>{fa ? 'هندسه و فرادادهٔ منبع (GeoJSON)' : 'Source geometry and metadata (GeoJSON)'}</a></p><Link to="/sources">{fa ? 'رجیستری منابع' : 'Source registry'}</Link></section>
     </>}

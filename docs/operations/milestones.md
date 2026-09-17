@@ -2,6 +2,42 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Runtime and narrow-screen performance pass — 2026-09-17
+
+Version `0.3.0-alpha.12` reduces work on the most-used map and catalogue paths
+without changing scientific products, source identities or numerical methods.
+The infrastructure ranking count no longer joins all 12,722 railway rows when no
+asset filter is present. On the same local database, the first measured request
+fell from 1.330 seconds to 0.697 seconds; subsequent warm requests measured
+0.241–0.278 seconds. These are local observations, not hosted latency claims.
+
+The chart renderer is loaded only when exposure details are opened, removing its
+approximately 180 kB gzip bundle from the initial map route. Infrastructure and
+event list routes no longer load MapLibre until a detail map exists. Route-local
+methodology and About typography reduced the initial stylesheet from 28.86 kB to
+19.63 kB gzip. The remaining map and chart bundles are intentionally deferred
+rather than duplicated or replaced.
+
+Rendered checks covered the desktop map and 390 px Persian map, layer sheet,
+real railway detail, 12,722-row infrastructure catalogue, empty event state and
+methodology formulas. A two-pixel KaTeX rounding overflow on the narrow
+methodology page was clipped at the article boundary; its labelled comparison
+table retains independent horizontal scrolling. The real ranking regression and
+production build passed before the full source checks below were recorded.
+
+Final local acceptance passed the release archive boundary check, Ruff, Pyright,
+25 Python source tests, 19 frontend unit tests, ESLint, TypeScript and the
+production build. One opt-in CLI integration case remained skipped in the
+source-only Python suite by design. The six download-recovery cases required a
+local loopback port and passed outside the restricted filesystem sandbox. The
+running API reports `0.3.0-alpha.12`, readiness returns HTTP 200 and the map route
+returns HTTP 200. The production build still reports the deferred MapLibre and
+ECharts chunks above 500 kB; this is a packaging warning rather than a failed
+check.
+
+No source data, exposure result, event, field observation or user outcome was
+changed or inferred by this work. The railway user-decision gate remains open.
+
 ## Complete local workflow and handoff acceptance — 2026-09-11
 
 Version `0.3.0-alpha.11` completes the available public-data walkthrough through

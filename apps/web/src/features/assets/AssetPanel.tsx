@@ -1,10 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { X, Route } from 'lucide-react'
 import type { InfrastructureFeature, ProductInfo, ProfileSample } from '../../generated/api/forudid'
 import { Button } from '../../components/ui/button'
 import { Status } from '../../components/Status'
 import { useLanguage } from '../../i18n'
-import { ExposureDetails } from './ExposureDetails'
 import { formatDate, formatDateRange } from '../../lib/date'
+
+const ExposureDetails = lazy(() => import('./ExposureDetails').then(module => ({ default: module.ExposureDetails })))
 
 export function AssetPanel({ data, pending, error, retry, close, product, runId, onInspect, selectedSegment, onSelectSegment }: {
   data?: InfrastructureFeature; pending: boolean; error: boolean;
@@ -29,7 +31,7 @@ export function AssetPanel({ data, pending, error, retry, close, product, runId,
       </>}
     </div>
     {data && <div className="point-chart">
-      {product && <ExposureDetails key={`${data.id}/${product.id}/${runId}`} assetId={data.id} productId={product.id} runId={runId} onInspect={onInspect} selectedSegment={selectedSegment} onSelectSegment={onSelectSegment} />}
+      {product && <Suspense fallback={<Status />}><ExposureDetails key={`${data.id}/${product.id}/${runId}`} assetId={data.id} productId={product.id} runId={runId} onInspect={onInspect} selectedSegment={selectedSegment} onSelectSegment={onSelectSegment} /></Suspense>}
       <p>{en ? 'This geometry is one OSM segment and does not necessarily represent a complete route. Network completeness and positional accuracy have not been verified.' : 'این هندسه یک قطعهٔ ثبت‌شده در OSM است و لزوماً یک مسیر کامل نیست. کامل‌بودن شبکه و دقت مکانی آن تأیید نشده است.'}</p>
       {product && <p data-testid="asset-observation-period">{en ? 'Deformation observation period: ' : 'دورهٔ مشاهدهٔ تغییرشکل: '}{formatDateRange(product.start_date, product.end_date, language, product.time_precision)}. {en ? 'The infrastructure snapshot and deformation observations have separate dates; temporal alignment has not been established.' : 'برداشت زیرساخت و مشاهدات تغییرشکل تاریخ‌های مستقلی دارند؛ هم‌زمانی آن‌ها تأیید نشده است.'}</p>}
       <p><a href={data.license_url} target="_blank" rel="noreferrer">{data.attribution} · ODbL 1.0</a></p>

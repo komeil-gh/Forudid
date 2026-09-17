@@ -1,4 +1,6 @@
-import { HoverCard, Tooltip } from 'radix-ui'
+import * as HoverCard from 'radix-ui/hover-card'
+import * as Tooltip from 'radix-ui/tooltip'
+import '@fontsource-variable/noto-naskh-arabic'
 import { useLanguage, type Language } from '../i18n'
 import './about.css'
 

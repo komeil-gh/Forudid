@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Dialog } from 'radix-ui'
+import * as Dialog from 'radix-ui/dialog'
 import { Layers, X } from 'lucide-react'
 import { mapRoute } from '../app/router'
 import { useListProducts, useListPopulationSources, useGetLegend, useGetInfrastructureAsset, useGetAssetExposure, useGetExposureSegments, useGetRegion, useGetPointSummary, useGetPopulationPoint, type ProfileSample } from '../generated/api/forudid'

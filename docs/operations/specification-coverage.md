@@ -32,6 +32,14 @@ passes all 64 browser cases plus 70 distinct API/numerical checks. See
 The railway packet is ready locally. This closes its software preparation and
 handoff work; it does not turn absent participants or field outcomes into evidence.
 
+Alpha.12 is a bounded runtime and narrow-screen performance pass. It defers map,
+chart, methodology font and equation resources until their workflows need them,
+removes an unnecessary unfiltered ranking-count join, and fixes mobile
+methodology overflow. See the
+[performance acceptance record](milestones.md#runtime-and-narrow-screen-performance-pass--2026-09-17).
+It changes no source version, published analysis, numerical method or scientific
+claim, and does not close the railway user-decision gate.
+
 - The V2 MVP definition in [V2 section 160](../v2/MASTER_SPEC.md#160-v2-mvp-definition)
   is complete. It was accepted locally and released as `v0.2.0`.
 - WorldPop 2026 and the COMET Varamin pilot were delivered after V2 acceptance.

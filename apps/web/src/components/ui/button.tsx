@@ -1,4 +1,4 @@
-import { Slot } from 'radix-ui'
+import * as Slot from 'radix-ui/slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'

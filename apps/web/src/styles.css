@@ -143,7 +143,7 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
 .scientific-kicker { margin: 0 0 14px; color: var(--paper-muted); font-size: 11px; font-weight: 500; }
 .methodology-paper-page { min-height: calc(100dvh - 76px); padding: 24px 24px 80px; color: #111; background: #fff;
   font-family: 'Noto Naskh Arabic Variable', serif; }
-.paper { position: relative; width: min(980px, 100%); margin: 0 auto; padding: 64px 70px 76px; background: #fff;
+.paper { position: relative; width: min(980px, 100%); margin: 0 auto; padding: 64px 70px 76px; overflow-x: clip; background: #fff;
   font-size: 13.8px; line-height: 1.62; }
 .paper-en { font-family: KaTeX_Main, 'Times New Roman', serif; font-size: 13.4px; line-height: 1.42; }
 .paper-stamp { position: absolute; top: 235px; left: 17px; color: #999;

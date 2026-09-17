@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useLanguage } from '../i18n'
 import { Status } from '../components/Status'
 import { Button } from '../components/ui/button'
-import { MapCanvas } from '../features/map/MapCanvas'
 import { defaultSearch, type MapSearch } from '../lib/search'
 import { formatDate, formatDateRange } from '../lib/date'
 import { useGetEvent, useGetEventEvidence, useGetEventObservations, useGetEventTimeline, useListEvents } from '../generated/api/forudid'
 import type { EventInfo, MultiPolygonGeometry } from '../generated/api/forudid'
 import './events.css'
+
+const MapCanvas = lazy(() => import('../features/map/MapCanvas').then(module => ({ default: module.MapCanvas })))
 
 const labels: Record<string, [string, string]> = {
   candidate: ['نامزد بررسی', 'Candidate'], under_review: ['در حال بررسی', 'Under review'],
@@ -76,8 +77,8 @@ function EventMap({ geometry }: { geometry: MultiPolygonGeometry }) {
   const [state, setState] = useState<MapSearch>({ ...defaultSearch, infrastructure: 'none' })
   const { t } = useText()
   return <section className="event-map" aria-label={t('نقشهٔ رخداد', 'Event map')}>
-    <MapCanvas state={state} eventGeometry={geometry} inspectEnabled={false}
-      update={values => setState(current => ({ ...current, ...values }))} selectPoint={() => undefined} />
+    <Suspense fallback={<Status />}><MapCanvas state={state} eventGeometry={geometry} inspectEnabled={false}
+      update={values => setState(current => ({ ...current, ...values }))} selectPoint={() => undefined} /></Suspense>
   </section>
 }
 

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.3.0-alpha.12 — 2026-09-17
+
+- Defer the chart renderer until an infrastructure exposure detail is opened, and defer map rendering on infrastructure and event list routes until a detail geometry needs it.
+- Load the methodology font and equation styles only on the pages that use them, reducing initial stylesheet transfer while preserving Persian typesetting and KaTeX output.
+- Avoid joining every infrastructure row when counting unfiltered exposure rankings; preserve the existing filtered count behavior and response contract.
+- Prevent equation rounding from creating page-level horizontal overflow on narrow methodology screens while retaining the comparison table's labelled internal scroll region.
+
 ## 0.3.0-alpha.11 — 2026-09-11
 
 - Keep a failed or missing interval distinct from the whole railway geometry, with visible retry and reset controls on desktop and mobile.

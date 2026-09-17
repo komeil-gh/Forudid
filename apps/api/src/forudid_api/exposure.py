@@ -109,28 +109,36 @@ def ranking(
             scope=scope,
         )
     run, method = row
+    summary_filters = [
+        AssetExposureSummary.analysis_run_id == run.id,
+        AssetExposureSummary.coverage_fraction >= min_coverage,
+    ]
+    asset_filters = []
     query = (
         select(AssetExposureSummary, InfrastructureAsset)
         .join(InfrastructureAsset, AssetExposureSummary.asset_id == InfrastructureAsset.id)
-        .where(
-            AssetExposureSummary.analysis_run_id == run.id,
-            AssetExposureSummary.coverage_fraction >= min_coverage,
-        )
+        .where(*summary_filters)
     )
     if q:
-        query = query.where(
+        asset_filters.append(
             InfrastructureAsset.name.icontains(q, autoescape=True)
             | InfrastructureAsset.external_id.icontains(q, autoescape=True)
         )
     if region is not None:
-        query = query.where(func.ST_Intersects(InfrastructureAsset.geom, region.geom))
+        asset_filters.append(func.ST_Intersects(InfrastructureAsset.geom, region.geom))
+    query = query.where(*asset_filters)
     order = (
         getattr(AssetExposureSummary, sort)
         if sort in ("valid_length_m", "coverage_fraction")
         else AssetExposureSummary.metrics[sort].astext.cast(Float)
     )
     order = order.asc().nullslast() if direction == "asc" else order.desc().nullslast()
-    total = db.scalar(select(func.count()).select_from(query.subquery())) or 0
+    count_query = select(func.count()).select_from(AssetExposureSummary).where(*summary_filters)
+    if asset_filters:
+        count_query = count_query.join(
+            InfrastructureAsset, AssetExposureSummary.asset_id == InfrastructureAsset.id
+        ).where(*asset_filters)
+    total = db.scalar(count_query) or 0
     rows = db.execute(
         query.order_by(order, InfrastructureAsset.id).offset(offset).limit(limit)
     ).all()

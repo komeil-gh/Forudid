@@ -1,4 +1,4 @@
-import { Dialog } from 'radix-ui'
+import * as Dialog from 'radix-ui/dialog'
 import { X } from 'lucide-react'
 import { useGetMetadata, useGetProvenance, type ProductInfo } from '../../generated/api/forudid'
 import { useLanguage } from '../../i18n'
