@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { init, use as registerCharts } from 'echarts/core'
 import { LineChart, CustomChart } from 'echarts/charts'
 import type { CustomSeriesRenderItem } from 'echarts'
@@ -20,6 +20,7 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
   const { language, messages: m } = useLanguage(), en = language === 'en'
   const container = useRef<HTMLDivElement>(null)
   const chart = useRef<ReturnType<typeof init> | null>(null)
+  const [showValues, setShowValues] = useState(false)
   useEffect(() => {
     if (!container.current) return
     const instance = init(container.current, undefined, { renderer: 'canvas' })
@@ -57,9 +58,9 @@ export default function TimeSeriesChart({ data }: { data: TimeSeries }) {
       chart.current?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })}>{m.resetZoom}</Button></div>
     <div className="chart" ref={container} role="img" aria-label={m.chartSummary} dir="ltr" />
     <p className="chart-caption">{m.chartSummary}</p>
-    <details className="series-table"><summary>{m.values}</summary><table><thead><tr>
+    <details className="series-table" onToggle={event => setShowValues(event.currentTarget.open)}><summary>{m.values}</summary>{showValues && <table><thead><tr>
       <th>{m.date}</th><th>{m.displacement}</th></tr></thead><tbody>{data.series.map(epoch =>
       <tr key={epoch.date}><td><time dateTime={epoch.date}>{formatDate(epoch.date, language)}</time></td>
-        <td className="technical">{format(presentation(epoch.displacement, data.unit), 1, en ? 'en-US' : 'fa-IR')}</td></tr>)}</tbody></table></details>
+        <td className="technical">{format(presentation(epoch.displacement, data.unit), 1, en ? 'en-US' : 'fa-IR')}</td></tr>)}</tbody></table>}</details>
   </div>
 }

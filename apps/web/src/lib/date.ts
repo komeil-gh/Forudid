@@ -4,6 +4,23 @@ const locale = (language: Language) => language === 'fa'
   ? 'fa-IR-u-ca-persian-nu-arabext'
   : 'en-GB-u-ca-gregory-nu-latn'
 
+const options = {
+  day: { day: 'numeric', month: 'long', year: 'numeric' },
+  month: { month: 'short', year: 'numeric' },
+  year: { year: 'numeric' },
+} satisfies Record<string, Intl.DateTimeFormatOptions>
+// Only two languages and three precisions: at most six shared formatters.
+const formatters = new Map<string, Intl.DateTimeFormat>()
+function formatter(language: Language, precision: keyof typeof options) {
+  const key = `${language}:${precision}`
+  let result = formatters.get(key)
+  if (!result) {
+    result = new Intl.DateTimeFormat(locale(language), { ...options[precision], timeZone: 'UTC' })
+    formatters.set(key, result)
+  }
+  return result
+}
+
 function parseDate(value: string | number | Date) {
   if (value instanceof Date) return value
   if (typeof value === 'number') return new Date(value)
@@ -15,23 +32,19 @@ function parseDate(value: string | number | Date) {
 }
 
 function calendarYear(value: Date, language: Language) {
-  return new Intl.DateTimeFormat(locale(language), { year: 'numeric', timeZone: 'UTC' }).format(value)
+  return formatter(language, 'year').format(value)
 }
 
 export function formatDate(value: string | number | Date, language: Language) {
   const date = parseDate(value)
   if (Number.isNaN(date.getTime())) return String(value)
-  return new Intl.DateTimeFormat(locale(language), {
-    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
-  }).format(date)
+  return formatter(language, 'day').format(date)
 }
 
 export function formatMonth(value: string | number | Date, language: Language) {
   const date = parseDate(value)
   if (Number.isNaN(date.getTime())) return String(value)
-  return new Intl.DateTimeFormat(locale(language), {
-    month: 'short', year: 'numeric', timeZone: 'UTC',
-  }).format(date)
+  return formatter(language, 'month').format(date)
 }
 
 export function formatDateRange(start: string, end: string, language: Language, precision: 'day' | 'year' = 'day') {

@@ -20,8 +20,8 @@
 .population-cell-value { font-size: 24px; font-weight: 650; margin-block: 8px; }
 .population-point { min-height: 150px; }
 .population-legend strong { font-family: inherit; line-height: 1.7; text-align: start; }
-.maplibregl-ctrl-scale { margin-bottom: 4px !important; }
-.maplibregl-ctrl-attrib-inner { max-height: 120px; overflow-y: auto; }
+.map-canvas .maplibregl-ctrl-scale { margin-bottom: 4px !important; }
+.map-canvas .maplibregl-ctrl-attrib-inner { max-height: 120px; overflow-y: auto; }
 .map-place-label { white-space: nowrap; color: #344746; font: 500 12px/1.5 'Vazirmatn Variable', sans-serif; text-shadow: 0 1px 2px #fff, 1px 0 2px #fff, -1px 0 2px #fff; pointer-events: none; }
 .map-place-label.capital { font-weight: 750; font-size: 13px; }
 .map-country-label { white-space: nowrap; color: #6b7779; font: 600 15px/1.5 'Vazirmatn Variable', sans-serif; text-shadow: 0 1px 3px #fff; pointer-events: none; }
@@ -33,7 +33,7 @@
 .place-results button:hover, .place-results button:focus-visible { background: #eef6f6; }
 .place-results small, .place-results p { color: #63767b; font-size: 11px; }
 .place-results p { padding: 12px; }
-.maplibregl-ctrl-top-right { top: 8px; right: 8px; }
+.map-canvas .maplibregl-ctrl-top-right { top: 8px; right: 8px; }
 .map-guidance { position: absolute; inset-inline: 20px; bottom: calc(var(--attribution-height, 20px) + 10px); display: flex; align-items: end; justify-content: space-between; gap: 12px; pointer-events: none; }
 [dir=rtl] .map-guidance { flex-direction: row-reverse; }
 .map-guidance > .legend, .map-guidance > .map-hint { position: static; pointer-events: auto; flex-shrink: 0; }
@@ -45,7 +45,7 @@
 }
 @media (max-width: 760px) {
   .map-place-search { left: 12px; top: 70px; }
-  .maplibregl-ctrl-top-right { top: 119px; right: 2px; }
+  .map-canvas .maplibregl-ctrl-top-right { top: 119px; right: 2px; }
   .map-page { height: calc(100dvh - 64px); }
   .map-modes { gap: 2px; padding-inline: 8px; }
   .map-modes button { flex: 1; min-width: 0; padding-inline: 4px; font-size: 12px; }

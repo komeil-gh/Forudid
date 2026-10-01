@@ -64,10 +64,10 @@ input[type='radio'] { width: 17px; height: 17px; accent-color: var(--accent); fl
 .map-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: #eaf0f3; }
 .map-region { position: relative; flex: 1; min-height: 260px; }
 .map-canvas { position: absolute; inset: 0; }
-.maplibregl-ctrl-top-left { top: 70px; left: 10px; }
-.maplibregl-ctrl-group { border: 1px solid var(--border); box-shadow: 0 1px 5px #243b4a12 !important; }
-.maplibregl-ctrl-group button { width: 38px; height: 38px; }
-.maplibregl-ctrl-attrib { font-size: 10px; font-family: inherit; }
+.map-canvas .maplibregl-ctrl-top-left { top: 70px; left: 10px; }
+.map-canvas .maplibregl-ctrl-group { border: 1px solid var(--border); box-shadow: 0 1px 5px #243b4a12 !important; }
+.map-canvas .maplibregl-ctrl-group button { width: 38px; height: 38px; }
+.map-canvas .maplibregl-ctrl-attrib { font-size: 10px; font-family: inherit; }
 .map-tools { display: flex; gap: 8px; position: absolute; top: 18px; left: 20px; }
 .map-tools .button { font-size: 11px; box-shadow: 0 1px 6px #243b4a0d; }
 .map-warning { position: absolute; inset-inline: 25px; top: 74px; background: #fff4e4; padding: 12px; font-size: 12px; }
@@ -250,8 +250,8 @@ pre { padding: 16px; background: #f3f6f8; border: 1px solid var(--border); font-
   .map-workspace { height: 100%; } .map-region { min-height: 260px; }
   .map-tools { left: 12px; top: 14px; } .map-tools .button { min-height: 44px; padding: 7px 10px; }
   .mobile-layer-button { display: flex; position: absolute; right: 12px; top: 14px; min-height: 44px; font-size: 12px; }
-  .maplibregl-ctrl-top-left { left: 2px; top: 68px; }
-  .maplibregl-ctrl-group button { width: 40px; height: 40px; }
+  .map-canvas .maplibregl-ctrl-top-left { left: 2px; top: 68px; }
+  .map-canvas .maplibregl-ctrl-group button { width: 40px; height: 40px; }
   .map-hint { bottom: 180px; left: 12px; font-size: 11px; max-width: calc(100% - 24px); }
   .legend { left: 12px; bottom: calc(var(--attribution-height, 20px) + 10px); width: 250px; padding: 12px; }
   .has-point .legend { width: 210px; bottom: calc(var(--attribution-height, 20px) + 10px); padding: 9px 11px; }

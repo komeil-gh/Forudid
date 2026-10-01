@@ -2,6 +2,38 @@
 
 This record separates implementation, workflow acceptance and scientific validation. Failed or skipped checks do not complete a milestone. Historical entries below describe their dated checkpoints, not current runtime health. The V2 MVP acceptance does not establish completion of every V2 or V3 master requirement.
 
+## Lightweight frontend pass — 2026-10-01
+
+Version `0.3.0-alpha.13` moves MapLibre CSS into the deferred renderer. On the
+same locked Vite build, initial CSS decreased from 118.29 kB to 35.56 kB raw,
+and from 19.63 kB to 8.97 kB gzip. The map still receives its complete stylesheet;
+this reduces text-page loading, not total map assets. Large deferred map/chart
+chunks remain unchanged and retain the existing build warning.
+
+Shared date/number formatting avoids constructing an Intl formatter per value.
+Date formatting retains at most six language/precision instances; number
+formatting is bounded to sixteen combinations. A local Node 22 microbenchmark
+formatted 323 timestamp/number pairs, taking the median of seven batches per
+language. Persian cost decreased from 25.44 ms to 0.55 ms and English from
+25.01 ms to 0.59 ms. These are isolated formatting measurements, not page-load,
+heap-size, API latency or scientific-validation claims.
+
+Time-series values are mounted only while their disclosure is open. Regression
+coverage checks lazy rows, valid zero, missing observations, Persian dates,
+formatter reuse/eviction and chart disposal without reinitializing on toggle.
+All 22 frontend tests, ESLint, TypeScript and the production build passed. The
+runtime OpenAPI contract and application/package versions match alpha.13.
+Rendered checks covered the desktop About letter, English mobile About and
+bilingual 390 px methodology, seven unchanged equations, deferred styles and map
+controls at 390 and 1440 px. Canvas-scoped overrides retain 40 px mobile and
+38 px desktop buttons despite deferred vendor CSS. The inspected desktop About,
+mobile methodology and both map widths have no page-level horizontal overflow.
+
+No Docker, API or database service was started. Live raster, exposure and
+backend integration were not rerun; the offline map correctly retained its
+unavailable-service states. The temporary preview and browser tab were closed.
+Scientific source files, immutable methods and published results were untouched.
+
 ## Runtime and narrow-screen performance pass — 2026-09-17
 
 Version `0.3.0-alpha.12` reduces work on the most-used map and catalogue paths

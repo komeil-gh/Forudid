@@ -9,6 +9,7 @@ import { apiBase } from '../../lib/api'
 import { useLanguage } from '../../i18n'
 import { Button } from '../../components/ui/button'
 import { MapContext, PlaceSearch } from './MapContext'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import './modes.css'
 
 maplibre.setWorkerUrl(workerUrl)

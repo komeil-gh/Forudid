@@ -7,7 +7,6 @@ import { LanguageProvider } from './i18n'
 import '@fontsource-variable/vazirmatn'
 import '@fontsource-variable/estedad'
 import '@fontsource-variable/source-serif-4'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import './styles.css'
 const client = new QueryClient({ defaultOptions: { queries: {
   staleTime: 60_000, retry: 1, refetchOnWindowFocus: false,

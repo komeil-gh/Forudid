@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.3.0-alpha.13 — 2026-10-01
+
+- Load MapLibre styles with the map renderer rather than on every page; preserve control sizing and positions regardless of stylesheet load order.
+- Reuse bounded date and number formatters while preserving Persian/Gregorian calendars, UTC dates, rounding, valid zero and missing values.
+- Build time-series table rows only while the values disclosure is expanded, without recreating the chart on disclosure changes.
+- Verify frontend behavior without starting Docker or backend services; retain the existing scientific products and numerical methods.
+
 ## 0.3.0-alpha.12 — 2026-09-17
 
 - Defer the chart renderer until an infrastructure exposure detail is opened, and defer map rendering on infrastructure and event list routes until a detail geometry needs it.

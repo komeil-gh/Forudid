@@ -32,6 +32,9 @@ explicit foreground commands; the original Compose worker is the fixture command
 - Camera state enters the URL at the end of a move; selected-point coordinates remain independent.
 - Point query keys include product/run and coordinates. AbortSignal passes through Query to fetch.
 - ECharts loads lazily with the required modules. MapLibre loads with map routes.
+- MapLibre styles load with the renderer, not with text or catalogue-only pages. Map control overrides are scoped to the map canvas so late vendor styles do not change their layout.
+- Date formatters are reused for the two supported languages and three precisions (at most six instances). Number formatting keeps at most sixteen locale/precision combinations; missing values bypass formatting.
+- Time-series table rows exist only while their native disclosure is expanded. Opening or closing it does not recreate the chart or reset its zoom.
 - API errors have a public Persian message and request ID; stack traces and signed URLs stay private.
 - A time-series failure does not stop the map. Failed QC/summary requests must not show unqualified values.
 - Product listing batches AOI and asset reads to avoid N+1 queries.
